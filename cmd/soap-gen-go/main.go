@@ -83,12 +83,22 @@ func generateTypesFile(schema *xsd10.Schema, packageName, outputDir, filename st
 	g.P("package ", packageName)
 	g.P()
 
-	// Note: We always need encoding/xml for struct tags, but Go will complain
-	// if we import it without using it in the code. We'll add it as a comment
-	// for now since the XML tags don't count as "usage" for the compiler.
-	g.P("// This package uses XML tags for marshaling/unmarshaling")
-	g.P("// import \"encoding/xml\" // Uncomment if you need to marshal/unmarshal XML")
-	g.P()
+	// Collect all required imports by analyzing the types used
+	requiredImports := make(map[string]bool)
+	for _, element := range schema.Elements {
+		if element.ComplexType != nil {
+			collectRequiredImports(&element, requiredImports)
+		}
+	}
+
+	// Add imports
+	for imp := range requiredImports {
+		g.Import(imp)
+	}
+
+	if len(requiredImports) > 0 {
+		g.P()
+	}
 
 	// Generate types for each top-level element
 	for _, element := range schema.Elements {
@@ -110,6 +120,19 @@ func generateTypesFile(schema *xsd10.Schema, packageName, outputDir, filename st
 
 	fmt.Printf("Generated %s\n", outputPath)
 	return nil
+}
+
+// collectRequiredImports recursively collects all import statements needed for the given element
+func collectRequiredImports(element *xsd10.Element, imports map[string]bool) {
+	if element.ComplexType != nil && element.ComplexType.Sequence != nil {
+		for _, fieldElement := range element.ComplexType.Sequence.Elements {
+			// Parse the type and check if it requires any imports
+			parsedType := xsd10.ParseType(fieldElement.Type)
+			for _, imp := range parsedType.RequiresImport() {
+				imports[imp] = true
+			}
+		}
+	}
 }
 
 // generateStructFromElement generates a Go struct from an XSD element
@@ -177,53 +200,9 @@ func toGoName(name string) string {
 	return result.String()
 }
 
-// mapXSDTypeToGo maps XSD types to Go types
+// mapXSDTypeToGo maps XSD types to Go types using the xsd10 type system.
 func mapXSDTypeToGo(xsdType string) string {
-	// Remove namespace prefix if present
-	parts := strings.Split(xsdType, ":")
-	if len(parts) == 2 {
-		xsdType = parts[1]
-	}
-	switch xsdType {
-	case "string":
-		return "string"
-	case "int", "integer":
-		return "int"
-	case "long":
-		return "int64"
-	case "unsignedLong":
-		return "uint64"
-	case "short":
-		return "int16"
-	case "unsignedShort":
-		return "uint16"
-	case "byte":
-		return "int8"
-	case "unsignedByte":
-		return "uint8"
-	case "decimal", "double":
-		return "float64"
-	case "float":
-		return "float32"
-	case "boolean":
-		return "bool"
-	case "dateTime":
-		return "string" // TODO: Consider using time.Time
-	case "date":
-		return "string" // TODO: Consider using time.Time
-	case "time":
-		return "string" // TODO: Consider using time.Time
-	case "duration":
-		return "string" // TODO: Consider using time.Duration
-	case "base64Binary":
-		return "[]byte"
-	case "hexBinary":
-		return "[]byte"
-	case "anyURI":
-		return "string"
-	case "QName":
-		return "string"
-	default:
-		return "string" // Default to string for unknown types
-	}
+	// Parse the XSD type using our comprehensive type system
+	parsedType := xsd10.ParseType(xsdType)
+	return parsedType.ToGoType()
 }

@@ -1,8 +1,5 @@
 package globalweather
 
-// This package uses XML tags for marshaling/unmarshaling
-// import "encoding/xml" // Uncomment if you need to marshal/unmarshal XML
-
 // GetWeather represents the GetWeather element
 type GetWeather struct {
 	CityName    string `xml:"CityName"`

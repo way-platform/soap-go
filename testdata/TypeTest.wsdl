@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    targetNamespace="http://example.com/typetest"
+    xmlns:tns="http://example.com/typetest">
+
+    <types>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://example.com/typetest"
+            elementFormDefault="qualified">
+
+            <!-- Test request with various primitive types -->
+            <xs:element name="TypeTestRequest">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="stringField" type="xs:string" />
+                        <xs:element name="booleanField" type="xs:boolean" />
+                        <xs:element name="intField" type="xs:int" />
+                        <xs:element name="longField" type="xs:long" />
+                        <xs:element name="shortField" type="xs:short" />
+                        <xs:element name="byteField" type="xs:byte" />
+                        <xs:element name="floatField" type="xs:float" />
+                        <xs:element name="doubleField" type="xs:double" />
+                        <xs:element name="decimalField" type="xs:decimal" />
+                        <xs:element name="dateTimeField" type="xs:dateTime" />
+                        <xs:element name="dateField" type="xs:date" />
+                        <xs:element name="timeField" type="xs:time" />
+                        <xs:element name="durationField" type="xs:duration" />
+                        <xs:element name="unsignedLongField" type="xs:unsignedLong" />
+                        <xs:element name="unsignedIntField" type="xs:unsignedInt" />
+                        <xs:element name="unsignedShortField" type="xs:unsignedShort" />
+                        <xs:element name="unsignedByteField" type="xs:unsignedByte" />
+                        <xs:element name="integerField" type="xs:integer" />
+                        <xs:element name="positiveIntegerField" type="xs:positiveInteger" />
+                        <xs:element name="nonNegativeIntegerField" type="xs:nonNegativeInteger" />
+                        <xs:element name="negativeIntegerField" type="xs:negativeInteger" />
+                        <xs:element name="nonPositiveIntegerField" type="xs:nonPositiveInteger" />
+                        <xs:element name="normalizedStringField" type="xs:normalizedString" />
+                        <xs:element name="tokenField" type="xs:token" />
+                        <xs:element name="languageField" type="xs:language" />
+                        <xs:element name="nmtokenField" type="xs:NMTOKEN" />
+                        <xs:element name="nameField" type="xs:Name" />
+                        <xs:element name="ncnameField" type="xs:NCName" />
+                        <xs:element name="idField" type="xs:ID" />
+                        <xs:element name="idrefField" type="xs:IDREF" />
+                        <xs:element name="anyUriField" type="xs:anyURI" />
+                        <xs:element name="qnameField" type="xs:QName" />
+                        <xs:element name="hexBinaryField" type="xs:hexBinary" />
+                        <xs:element name="base64BinaryField" type="xs:base64Binary" />
+                        <xs:element name="gYearField" type="xs:gYear" />
+                        <xs:element name="gMonthField" type="xs:gMonth" />
+                        <xs:element name="gDayField" type="xs:gDay" />
+                        <xs:element name="gYearMonthField" type="xs:gYearMonth" />
+                        <xs:element name="gMonthDayField" type="xs:gMonthDay" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- Test response -->
+            <xs:element name="TypeTestResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="result" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+        </xs:schema>
+    </types>
+
+    <!-- Message definitions -->
+    <message name="TypeTestRequestMessage">
+        <part name="request" element="tns:TypeTestRequest" />
+    </message>
+
+    <message name="TypeTestResponseMessage">
+        <part name="response" element="tns:TypeTestResponse" />
+    </message>
+
+    <!-- Port type definitions -->
+    <portType name="TypeTestPortType">
+        <operation name="TypeTest">
+            <input message="tns:TypeTestRequestMessage" />
+            <output message="tns:TypeTestResponseMessage" />
+        </operation>
+    </portType>
+
+</definitions>

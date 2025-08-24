@@ -1,8 +1,5 @@
 package numberconversion
 
-// This package uses XML tags for marshaling/unmarshaling
-// import "encoding/xml" // Uncomment if you need to marshal/unmarshal XML
-
 // NumberToWords represents the NumberToWords element
 type NumberToWords struct {
 	UbiNum uint64 `xml:"ubiNum"`

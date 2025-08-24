@@ -304,7 +304,10 @@ func TestFile_MultipleOperations(t *testing.T) {
 	file := codegen.NewFile("complex.go")
 
 	// Test io.Writer interface
-	file.Write([]byte("// Generated code\n"))
+	_, err := file.Write([]byte("// Generated code\n"))
+	if err != nil {
+		t.Fatalf("Write() should not fail: %v", err)
+	}
 
 	// Test P method
 	file.P("package main")
