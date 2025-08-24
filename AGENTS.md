@@ -6,6 +6,8 @@ When developing this SDK, use the WSDL and SOAP specifications in [docs](./docs)
 
 - [SOAP 1.1](./docs/soap-1.1.md)
 - [WSDL 1.1](./docs/wsdl-1.1.md)
+- [XSD 1.0 (Structures)](./docs/xsd-1.0-structures.md)
+- [XSD 1.0 (Data Types)](./docs/xsd-1.0-datatypes.md)
 
 ## Structure
 
