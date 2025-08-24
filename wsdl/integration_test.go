@@ -8,7 +8,7 @@ import (
 
 func TestParseNumberConversion(t *testing.T) {
 	// Test parsing NumberConversion.wsdl using the new ParseFromFile function
-	defs, err := wsdl.ParseFromFile("../testdata/NumberConversion.wsdl")
+	defs, err := wsdl.ParseFromFile("testdata/NumberConversion.wsdl")
 	if err != nil {
 		t.Fatalf("failed to parse NumberConversion.wsdl: %v", err)
 	}
@@ -129,7 +129,7 @@ func TestParseNumberConversion(t *testing.T) {
 
 func TestParseGlobalWeatherWithNewAPI(t *testing.T) {
 	// Test parsing GlobalWeather.wsdl using the new ParseFromFile function
-	defs, err := wsdl.ParseFromFile("../testdata/GlobalWeather.wsdl")
+	defs, err := wsdl.ParseFromFile("testdata/GlobalWeather.wsdl")
 	if err != nil {
 		t.Fatalf("failed to parse GlobalWeather.wsdl: %v", err)
 	}

@@ -1,5 +1,7 @@
 package xsd
 
+import "strings"
+
 // Type represents an XSD datatype as defined in XML Schema Part 2: Datatypes.
 // This enum captures all primitive and built-in derived types from the XSD 1.0 specification.
 type Type string
@@ -280,8 +282,8 @@ func (t Type) ToGoType() string {
 		return "string"
 
 	default:
-		// For unknown types, default to string
-		return "string"
+		// For custom/unknown types, convert to proper Go type name
+		return ToGoTypeName(string(t))
 	}
 }
 
@@ -297,26 +299,53 @@ func (t Type) RequiresImport() []string {
 	}
 }
 
+// IsCustomType returns true if the type is not a built-in XSD type
+func (t Type) IsCustomType() bool {
+	return !t.IsBuiltIn()
+}
+
+// ToGoTypeName converts a type name to a proper Go type name using PascalCase
+func ToGoTypeName(name string) string {
+	if name == "" {
+		return "string"
+	}
+
+	// Split on common separators and capitalize each part
+	parts := strings.FieldsFunc(name, func(r rune) bool {
+		return r == '_' || r == '-' || r == '.' || r == ':'
+	})
+
+	var result strings.Builder
+	for _, part := range parts {
+		if len(part) > 0 {
+			result.WriteString(strings.ToUpper(part[:1]))
+			if len(part) > 1 {
+				result.WriteString(strings.ToLower(part[1:]))
+			}
+		}
+	}
+
+	// Handle the case where name doesn't need splitting
+	if len(parts) <= 1 {
+		result.Reset()
+		result.WriteString(strings.ToUpper(name[:1]))
+		if len(name) > 1 {
+			result.WriteString(name[1:])
+		}
+	}
+
+	return result.String()
+}
+
 // ParseType parses a string representation of an XSD type and returns the corresponding Type.
 // It handles both local names (e.g., "string") and qualified names (e.g., "xs:string", "xsd:string").
 func ParseType(typeStr string) Type {
 	// Handle qualified names by extracting the local part
-	if colonIdx := lastIndexOf(typeStr, ":"); colonIdx != -1 {
+	if colonIdx := strings.LastIndex(typeStr, ":"); colonIdx != -1 {
 		typeStr = typeStr[colonIdx+1:]
 	}
 
 	return Type(typeStr)
-}
-
-// lastIndexOf returns the last index of substr in s, or -1 if not found.
-func lastIndexOf(s, substr string) int {
-	idx := -1
-	for i := 0; i <= len(s)-len(substr); i++ {
-		if s[i:i+len(substr)] == substr {
-			idx = i
-		}
-	}
-	return idx
 }
 
 // String returns the string representation of the type.

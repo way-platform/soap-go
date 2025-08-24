@@ -14,6 +14,26 @@ func Parse(r io.Reader) (*Schema, error) {
 	return &schema, nil
 }
 
+// ResolveSimpleType finds a simple type definition by name
+func (s *Schema) ResolveSimpleType(typeName string) *SimpleType {
+	for i := range s.SimpleTypes {
+		if s.SimpleTypes[i].Name == typeName {
+			return &s.SimpleTypes[i]
+		}
+	}
+	return nil
+}
+
+// ResolveComplexType finds a complex type definition by name
+func (s *Schema) ResolveComplexType(typeName string) *ComplexType {
+	for i := range s.ComplexTypes {
+		if s.ComplexTypes[i].Name == typeName {
+			return &s.ComplexTypes[i]
+		}
+	}
+	return nil
+}
+
 // Schema represents an <xsd:schema> element.
 type Schema struct {
 	XMLName              xml.Name `xml:"schema"`
