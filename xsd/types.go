@@ -1,4 +1,4 @@
-package xsd10
+package xsd
 
 // Type represents an XSD datatype as defined in XML Schema Part 2: Datatypes.
 // This enum captures all primitive and built-in derived types from the XSD 1.0 specification.

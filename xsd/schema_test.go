@@ -1,11 +1,11 @@
-package xsd10_test
+package xsd_test
 
 import (
 	"os"
 	"strings"
 	"testing"
 
-	"github.com/way-platform/soap-go/xsd10"
+	"github.com/way-platform/soap-go/xsd"
 )
 
 func TestParseSoapEnvelope(t *testing.T) {
@@ -16,7 +16,7 @@ func TestParseSoapEnvelope(t *testing.T) {
 	}
 
 	// Parse the XSD
-	schema, err := xsd10.Parse(strings.NewReader(string(data)))
+	schema, err := xsd.Parse(strings.NewReader(string(data)))
 	if err != nil {
 		t.Fatalf("failed to parse soap-envelope.xsd: %v", err)
 	}
@@ -67,7 +67,7 @@ func TestParseSoapEnvelope(t *testing.T) {
 	}
 
 	// Check that Envelope complex type has a sequence
-	var envelopeType *xsd10.ComplexType
+	var envelopeType *xsd.ComplexType
 	for _, ct := range schema.ComplexTypes {
 		if ct.Name == "Envelope" {
 			envelopeType = &ct
@@ -119,7 +119,7 @@ func TestParseIBM(t *testing.T) {
 	}
 
 	// Parse the XSD
-	schema, err := xsd10.Parse(strings.NewReader(string(data)))
+	schema, err := xsd.Parse(strings.NewReader(string(data)))
 	if err != nil {
 		t.Fatalf("failed to parse ibm.xsd: %v", err)
 	}
@@ -153,7 +153,7 @@ func TestParseIBM(t *testing.T) {
 	}
 
 	// Check that Severity simple type has restriction with enumerations
-	var severityType *xsd10.SimpleType
+	var severityType *xsd.SimpleType
 	for _, st := range schema.SimpleTypes {
 		if st.Name == "Severity" {
 			severityType = &st
@@ -185,7 +185,7 @@ func TestParseIBM(t *testing.T) {
 	}
 
 	// Check complex content and extension
-	var testSuiteRunType *xsd10.ComplexType
+	var testSuiteRunType *xsd.ComplexType
 	for _, ct := range schema.ComplexTypes {
 		if ct.Name == "TestSuiteRun" {
 			testSuiteRunType = &ct
@@ -223,7 +223,7 @@ func TestParseInvalidXSD(t *testing.T) {
 	invalidXSD := `<?xml version="1.0"?>
 <invalid>not an XSD</invalid>`
 
-	_, err := xsd10.Parse(strings.NewReader(invalidXSD))
+	_, err := xsd.Parse(strings.NewReader(invalidXSD))
 	if err == nil {
 		t.Error("expected error parsing invalid XSD, got nil")
 	}
@@ -234,7 +234,7 @@ func TestParseEmptySchema(t *testing.T) {
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 </xs:schema>`
 
-	schema, err := xsd10.Parse(strings.NewReader(emptySchema))
+	schema, err := xsd.Parse(strings.NewReader(emptySchema))
 	if err != nil {
 		t.Fatalf("failed to parse empty schema: %v", err)
 	}
@@ -267,7 +267,7 @@ func TestParseSchemaWithAnnotations(t *testing.T) {
 	</xs:element>
 </xs:schema>`
 
-	schema, err := xsd10.Parse(strings.NewReader(schemaWithAnnotations))
+	schema, err := xsd.Parse(strings.NewReader(schemaWithAnnotations))
 	if err != nil {
 		t.Fatalf("failed to parse schema with annotations: %v", err)
 	}

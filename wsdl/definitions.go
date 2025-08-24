@@ -1,10 +1,10 @@
-package wsdl11
+package wsdl
 
 import (
 	"encoding/xml"
 	"os"
 
-	"github.com/way-platform/soap-go/xsd10"
+	"github.com/way-platform/soap-go/xsd"
 )
 
 // ParseFromFile reads a WSDL file from disk and unmarshals it.
@@ -44,7 +44,7 @@ type Import struct {
 
 // Types corresponds to the <types> element.
 type Types struct {
-	Schemas []xsd10.Schema `xml:"schema"`
+	Schemas []xsd.Schema `xml:"schema"`
 }
 
 // Message corresponds to the <message> element.
