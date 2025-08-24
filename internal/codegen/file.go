@@ -41,6 +41,11 @@ func (g *File) Import(importPath string) {
 	g.imports[importPath] = true
 }
 
+// Filename returns the filename of the file.
+func (g *File) Filename() string {
+	return g.filename
+}
+
 // Write implements [io.Writer].
 func (g *File) Write(p []byte) (n int, err error) {
 	return g.buf.Write(p)

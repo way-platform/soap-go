@@ -20,3 +20,8 @@ type GetCitiesByCountry struct {
 type GetCitiesByCountryResponse struct {
 	GetCitiesByCountryResult *string `xml:"GetCitiesByCountryResult"`
 }
+
+// String represents the string element
+type String struct {
+	Value string `xml:",chardata"`
+}

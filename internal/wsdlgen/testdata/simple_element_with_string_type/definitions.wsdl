@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:tns="http://example.com/test"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             targetNamespace="http://example.com/test">
+  <types>
+    <xsd:schema targetNamespace="http://example.com/test">
+      <xsd:element name="TestElement" type="xsd:string"/>
+    </xsd:schema>
+  </types>
+</definitions>
