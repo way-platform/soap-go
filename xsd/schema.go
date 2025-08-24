@@ -1,4 +1,4 @@
-package xsd10
+package xsd
 
 import (
 	"encoding/xml"

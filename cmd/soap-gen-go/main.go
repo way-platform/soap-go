@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	"github.com/way-platform/soap-go/internal/codegen"
-	"github.com/way-platform/soap-go/wsdl11"
-	"github.com/way-platform/soap-go/xsd10"
+	"github.com/way-platform/soap-go/wsdl"
+	"github.com/way-platform/soap-go/xsd"
 )
 
 func main() {
@@ -44,7 +44,7 @@ type config struct {
 
 func run(cfg config) error {
 	// Parse the WSDL file
-	defs, err := wsdl11.ParseFromFile(cfg.inputFile)
+	defs, err := wsdl.ParseFromFile(cfg.inputFile)
 	if err != nil {
 		return fmt.Errorf("failed to parse WSDL file: %w", err)
 	}
@@ -75,7 +75,7 @@ func run(cfg config) error {
 }
 
 // generateTypesFile generates a Go file with types from an XSD schema
-func generateTypesFile(schema *xsd10.Schema, packageName, outputDir, filename string) error {
+func generateTypesFile(schema *xsd.Schema, packageName, outputDir, filename string) error {
 	outputPath := filepath.Join(outputDir, filename)
 	g := codegen.NewFile(outputPath)
 
@@ -123,11 +123,11 @@ func generateTypesFile(schema *xsd10.Schema, packageName, outputDir, filename st
 }
 
 // collectRequiredImports recursively collects all import statements needed for the given element
-func collectRequiredImports(element *xsd10.Element, imports map[string]bool) {
+func collectRequiredImports(element *xsd.Element, imports map[string]bool) {
 	if element.ComplexType != nil && element.ComplexType.Sequence != nil {
 		for _, fieldElement := range element.ComplexType.Sequence.Elements {
 			// Parse the type and check if it requires any imports
-			parsedType := xsd10.ParseType(fieldElement.Type)
+			parsedType := xsd.ParseType(fieldElement.Type)
 			for _, imp := range parsedType.RequiresImport() {
 				imports[imp] = true
 			}
@@ -136,7 +136,7 @@ func collectRequiredImports(element *xsd10.Element, imports map[string]bool) {
 }
 
 // generateStructFromElement generates a Go struct from an XSD element
-func generateStructFromElement(g *codegen.File, element *xsd10.Element) {
+func generateStructFromElement(g *codegen.File, element *xsd.Element) {
 	structName := toGoName(element.Name)
 
 	// Add comment
@@ -158,7 +158,7 @@ func generateStructFromElement(g *codegen.File, element *xsd10.Element) {
 }
 
 // generateStructField generates a Go struct field from an XSD element
-func generateStructField(g *codegen.File, element *xsd10.Element) {
+func generateStructField(g *codegen.File, element *xsd.Element) {
 	fieldName := toGoName(element.Name)
 	goType := mapXSDTypeToGo(element.Type)
 	xmlName := element.Name
@@ -203,6 +203,6 @@ func toGoName(name string) string {
 // mapXSDTypeToGo maps XSD types to Go types using the xsd10 type system.
 func mapXSDTypeToGo(xsdType string) string {
 	// Parse the XSD type using our comprehensive type system
-	parsedType := xsd10.ParseType(xsdType)
+	parsedType := xsd.ParseType(xsdType)
 	return parsedType.ToGoType()
 }
