@@ -1,10 +1,30 @@
 package wsdl11
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+	"os"
+
+	"github.com/way-platform/soap-go/xsd10"
+)
+
+// ParseFromFile reads a WSDL file from disk and unmarshals it.
+func ParseFromFile(filename string) (*Definitions, error) {
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	var defs Definitions
+	if err := xml.Unmarshal(data, &defs); err != nil {
+		return nil, err
+	}
+	return &defs, nil
+}
 
 // Definitions represents a WSDL 1.1 file, corresponding to the <definitions> element.
+// It can handle both namespaced and non-namespaced WSDL documents.
 type Definitions struct {
-	XMLName         xml.Name `xml:"http://schemas.xmlsoap.org/wsdl/ definitions"`
+	XMLName         xml.Name `xml:"definitions"`
 	TargetNamespace string   `xml:"targetNamespace,attr"`
 	Name            string   `xml:"name,attr"`
 
@@ -24,13 +44,7 @@ type Import struct {
 
 // Types corresponds to the <types> element.
 type Types struct {
-	Schemas []Schema `xml:"http://www.w3.org/2001/XMLSchema schema"`
-}
-
-// Schema represents an <xsd:schema> element.
-// For now, we capture its raw content.
-type Schema struct {
-	Content []byte `xml:",innerxml"`
+	Schemas []xsd10.Schema `xml:"schema"`
 }
 
 // Message corresponds to the <message> element.

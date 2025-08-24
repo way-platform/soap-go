@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/way-platform/soap-go/wsdl11"
+	"github.com/way-platform/soap-go/xsd10"
 )
 
 func TestUnmarshalGlobalWeather(t *testing.T) {
@@ -31,7 +32,7 @@ func TestUnmarshalGlobalWeather(t *testing.T) {
 		},
 		TargetNamespace: "http://www.webserviceX.NET",
 		Types: &wsdl11.Types{
-			Schemas: []wsdl11.Schema{
+			Schemas: []xsd10.Schema{
 				{},
 			},
 		},
@@ -163,10 +164,27 @@ func TestUnmarshalGlobalWeather(t *testing.T) {
 		},
 	}
 
-	// We can ignore the schema content for now, as it's complex and not our focus.
-	if defs.Types != nil && len(defs.Types.Schemas) > 0 {
-		defs.Types.Schemas[0].Content = nil
+	// Verify that the schema was parsed correctly, but don't check exact content
+	// as it's complex and not the focus of this test.
+	if defs.Types == nil || len(defs.Types.Schemas) == 0 {
+		t.Fatal("expected to parse schema content, but got none")
 	}
+
+	schema := defs.Types.Schemas[0]
+	if schema.TargetNamespace != "http://www.webserviceX.NET" {
+		t.Errorf("expected schema targetNamespace to be 'http://www.webserviceX.NET', got %q", schema.TargetNamespace)
+	}
+
+	if schema.ElementFormDefault != "qualified" {
+		t.Errorf("expected schema elementFormDefault to be 'qualified', got %q", schema.ElementFormDefault)
+	}
+
+	if len(schema.Elements) != 5 {
+		t.Errorf("expected 5 schema elements, got %d", len(schema.Elements))
+	}
+
+	// Replace with a simple empty schema for the comparison test
+	defs.Types.Schemas[0] = xsd10.Schema{}
 
 	if diff := cmp.Diff(expected, defs); diff != "" {
 		t.Errorf("Definitions mismatch (-want +got):\n%s", diff)
