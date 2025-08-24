@@ -1,39 +1,38 @@
-package main
+package gen
 
 import (
-	"flag"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/spf13/cobra"
 	"github.com/way-platform/soap-go/internal/codegen"
 	"github.com/way-platform/soap-go/wsdl"
 	"github.com/way-platform/soap-go/xsd"
 )
 
-func main() {
-	inputFile := flag.String("i", "", "input WSDL file")
-	outputDir := flag.String("d", "", "output directory")
-	packageName := flag.String("p", "", "Go package name")
-	flag.Parse()
-	if *inputFile == "" {
-		log.Fatal("input file is required")
+// NewCommand creates a new [cobra.Command] for the gen command.
+func NewCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "gen",
+		Short:   "Generate code for a SOAP API",
+		GroupID: "gen",
 	}
-	if *outputDir == "" {
-		log.Fatal("output directory is required")
+	inputFile := cmd.Flags().StringP("input", "i", "", "input WSDL file (required)")
+	_ = cmd.MarkFlagRequired("input")
+	outputDir := cmd.Flags().StringP("dir", "d", "", "output directory (required)")
+	_ = cmd.MarkFlagRequired("dir")
+	packageName := cmd.Flags().StringP("package", "p", "", "Go package name (required)")
+	_ = cmd.MarkFlagRequired("package")
+	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		return run(config{
+			inputFile:   *inputFile,
+			outputDir:   *outputDir,
+			packageName: *packageName,
+		})
 	}
-	if *packageName == "" {
-		log.Fatal("package name is required")
-	}
-	if err := run(config{
-		inputFile:   *inputFile,
-		outputDir:   *outputDir,
-		packageName: *packageName,
-	}); err != nil {
-		log.Fatal(err)
-	}
+	return cmd
 }
 
 type config struct {
