@@ -24,7 +24,7 @@ The non-normative appendices include the [DTD for Schemas (non-normative) (§G)]
 
 This document is primarily intended as a language definition reference. As such, although it contains a few examples, it is _not_ primarily designed to serve as a motivating introduction to the design and its features, or as a tutorial for new users. Rather it presents a careful and fully explicit definition of that design, suitable for guiding implementations. For those in search of a step-by-step introduction to the design, the non-normative [[XML Schema: Primer]](https://www.w3.org/TR/xmlschema-1/#bib-expo) is a much better starting point than this document.
 
-### [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#intro-relatedWork)1.1 Purpose
+### 1.1 Purpose
 
 The purpose of _XML Schema: Structures_ is to define the nature of XML schemas and their component parts, provide an inventory of XML markup constructs with which to represent schemas, and define the application of schemas to XML documents.
 
@@ -32,13 +32,13 @@ The purpose of an _XML Schema: Structures_ schema is to define and describe a cl
 
 Any application that consumes well-formed XML can use the _XML Schema: Structures_ formalism to express syntactic, structural and value constraints applicable to its document instances. The _XML Schema: Structures_ formalism allows a useful level of constraint checking to be described and implemented for a wide spectrum of XML applications. However, the language defined by this specification does not attempt to provide _all_ the facilities that might be needed by _any_ application. Some applications may require constraint capabilities not expressible in this language, and so may need to perform their own additional validations.
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#intro-purpose) [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#intro-terminology)1.2 Dependencies on Other Specifications
+### 1.2 Dependencies on Other Specifications
 
 The definition of _XML Schema: Structures_ depends on the following specifications: [[XML-Infoset]](https://www.w3.org/TR/xmlschema-1/#ref-xmlinfo), [[XML-Namespaces]](https://www.w3.org/TR/xmlschema-1/#ref-xml-namespaces), [[XPath]](https://www.w3.org/TR/xmlschema-1/#bib-xpath), and [[XML Schemas: Datatypes]](https://www.w3.org/TR/xmlschema-1/#ref-xsp2).
 
 See [Required Information Set Items and Properties (normative) (§D)](https://www.w3.org/TR/xmlschema-1/#infoset) for a tabulation of the information items and properties specified in [[XML-Infoset]](https://www.w3.org/TR/xmlschema-1/#ref-xmlinfo) which this specification requires as a precondition to schema-aware processing.
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#intro-relatedWork)1.3 Documentation Conventions and Terminology
+### 1.3 Documentation Conventions and Terminology
 
 The section introduces the highlighting and typography as used in this document to present technical material.
 
@@ -116,7 +116,7 @@ Note however that this specification provides a definition of error and of confo
 
 This chapter gives an overview of _XML Schema: Structures_ at the level of its abstract data model. [Schema Component Details (§3)](https://www.w3.org/TR/xmlschema-1/#components) provides details on this model, including a normative representation in XML for the components of the model. Readers interested primarily in learning to write schema documents may wish to first read [[XML Schema: Primer]](https://www.w3.org/TR/xmlschema-1/#bib-expo) for a tutorial introduction, and only then consult the sub-sections of [Schema Component Details (§3)](https://www.w3.org/TR/xmlschema-1/#components) named _XML Representation of ..._ for the details.
 
-### [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#concepts-data-model)2.1 Overview of XML Schema
+### 2.1 Overview of XML Schema
 
 An XML Schema consists of components such as type definitions and element declarations. These can be used to assess the validity of well-formed element and attribute information items (as defined in [[XML-Infoset]](https://www.w3.org/TR/xmlschema-1/#ref-xmlinfo)), and furthermore may specify augmentations to those items and their descendants. This augmentation makes explicit information which may have been implicit in the original document, such as normalized and/or default values for attributes and elements and the types of element and attribute information items. [Definition:]  We refer to the augmented infoset which results from conformant processing as defined in this specification as the **post-schema-validation infoset**, or PSVI.
 
@@ -130,20 +130,13 @@ Throughout this specification, [Definition:]  the word **valid** and its deriv
 
 Throughout this specification, [Definition:]   the word **assessment** is used to refer to the overall process of local validation, schema-validity assessment and infoset augmentation.
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#) [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#concepts-schemaConstraints)2.2 XML Schema Abstract Data Model
+### 2.2 XML Schema Abstract Data Model
 
-2.2.1 [Type Definition Components](https://www.w3.org/TR/xmlschema-1/#Type_Definition_Summary)
-        2.2.2 [Declaration Components](https://www.w3.org/TR/xmlschema-1/#Declarations_Summary)
-        2.2.3 [Model Group Components](https://www.w3.org/TR/xmlschema-1/#Model_Group_Summary)
-        2.2.4 [Identity-constraint Definition Components](https://www.w3.org/TR/xmlschema-1/#Identity-constraint_Definition)
-        2.2.5 [Group Definition Components](https://www.w3.org/TR/xmlschema-1/#Group_Definitions)
-        2.2.6 [Annotation Components](https://www.w3.org/TR/xmlschema-1/#Annotation)
-
-This specification builds on [[XML 1.0 (Second Edition)]](https://www.w3.org/TR/xmlschema-1/#ref-xml) and [[XML-Namespaces]](https://www.w3.org/TR/xmlschema-1/#ref-xml-namespaces). The concepts and definitions used herein regarding XML are framed at the abstract level of [information items](https://www.w3.org/TR/xml-infoset/#infoitem) as defined in [[XML-Infoset]](https://www.w3.org/TR/xmlschema-1/#ref-xmlinfo). By definition, this use of the infoset provides _a priori_ guarantees of [well-formedness](https://www.w3.org/TR/REC-xml#sec-well-formed) (as defined in [[XML 1.0 (Second Edition)]](https://www.w3.org/TR/xmlschema-1/#ref-xml)) and [namespace conformance](https://www.w3.org/TR/REC-xml-names/#Conformance) (as defined in [[XML-Namespaces]](https://www.w3.org/TR/xmlschema-1/#ref-xml-namespaces)) for all candidates for [·assessment·](https://www.w3.org/TR/xmlschema-1/#key-va) and for all [·schema documents·](https://www.w3.org/TR/xmlschema-1/#key-schemaDoc).
+This specification builds on [[XML 1.0 (Second Edition)]](https://www.w3.org/TR/xmlschema-1/#ref-xml) and [[XML-Namespaces]](https://www.w3.org/TR/xmlschema-1/#ref-xml-namespaces). The concepts and definitions used herein regarding XML are framed at the abstract level of [information items](https://www.w3.org/TR/xml-infoset/#infoitem) as defined in [[XML-Infoset]](https://www.w3.org/TR/xmlschema-1/#ref-xmlinfo). By definition, this use of the infoset provides _a priori_ guarantees of [well-formedness](https://www.w3.org/TR/REC-xml#sec-well-formed) (as defined in [[XML 1.0 (Second Edition)]](https://www.w3.org/TR/xmlschema-1/#ref-xml)) and [namespace conformance](https://www.w3.org/TR/REC-xml-names/#Conformance) (as defined in [[XML-Namespaces]](https://www.w3.org/TR/xmlschema-1/#ref-xml-namespaces)) for all candidates for assessment and for all schema documents.
 
 Just as [[XML 1.0 (Second Edition)]](https://www.w3.org/TR/xmlschema-1/#ref-xml) and [[XML-Namespaces]](https://www.w3.org/TR/xmlschema-1/#ref-xml-namespaces) can be described in terms of information items, XML Schemas can be described in terms of an abstract data model. In defining XML Schemas in terms of an abstract data model, this specification rigorously specifies the information which must be available to a conforming XML Schema processor. The abstract model for schemas is conceptual only, and does not mandate any particular implementation or representation of this information. To facilitate interoperation and sharing of schema information, a normative XML interchange format for schemas is provided.
 
-[Definition:]   **Schema component** is the generic term for the building blocks that comprise the abstract data model of the schema. [Definition:]   An **XML Schema** is a set of [·schema components·](https://www.w3.org/TR/xmlschema-1/#key-component). There are 13 kinds of component in all, falling into three groups. The primary components, which may (type definitions) or must (element and attribute declarations) have names are as follows:
+[Definition:]   **Schema component** is the generic term for the building blocks that comprise the abstract data model of the schema. [Definition:]   An **XML Schema** is a set of schema components. There are 13 kinds of component in all, falling into three groups. The primary components, which may (type definitions) or must (element and attribute declarations) have names are as follows:
 
 - Simple type definitions
 - Complex type definitions
@@ -165,17 +158,17 @@ Finally, the "helper" components provide small parts of other components; they a
 - Wildcards
 - Attribute Uses
 
-During [·validation·](https://www.w3.org/TR/xmlschema-1/#key-vn), [Definition:]  **declaration** components are associated by (qualified) name to information items being [·validated·](https://www.w3.org/TR/xmlschema-1/#key-vn).
+During validation, [Definition:]  **declaration** components are associated by (qualified) name to information items being validated.
 
 On the other hand, [Definition:]  **definition** components define internal schema components that can be used in other schema components.
 
 [Definition:]  Declarations and definitions may have and be identified by **name**s, which are NCNames as defined by [[XML-Namespaces]](https://www.w3.org/TR/xmlschema-1/#ref-xml-namespaces).
 
-[Definition:]  Several kinds of component have a **target namespace**, which is either [·absent·](https://www.w3.org/TR/xmlschema-1/#key-null) or a namespace name, also as defined by [[XML-Namespaces]](https://www.w3.org/TR/xmlschema-1/#ref-xml-namespaces). The [·target namespace·](https://www.w3.org/TR/xmlschema-1/#key-targetNS) serves to identify the namespace within which the association between the component and its name exists. In the case of declarations, this in turn determines the namespace name of, for example, the element information items it may [·validate·](https://www.w3.org/TR/xmlschema-1/#key-vn).
+[Definition:]  Several kinds of component have a **target namespace**, which is either absent or a namespace name, also as defined by [[XML-Namespaces]](https://www.w3.org/TR/xmlschema-1/#ref-xml-namespaces). The target namespace serves to identify the namespace within which the association between the component and its name exists. In the case of declarations, this in turn determines the namespace name of, for example, the element information items it may validate.
 
-**Note:** At the abstract level, there is no requirement that the components of a schema share a [·target namespace·](https://www.w3.org/TR/xmlschema-1/#key-targetNS). Any schema for use in [·assessment·](https://www.w3.org/TR/xmlschema-1/#key-va) of documents containing names from more than one namespace will of necessity include components with different [·target namespaces·](https://www.w3.org/TR/xmlschema-1/#key-targetNS). This contrasts with the situation at the level of the XML representation of components, in which each schema document contributes definitions and declarations to a single target namespace.
+**Note:** At the abstract level, there is no requirement that the components of a schema share a target namespace. Any schema for use in assessment of documents containing names from more than one namespace will of necessity include components with different target namespaces. This contrasts with the situation at the level of the XML representation of components, in which each schema document contributes definitions and declarations to a single target namespace.
 
-[·Validation·](https://www.w3.org/TR/xmlschema-1/#key-vn), defined in detail in [Schema Component Details (§3)](https://www.w3.org/TR/xmlschema-1/#components), is a relation between information items and schema components. For example, an attribute information item may [·validate·](https://www.w3.org/TR/xmlschema-1/#key-vn) with respect to an attribute declaration, a list of element information items may [·validate·](https://www.w3.org/TR/xmlschema-1/#key-vn) with respect to a content model, and so on. The following sections briefly introduce the kinds of components in the schema abstract data model, other major features of the abstract model, and how they contribute to [·validation·](https://www.w3.org/TR/xmlschema-1/#key-vn).
+Validation, defined in detail in [Schema Component Details (§3)](https://www.w3.org/TR/xmlschema-1/#components), is a relation between information items and schema components. For example, an attribute information item may validate with respect to an attribute declaration, a list of element information items may validate with respect to a content model, and so on. The following sections briefly introduce the kinds of components in the schema abstract data model, other major features of the abstract model, and how they contribute to validation.
 
 #### 2.2.1 Type Definition Components
 
@@ -187,9 +180,9 @@ Type definitions form a hierarchy with a single root. The subsections below firs
 
 ##### 2.2.1.1 Type Definition Hierarchy
 
-[Definition:]  Except for a distinguished [·ur-type definition·](https://www.w3.org/TR/xmlschema-1/#key-urType), every [·type definition·](https://www.w3.org/TR/xmlschema-1/#key-typeDefn) is, by construction, either a [·restriction·](https://www.w3.org/TR/xmlschema-1/#key-typeRestriction) or an [·extension·](https://www.w3.org/TR/xmlschema-1/#key-typeExtension) of some other type definition. The graph of these relationships forms a tree known as the **Type Definition Hierarchy**.
+[Definition:]  Except for a distinguished ur-type definition, every type definition is, by construction, either a restriction or an extension of some other type definition. The graph of these relationships forms a tree known as the **Type Definition Hierarchy**.
 
-[Definition:]  A type definition whose declarations or facets are in a one-to-one relation with those of another specified type definition, with each in turn restricting the possibilities of the one it corresponds to, is said to be a **restriction**. The specific restrictions might include narrowed ranges or reduced alternatives. Members of a type, A, whose definition is a [·restriction·](https://www.w3.org/TR/xmlschema-1/#key-typeRestriction) of the definition of another type, B, are always members of type B as well.
+[Definition:]  A type definition whose declarations or facets are in a one-to-one relation with those of another specified type definition, with each in turn restricting the possibilities of the one it corresponds to, is said to be a **restriction**. The specific restrictions might include narrowed ranges or reduced alternatives. Members of a type, A, whose definition is a restriction of the definition of another type, B, are always members of type B as well.
 
 [Definition:]  A complex type definition which allows element or attribute content in addition to that allowed by another specified type definition is said to be an **extension**.
 
@@ -201,7 +194,7 @@ Type definitions form a hierarchy with a single root. The subsections below firs
 
 A simple type definition is a set of constraints on strings and information about the values they encode, applicable to the [·normalized value·](https://www.w3.org/TR/xmlschema-1/#key-nv) of an attribute information item or of an element information item with no element children. Informally, it applies to the values of attributes and the text-only content of elements.
 
-Each simple type definition, whether built-in (that is, defined in [[XML Schemas: Datatypes]](https://www.w3.org/TR/xmlschema-1/#ref-xsp2)) or user-defined, is a [·restriction·](https://www.w3.org/TR/xmlschema-1/#key-typeRestriction) of some particular simple [·base type definition·](https://www.w3.org/TR/xmlschema-1/#key-baseTypeDefinition). For the built-in primitive type definitions, this is [Definition:]  the **simple ur-type definition**, a special restriction of the [·ur-type definition·](https://www.w3.org/TR/xmlschema-1/#key-urType), whose name is **anySimpleType** in the XML Schema namespace. The [·simple ur-type definition·](https://www.w3.org/TR/xmlschema-1/#key-simpleUrType) is considered to have an unconstrained lexical space, and a value space consisting of the union of the value spaces of all the built-in primitive datatypes and the set of all lists of all members of the value spaces of all the built-in primitive datatypes.
+Each simple type definition, whether built-in (that is, defined in [[XML Schemas: Datatypes]](https://www.w3.org/TR/xmlschema-1/#ref-xsp2)) or user-defined, is a restriction of some particular simple base type definition. For the built-in primitive type definitions, this is [Definition:]  the **simple ur-type definition**, a special restriction of the ur-type definition, whose name is **anySimpleType** in the XML Schema namespace. The simple ur-type definition is considered to have an unconstrained lexical space, and a value space consisting of the union of the value spaces of all the built-in primitive datatypes and the set of all lists of all members of the value spaces of all the built-in primitive datatypes.
 
 The mapping from lexical space to value space is unspecified for items whose type definition is the [·simple ur-type definition·](https://www.w3.org/TR/xmlschema-1/#key-simpleUrType). Accordingly this specification does not constrain processors' behaviour in areas where this mapping is implicated, for example checking such items against enumerations, constructing default attributes or elements whose declared type definition is the [·simple ur-type definition·](https://www.w3.org/TR/xmlschema-1/#key-simpleUrType), checking identity constraints involving such items.
 
@@ -215,13 +208,13 @@ For detailed information on simple type definitions, see [Simple Type Definition
 
 A complex type definition is a set of attribute declarations and a content type, applicable to the [[attributes]](https://www.w3.org/TR/xml-infoset/#infoitem.element) and [[children]](https://www.w3.org/TR/xml-infoset/#infoitem.element) of an element information item respectively. The content type may require the [[children]](https://www.w3.org/TR/xml-infoset/#infoitem.element) to contain neither element nor character information items (that is, to be empty), to be a string which belongs to a particular simple type or to contain a sequence of element information items which conforms to a particular model group, with or without character information items as well.
 
-Each complex type definition other than the [·ur-type definition·](https://www.w3.org/TR/xmlschema-1/#key-urType) is either
+Each complex type definition other than the ur-type definition is either
 
-- a restriction of a complex [·base type definition·](https://www.w3.org/TR/xmlschema-1/#key-baseTypeDefinition)
+- a restriction of a complex base type definition
 
 or
 
-- an [·extension·](https://www.w3.org/TR/xmlschema-1/#key-typeExtension) of a simple or complex [·base type definition·](https://www.w3.org/TR/xmlschema-1/#key-baseTypeDefinition).
+- an extension of a simple or complex base type definition.
 
 A complex type which extends another does so by having additional content model particles at the end of the other definition's content model, or by having additional attribute declarations, or both.
 
@@ -328,7 +321,7 @@ An annotation is information for human and/or mechanical consumers. The interpre
 
 For detailed information on annotations, see [Annotations (§3.13)](https://www.w3.org/TR/xmlschema-1/#cAnnotations).
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#concepts-data-model) [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#concepts-conformance)2.3 Constraints and Validation Rules
+### 2.3 Constraints and Validation Rules
 
 The [[XML 1.0 (Second Edition)]](https://www.w3.org/TR/xmlschema-1/#ref-xml) specification describes two kinds of constraints on XML documents: _well-formedness_ and _validity_ constraints. Informally, the well-formedness constraints are those imposed by the definition of XML itself (such as the rules for the use of the < and > characters and the rules for proper nesting of elements), while validity constraints are the further constraints on document structure provided by a particular DTD.
 
@@ -352,7 +345,7 @@ Schema Information Set Contribution
 
 The last of these, schema information set contributions, are not as new as they might at first seem. XML 1.0 validation augments the XML 1.0 information set in similar ways, for example by providing values for attributes not present in instances, and by implicitly exploiting type information for normalization or access. (As an example of the latter case, consider the effect of `NMTOKENS` on attribute white space, and the semantics of `ID` and `IDREF`.) By including schema information set contributions, this specification makes explicit some features that XML 1.0 left implicit.
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#concepts-schemaConstraints) [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#concepts-nameSymbolSpaces)2.4 Conformance
+### 2.4 Conformance
 
 This specification describes three levels of conformance for schema aware processors. The first is required of all processors. Support for the other two will depend on the application environments for which the processor is intended.
 
@@ -368,7 +361,7 @@ This specification describes three levels of conformance for schema aware proces
 
 See [Schemas and Namespaces: Access and Composition (§4)](https://www.w3.org/TR/xmlschema-1/#composition) for a more detailed explanation of the mechanisms supporting these levels of conformance.
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#concepts-conformance) [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#Instance_Document_Constructions)2.5 Names and Symbol Spaces
+### 2.5 Names and Symbol Spaces
 
 As discussed in [XML Schema Abstract Data Model (§2.2)](https://www.w3.org/TR/xmlschema-1/#concepts-data-model), most schema components (may) have [·names·](https://www.w3.org/TR/xmlschema-1/#key-compName). If all such names were assigned from the same "pool", then it would be impossible to have, for example, a simple type definition and an element declaration both with the name "title" in a given [·target namespace·](https://www.w3.org/TR/xmlschema-1/#key-targetNS).
 
@@ -376,11 +369,7 @@ Therefore [Definition:]  this specification introduces the term **symbol space
 
 Locally scoped attribute and element declarations are special with regard to symbol spaces. Every complex type definition defines its own local attribute and element declaration symbol spaces, where these symbol spaces are distinct from each other and from any of the other symbol spaces. So, for example, two complex type definitions having the same target namespace can contain a local attribute declaration for the unqualified name "priority", or contain a local element declaration for the name "address", without conflict or necessary relation between the two.
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#concepts-nameSymbolSpaces) [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#web-representation)2.6 Schema-Related Markup in Documents Being Validated
-
-2.6.1 [xsi:type](https://www.w3.org/TR/xmlschema-1/#xsi_type)
-        2.6.2 [xsi:nil](https://www.w3.org/TR/xmlschema-1/#xsi_nil)
-        2.6.3 [xsi:schemaLocation, xsi:noNamespaceSchemaLocation](https://www.w3.org/TR/xmlschema-1/#xsi_schemaLocation)
+### 2.6 Schema-Related Markup in Documents Being Validated
 
 The XML representation of schema components uses a vocabulary identified by the namespace name `http://www.w3.org/2001/XMLSchema`. For brevity, the text and examples in this specification use the prefix `xs:` to stand for this namespace; in practice, any prefix can be used.
 
@@ -398,18 +387,13 @@ _XML Schema: Structures_ introduces a mechanism for signaling that an element sh
 
 The `xsi:schemaLocation` and `xsi:noNamespaceSchemaLocation` attributes can be used in a document to provide hints as to the physical location of schema documents which may be used for [·assessment·](https://www.w3.org/TR/xmlschema-1/#key-va). See [How schema definitions are located on the Web (§4.3.2)](https://www.w3.org/TR/xmlschema-1/#schema-loc) for details on the use of these attributes.
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#Instance_Document_Constructions)2.7 Representation of Schemas on the World Wide Web
+### 2.7 Representation of Schemas on the World Wide Web
 
 On the World Wide Web, schemas are conventionally represented as XML documents (preferably of MIME type `application/xml` or `text/xml`, but see clause [1.1](https://www.w3.org/TR/xmlschema-1/#c-vxd) of [Inclusion Constraints and Semantics (§4.2.1)](https://www.w3.org/TR/xmlschema-1/#src-include)), conforming to the specifications in [Layer 2: Schema Documents, Namespaces and Composition (§4.2)](https://www.w3.org/TR/xmlschema-1/#layer2). For more information on the representation and use of schema documents on the World Wide Web see [Standards for representation of schemas and retrieval of schema documents on the Web (§4.3.1)](https://www.w3.org/TR/xmlschema-1/#schema-repr) and [How schema definitions are located on the Web (§4.3.2)](https://www.w3.org/TR/xmlschema-1/#schema-loc).
 
 ## 3 Schema Component Details
 
-### [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#cAttribute_Declarations)3.1 Introduction
-
-3.1.1 [Components and Properties](https://www.w3.org/TR/xmlschema-1/#d0e1531)
-        3.1.2 [XML Representations of Components](https://www.w3.org/TR/xmlschema-1/#d0e1568)
-        3.1.3 [The Mapping between XML Representations and Components](https://www.w3.org/TR/xmlschema-1/#d0e1610)
-        3.1.4 [White Space Normalization during Validation](https://www.w3.org/TR/xmlschema-1/#d0e1654)
+### 3.1 Introduction
 
 The following sections provide full details on the composition of all schema components, together with their XML representations and their contributions to [·assessment·](https://www.w3.org/TR/xmlschema-1/#key-va). Each section is devoted to a single component, with separate subsections for
 
@@ -481,7 +465,7 @@ These three levels of normalization correspond to the processing mandated in XML
 
 **Note:** Even when DTD-based information _has_ been appealed to, and [Attribute Value Normalization](https://www.w3.org/TR/REC-xml#AVNormalize) has taken place, the above definition of [·normalized value·](https://www.w3.org/TR/xmlschema-1/#key-nv) may mean _further_ normalization takes place, as for instance when character entity references in attribute values result in white space characters other than spaces in their [·initial value·](https://www.w3.org/TR/xmlschema-1/#key-iv)s.
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#scIntro) [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#cElement_Declarations)3.2 Attribute Declarations
+### 3.2 Attribute Declarations
 
 3.2.1 [The Attribute Declaration Schema Component](https://www.w3.org/TR/xmlschema-1/#Attribute_Declaration_details)
         3.2.2 [XML Representation of Attribute Declaration Schema Components](https://www.w3.org/TR/xmlschema-1/#declare-attribute)
@@ -833,14 +817,7 @@ There are four attribute declarations present in every schema by definition:
 | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | \|Property\|Value\|<br>\|:--\|:--\|<br>\|[{name}](https://www.w3.org/TR/xmlschema-1/#a-name)\|`noNamespaceSchemaLocation`\|<br>\|[{target namespace}](https://www.w3.org/TR/xmlschema-1/#a-target_namespace)\|`http://www.w3.org/2001/XMLSchema-instance`\|<br>\|[{type definition}](https://www.w3.org/TR/xmlschema-1/#type_definition)\|The built-in [anyURI](https://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html#anyURI) simple type definition\|<br>\|[{scope}](https://www.w3.org/TR/xmlschema-1/#a-scope)\|_global_\|<br>\|[{value constraint}](https://www.w3.org/TR/xmlschema-1/#a-value_constraint)\|[·absent·](https://www.w3.org/TR/xmlschema-1/#key-null)\|<br>\|[{annotation}](https://www.w3.org/TR/xmlschema-1/#a-annotation)\|[·absent·](https://www.w3.org/TR/xmlschema-1/#key-null)\| |
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#cAttribute_Declarations) [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#Complex_Type_Definitions)3.3 Element Declarations
-
-3.3.1 [The Element Declaration Schema Component](https://www.w3.org/TR/xmlschema-1/#Element_Declaration_details)
-        3.3.2 [XML Representation of Element Declaration Schema Components](https://www.w3.org/TR/xmlschema-1/#declare-element)
-        3.3.3 [Constraints on XML Representations of Element Declarations](https://www.w3.org/TR/xmlschema-1/#d0e4233)
-        3.3.4 [Element Declaration Validation Rules](https://www.w3.org/TR/xmlschema-1/#d0e4333)
-        3.3.5 [Element Declaration Information Set Contributions](https://www.w3.org/TR/xmlschema-1/#d0e5070)
-        3.3.6 [Constraints on Element Declaration Schema Components](https://www.w3.org/TR/xmlschema-1/#coss-element)
+### 3.3 Element Declarations
 
 Element declarations provide for:
 
@@ -1489,15 +1466,7 @@ Define **P**, the potential substitution group for **HEAD**, as follows:
 
 2 It is validly substitutable for **HEAD** subject to **HEAD**'s [{disallowed substitutions}](https://www.w3.org/TR/xmlschema-1/#e-exact) as the blocking constraint, as defined in [Substitution Group OK (Transitive) (§3.3.6)](https://www.w3.org/TR/xmlschema-1/#cos-equiv-derived-ok-rec).
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#cElement_Declarations) [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#cAttributeUse)3.4 Complex Type Definitions
-
-3.4.1 [The Complex Type Definition Schema Component](https://www.w3.org/TR/xmlschema-1/#Complex_Type_Definition_details)
-        3.4.2 [XML Representation of Complex Type Definitions](https://www.w3.org/TR/xmlschema-1/#declare-type)
-        3.4.3 [Constraints on XML Representations of Complex Type Definitions](https://www.w3.org/TR/xmlschema-1/#d0e7923)
-        3.4.4 [Complex Type Definition Validation Rules](https://www.w3.org/TR/xmlschema-1/#formal-complex-type)
-        3.4.5 [Complex Type Definition Information Set Contributions](https://www.w3.org/TR/xmlschema-1/#d0e8328)
-        3.4.6 [Constraints on Complex Type Definition Schema Components](https://www.w3.org/TR/xmlschema-1/#coss-ct)
-        3.4.7 [Built-in Complex Type Definition](https://www.w3.org/TR/xmlschema-1/#d0e9252)
+### 3.4 Complex Type Definitions
 
 Complex Type Definitions provide for:
 
@@ -2104,7 +2073,7 @@ The `mixed` content specification together with the _lax_ wildcard and attribute
 
 **Note:** This specification does not provide an inventory of built-in complex type definitions for use in user schemas. A preliminary library of complex type definitions is available which includes both mathematical (e.g. `rational`) and utility (e.g. `array`) type definitions. In particular, there is a `text` type definition which is recommended for use as the type definition in element declarations intended for general text content, as it makes sensible provision for various aspects of internationalization. For more details, see the schema document for the type library at its namespace name: [http://www.w3.org/2001/03/XMLSchema/TypeLibrary.xsd](https://www.w3.org/2001/03/XMLSchema/TypeLibrary.xsd).
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#Complex_Type_Definitions) [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#cAttribute_Group_Definitions)3.5 AttributeUses
+### 3.5 AttributeUses
 
 3.5.1 [The Attribute Use Schema Component](https://www.w3.org/TR/xmlschema-1/#AU_details)
         3.5.2 [XML Representation of Attribute Use Components](https://www.w3.org/TR/xmlschema-1/#d0e9471)
@@ -2180,7 +2149,7 @@ All attribute uses (see [AttributeUses (§3.5)](https://www.w3.org/TR/xmlschema-
 
 2 If the [{attribute declaration}](https://www.w3.org/TR/xmlschema-1/#attribute) has a _fixed_ [{value constraint}](https://www.w3.org/TR/xmlschema-1/#a-value_constraint), then if the attribute use itself has a [{value constraint}](https://www.w3.org/TR/xmlschema-1/#au-value_constraint), it must also be _fixed_ and its value must match that of the [{attribute declaration}](https://www.w3.org/TR/xmlschema-1/#attribute)'s [{value constraint}](https://www.w3.org/TR/xmlschema-1/#a-value_constraint).
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#cAttributeUse) [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#cModel_Group_Definitions)3.6 Attribute Group Definitions
+### 3.6 Attribute Group Definitions
 
 3.6.1 [The Attribute Group Definition Schema Component](https://www.w3.org/TR/xmlschema-1/#Attribute_Group_Definition_details)
         3.6.2 [XML Representation of Attribute Group Definition Schema Components](https://www.w3.org/TR/xmlschema-1/#declare-attributeGroup)
@@ -2297,7 +2266,7 @@ All attribute group definitions (see [Attribute Group Definitions (§3.6)](https
 
 3 Two distinct members of the [{attribute uses}](https://www.w3.org/TR/xmlschema-1/#ag-attribute_declarations) must not have [{attribute declaration}](https://www.w3.org/TR/xmlschema-1/#attribute)s both of whose [{type definition}](https://www.w3.org/TR/xmlschema-1/#a-simple_type_definition)s are or are derived from [ID](https://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html#ID).
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#cAttribute_Group_Definitions) [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#Model_Groups)3.7 Model Group Definitions
+### 3.7 Model Group Definitions
 
 3.7.1 [The Model Group Definition Schema Component](https://www.w3.org/TR/xmlschema-1/#Model_Group_Definition_details)
         3.7.2 [XML Representation of Model Group Definition Schema Components](https://www.w3.org/TR/xmlschema-1/#declare-namedModelGroup)
@@ -2418,7 +2387,7 @@ All model group definitions (see [Model Group Definitions (§3.7)](https://www.w
 
 The values of the properties of a model group definition must be as described in the property tableau in [The Model Group Definition Schema Component (§3.7.1)](https://www.w3.org/TR/xmlschema-1/#Model_Group_Definition_details), modulo the impact of [Missing Sub-components (§5.3)](https://www.w3.org/TR/xmlschema-1/#conformance-missing).
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#cModel_Group_Definitions) [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#cParticles)3.8 Model Groups
+### 3.8 Model Groups
 
 3.8.1 [The Model Group Schema Component](https://www.w3.org/TR/xmlschema-1/#Model_Group_details)
         3.8.2 [XML Representation of Model Group Schema Components](https://www.w3.org/TR/xmlschema-1/#declare-contentModel)
@@ -2614,7 +2583,7 @@ maximum
 
 _unbounded_ if the [{max occurs}](https://www.w3.org/TR/xmlschema-1/#p-max_occurs) of any wildcard or element declaration particle in the group's [{particles}](https://www.w3.org/TR/xmlschema-1/#particles) or the maximum part of the effective total range of any of the group particles in the group's [{particles}](https://www.w3.org/TR/xmlschema-1/#particles) is _unbounded_, or if any of those is non-zero and the [{max occurs}](https://www.w3.org/TR/xmlschema-1/#p-max_occurs) of the particle itself is _unbounded_, otherwise the product of the particle's [{max occurs}](https://www.w3.org/TR/xmlschema-1/#p-max_occurs) and the maximum of the [{max occurs}](https://www.w3.org/TR/xmlschema-1/#p-max_occurs) of every wildcard or element declaration particle in the group's [{particles}](https://www.w3.org/TR/xmlschema-1/#particles) and the maximum part of the effective total range of each of the group particles in the group's [{particles}](https://www.w3.org/TR/xmlschema-1/#particles) (or `0` if there are no [{particles}](https://www.w3.org/TR/xmlschema-1/#particles)).
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#Model_Groups) [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#Wildcards)3.9 Particles
+### 3.9 Particles
 
 3.9.1 [The Particle Schema Component](https://www.w3.org/TR/xmlschema-1/#Particle_details)
         3.9.2 [XML Representation of Particle Components](https://www.w3.org/TR/xmlschema-1/#d0e11005)
@@ -2940,7 +2909,7 @@ For a _sequence_ group particle to be a [·valid restriction·](https://www.w3.o
 
 2 Its [{term}](https://www.w3.org/TR/xmlschema-1/#term) is a group and the minimum part of the effective total range of that group, as defined by [Effective Total Range (all and sequence) (§3.8.6)](https://www.w3.org/TR/xmlschema-1/#cos-seq-range) (if the group is _all_ or _sequence_) or [Effective Total Range (choice) (§3.8.6)](https://www.w3.org/TR/xmlschema-1/#cos-choice-range) (if it is _choice_), is `0`.
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#cParticles) [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions)3.10 Wildcards
+### 3.10 Wildcards
 
 3.10.1 [The Wildcard Schema Component](https://www.w3.org/TR/xmlschema-1/#Wildcard_details)
         3.10.2 [XML Representation of Wildcard Schema Components](https://www.w3.org/TR/xmlschema-1/#declare-openness)
@@ -3154,7 +3123,7 @@ For a wildcard's [{namespace constraint}](https://www.w3.org/TR/xmlschema-1/#nam
 
 In the case where there are more than two values, the intensional intersection is determined by identifying the intensional intersection of two of the values as above, then the intensional intersection of that value with the third (providing the first intersection was expressible), and so on as required.
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#Wildcards) [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#cNotation_Declarations)3.11 Identity-constraint Definitions
+### 3.11 Identity-constraint Definitions
 
 3.11.1 [The Identity-constraint Definition Schema Component](https://www.w3.org/TR/xmlschema-1/#Identity-constraint_Definition_details)
         3.11.2 [XML Representation of Identity-constraint Definition Schema Components](https://www.w3.org/TR/xmlschema-1/#declare-key)
@@ -3506,14 +3475,7 @@ For readability, whitespace may be used in field XPath expressions even though n
 
 When tokenizing, the longest possible token is always returned.
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions) [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#cAnnotations)3.12 Notation Declarations
-
-3.12.1 [The Notation Declaration Schema Component](https://www.w3.org/TR/xmlschema-1/#Notation_Declaration_details)
-        3.12.2 [XML Representation of Notation Declaration Schema Components](https://www.w3.org/TR/xmlschema-1/#declare-notation)
-        3.12.3 [Constraints on XML Representations of Notation Declarations](https://www.w3.org/TR/xmlschema-1/#d0e14542)
-        3.12.4 [Notation Declaration Validation Rules](https://www.w3.org/TR/xmlschema-1/#d0e14554)
-        3.12.5 [Notation Declaration Information Set Contributions](https://www.w3.org/TR/xmlschema-1/#d0e14559)
-        3.12.6 [Constraints on Notation Declaration Schema Components](https://www.w3.org/TR/xmlschema-1/#coss-notation)
+### 3.12 Notation Declarations
 
 Notation declarations reconstruct XML 1.0 NOTATION declarations.
 
@@ -3641,7 +3603,7 @@ All notation declarations (see [Notation Declarations (§3.12)](https://www.w3.o
 
 The values of the properties of a notation declaration must be as described in the property tableau in [The Notation Declaration Schema Component (§3.12.1)](https://www.w3.org/TR/xmlschema-1/#Notation_Declaration_details), modulo the impact of [Missing Sub-components (§5.3)](https://www.w3.org/TR/xmlschema-1/#conformance-missing).
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#cNotation_Declarations) [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#Simple_Type_Definitions)3.13 Annotations
+### 3.13 Annotations
 
 3.13.1 [The Annotation Schema Component](https://www.w3.org/TR/xmlschema-1/#Annotation_details)
         3.13.2 [XML Representation of Annotation Schema Components](https://www.w3.org/TR/xmlschema-1/#declare-annotation)
@@ -3741,15 +3703,7 @@ All annotations (see [Annotations (§3.13)](https://www.w3.org/TR/xmlschema-1/#c
 
 The values of the properties of an annotation must be as described in the property tableau in [The Annotation Schema Component (§3.13.1)](https://www.w3.org/TR/xmlschema-1/#Annotation_details), modulo the impact of [Missing Sub-components (§5.3)](https://www.w3.org/TR/xmlschema-1/#conformance-missing).
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#cAnnotations) [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#Schemas)3.14 Simple Type Definitions
-
-3.14.1 [(non-normative) The Simple Type Definition Schema Component](https://www.w3.org/TR/xmlschema-1/#Simple_Type_Definition_details)
-        3.14.2 [(non-normative) XML Representation of Simple Type Definition Schema Components](https://www.w3.org/TR/xmlschema-1/#declare-datatype)
-        3.14.3 [(non-normative) Constraints on XML Representations of Simple Type Definitions](https://www.w3.org/TR/xmlschema-1/#d0e15439)
-        3.14.4 [Simple Type Definition Validation Rules](https://www.w3.org/TR/xmlschema-1/#d0e15503)
-        3.14.5 [Simple Type Definition Information Set Contributions](https://www.w3.org/TR/xmlschema-1/#d0e15574)
-        3.14.6 [Constraints on Simple Type Definition Schema Components](https://www.w3.org/TR/xmlschema-1/#coss-st)
-        3.14.7 [Built-in Simple Type Definition](https://www.w3.org/TR/xmlschema-1/#d0e16395)
+### 3.14 Simple Type Definitions
 
 **Note:** This section consists of a combination of non-normative versions of normative material from [[XML Schemas: Datatypes]](https://www.w3.org/TR/xmlschema-1/#ref-xsp2), for local cross-reference purposes, and normative material relating to the interface between schema components defined in this specification and the simple type definition component.
 
@@ -4076,7 +4030,7 @@ Simple type definitions for all the built-in primitive datatypes, namely _string
 
 Similarly, simple type definitions for all the built-in derived datatypes (see the [Derived Datatypes](https://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html#built-in-derived) section of [[XML Schemas: Datatypes]](https://www.w3.org/TR/xmlschema-1/#ref-xsp2)) are present by definition in every schema, with properties as specified in [[XML Schemas: Datatypes]](https://www.w3.org/TR/xmlschema-1/#ref-xsp2) and as represented in XML in [Schema for Schemas (normative) (§A)](https://www.w3.org/TR/xmlschema-1/#normative-schemaSchema).
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#Simple_Type_Definitions)3.15 Schemas as a Whole
+### 3.15 Schemas as a Whole
 
 3.15.1 [The Schema Itself](https://www.w3.org/TR/xmlschema-1/#Schema_details)
         3.15.2 [XML Representations of Schemas](https://www.w3.org/TR/xmlschema-1/#declare-schema)
@@ -4403,7 +4357,7 @@ This chapter defines the mechanisms by which this specification establishes the 
 
 Layer 1 specifies the manner in which a schema composed of schema components can be applied to in the [·assessment·](https://www.w3.org/TR/xmlschema-1/#key-va) of an instance element information item. Layer 2 specifies the use of [<schema>](https://www.w3.org/TR/xmlschema-1/#element-schema) elements in XML documents as the standard XML representation for schema information in a broad range of computer systems and execution environments. To support interoperation over the World Wide Web in particular, layer 3 provides a set of conventions for schema reference on the Web. Additional details on each of the three layers is provided in the sections below.
 
-### [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#layer2)4.1 Layer 1: Summary of the Schema-validity Assessment Core
+### 4.1 Layer 1: Summary of the Schema-validity Assessment Core
 
 The fundamental purpose of the [·assessment·](https://www.w3.org/TR/xmlschema-1/#key-va) core is to define [·assessment·](https://www.w3.org/TR/xmlschema-1/#key-va) for a single element information item and its descendants with respect to a complex type definition. All processors are required to implement this core predicate in a manner which conforms exactly to this specification.
 
@@ -4423,11 +4377,7 @@ The obligation of a schema-aware processor as far as the [·assessment·](https:
 
 Although [·assessment·](https://www.w3.org/TR/xmlschema-1/#key-va) is defined recursively, it is also intended to be implementable in streaming processors. Such processors may choose to incrementally assemble the schema during processing in response, for example, to encountering new namespaces. The implication of the invariants expressed above is that such incremental assembly must result in an [·assessment·](https://www.w3.org/TR/xmlschema-1/#key-va) outcome that is the _same_ as would be given if [·assessment·](https://www.w3.org/TR/xmlschema-1/#key-va) was undertaken again with the final, fully assembled schema.
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#layer1) [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#composition-instances)4.2 Layer 2: Schema Documents, Namespaces and Composition
-
-4.2.1 [Assembling a schema for a single target namespace from multiple schema definition documents](https://www.w3.org/TR/xmlschema-1/#compound-schema)
-        4.2.2 [Including modified component definitions](https://www.w3.org/TR/xmlschema-1/#modify-schema)
-        4.2.3 [References to schema components across namespaces](https://www.w3.org/TR/xmlschema-1/#composition-schemaImport)
+### 4.2 Layer 2: Schema Documents, Namespaces and Composition
 
 The sub-sections of [Schema Component Details (§3)](https://www.w3.org/TR/xmlschema-1/#components) define an XML representation for type definitions and element declarations and so on, specifying their target namespace and collecting them into schema documents. The two following sections relate to assembling a complete schema for [·assessment·](https://www.w3.org/TR/xmlschema-1/#key-va) from multiple sources. They should _not_ be understood as a form of text substitution, but rather as providing mechanisms for distributed definition of schema components, with appropriate schema-specific semantics.
 
@@ -4701,7 +4651,7 @@ The [·schema components·](https://www.w3.org/TR/xmlschema-1/#key-component) (t
 
 **Note:** The above is carefully worded so that multiple [<import>](https://www.w3.org/TR/xmlschema-1/#element-import)ing of the same schema document will not constitute a violation of clause [2](https://www.w3.org/TR/xmlschema-1/#c-nmd) of [Schema Properties Correct (§3.15.6)](https://www.w3.org/TR/xmlschema-1/#sch-props-correct), but applications are allowed, indeed encouraged, to avoid [<import>](https://www.w3.org/TR/xmlschema-1/#element-import)ing the same schema document more than once to forestall the necessity of establishing identity component by component. Given that the `schemaLocation` [[attribute]](https://www.w3.org/TR/xml-infoset/#infoitem.element) is only a hint, it is open to applications to ignore all but the first [<import>](https://www.w3.org/TR/xmlschema-1/#element-import) for a given namespace, regardless of the [·actual value·](https://www.w3.org/TR/xmlschema-1/#key-vv) of `schemaLocation`, but such a strategy risks missing useful information when new `schemaLocation`s are offered.
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#layer2)4.3 Layer 3: Schema Document Access and Web-interoperability
+### 4.3 Layer 3: Schema Document Access and Web-interoperability
 
 4.3.1 [Standards for representation of schemas and retrieval of schema documents on the Web](https://www.w3.org/TR/xmlschema-1/#schema-repr)
         4.3.2 [How schema definitions are located on the Web](https://www.w3.org/TR/xmlschema-1/#schema-loc)
@@ -4778,7 +4728,7 @@ The architecture of schema-aware processing allows for a rich characterization o
 
 This specification distinguishes between errors in schema construction and structure, on the one hand, and schema validation outcomes, on the other.
 
-### [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#validation_outcome)5.1 Errors in Schema Construction and Structure
+### 5.1 Errors in Schema Construction and Structure
 
 Before [·assessment·](https://www.w3.org/TR/xmlschema-1/#key-va) can be attempted, a schema is required. Special-purpose applications are free to determine a schema for use in [·assessment·](https://www.w3.org/TR/xmlschema-1/#key-va) by whatever means are appropriate, but general purpose processors should implement the strategy set out in [Schema Document Location Strategy (§4.3.2)](https://www.w3.org/TR/xmlschema-1/#schema_reference), starting with the namespaces declared in the document whose [·assessment·](https://www.w3.org/TR/xmlschema-1/#key-va) is being undertaken, and the [·actual value·](https://www.w3.org/TR/xmlschema-1/#key-vv)s of the `xsi:schemaLocation` and `xsi:noNamespaceSchemaLocation` [[attributes]](https://www.w3.org/TR/xml-infoset/#infoitem.element) thereof, if any, along with any other information about schema identity or schema document location provided by users in application-specific ways, if any.
 
@@ -4791,7 +4741,7 @@ If a schema is derived from one or more schema documents (that is, one or more [
 
 The three cases described above are the only types of error which this specification defines. With respect to the processes of the checking of schema structure and the construction of schemas corresponding to schema documents, this specification imposes no restrictions on processors after an error is detected. However [·assessment·](https://www.w3.org/TR/xmlschema-1/#key-va) with respect to schema-like entities which do _not_ satisfy all the above conditions is incoherent. Accordingly, conformant processors must not attempt to undertake [·assessment·](https://www.w3.org/TR/xmlschema-1/#key-va) using such non-schemas.
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#conformance-schemaValidity) [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#conformance-missing)5.2 Assessing Schema-Validity
+### 5.2 Assessing Schema-Validity
 
 With a schema which satisfies the conditions expressed in [Errors in Schema Construction and Structure (§5.1)](https://www.w3.org/TR/xmlschema-1/#conformance-schemaValidity) above, the schema-validity of an element information item can be assessed. Three primary approaches to this are possible:
 
@@ -4813,7 +4763,7 @@ Note that every element and attribute information item participating in the [·a
 - [·assessment·](https://www.w3.org/TR/xmlschema-1/#key-va) was not attempted because a named definition or declaration was missing, but after further effort the processor has retrieved it.
 - [·assessment·](https://www.w3.org/TR/xmlschema-1/#key-va) was not attempted because it was \_skip_ped, but the processor has at least some declarations and/or definitions available for at least some of the [[children]](https://www.w3.org/TR/xml-infoset/#infoitem.element) or [[attributes]](https://www.w3.org/TR/xml-infoset/#infoitem.element).
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#validation_outcome) [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#conformance-processorResponsibilities)5.3 Missing Sub-components
+### 5.3 Missing Sub-components
 
 At the beginning of [Schema Component Details (§3)](https://www.w3.org/TR/xmlschema-1/#components), attention is drawn to the fact that most kinds of schema components have properties which are described therein as having other components, or sets of other components, as values, but that when components are constructed on the basis of their correspondence with element information items in schema documents, such properties usually correspond to [QNames](https://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html#QName), and the [·resolution·](https://www.w3.org/TR/xmlschema-1/#src-resolve) of such [QNames](https://www.w3.org/TR/2004/REC-xmlschema-2-20041028/datatypes.html#QName) may fail, resulting in one or more values of or containing [·absent·](https://www.w3.org/TR/xmlschema-1/#key-null) where a component is mandated.
 
@@ -4825,7 +4775,7 @@ If at any time during [·assessment·](https://www.w3.org/TR/xmlschema-1/#key-va
 
 Because of the value specification for [[validation attempted]](https://www.w3.org/TR/xmlschema-1/#e-validation_attempted) in [Assessment Outcome (Element) (§3.3.5)](https://www.w3.org/TR/xmlschema-1/#sic-e-outcome), if this situation ever arises, the document as a whole cannot show a [[validation attempted]](https://www.w3.org/TR/xmlschema-1/#e-validation_attempted) of _full_.
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#conformance-missing)5.4 Responsibilities of Schema-aware Processors
+### 5.4 Responsibilities of Schema-aware Processors
 
 Schema-aware processors are responsible for processing XML documents, schemas and schema documents, as appropriate given the level of conformance (as defined in [Conformance (§2.4)](https://www.w3.org/TR/xmlschema-1/#concepts-conformance)) they support, consistently with the conditions set out above.
 
@@ -6111,7 +6061,7 @@ _XML Pointer Language (XPointer)_, Eve Maler and Steve DeRose, eds., W3C, 8 Janu
 
 To facilitate consistent reporting of schema errors and [·validation·](https://www.w3.org/TR/xmlschema-1/#key-vn) failures, this section tabulates and provides unique names for all the constraints listed in this document. Wherever such constraints have numbered parts, reports should use the name given below plus the part number, separated by a period ('.'). Thus for example `cos-ct-extends.1.2` should be used to report a violation of the clause [1.2](https://www.w3.org/TR/xmlschema-1/#c-cte) of [Derivation Valid (Extension) (§3.4.6)](https://www.w3.org/TR/xmlschema-1/#cos-ct-extends).
 
-### [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#PSVI_contributions)C.1 Validation Rules
+### C.1 Validation Rules
 
 cvc-assess-attr
 
@@ -6225,7 +6175,7 @@ cvc-wildcard-namespace
 
 [Wildcard allows Namespace Name](https://www.w3.org/TR/xmlschema-1/#cvc-wildcard-namespace)
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#validation_failures) [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#outcome-src)C.2 Contributions to the post-schema-validation infoset
+### C.2 Contributions to the post-schema-validation infoset
 
 attribute information item properties
 
@@ -6295,7 +6245,7 @@ schema document information item properties
 [[document]](https://www.w3.org/TR/xmlschema-1/#sd-document) ([Schema Information](https://www.w3.org/TR/xmlschema-1/#sic-schema))
 [[document location]](https://www.w3.org/TR/xmlschema-1/#sd-document_location) ([Schema Information](https://www.w3.org/TR/xmlschema-1/#sic-schema))
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#PSVI_contributions) [![next sub-section](https://www.w3.org/TR/xmlschema-1/next.jpg)](https://www.w3.org/TR/xmlschema-1/#outcome-cos)C.3 Schema Representation Constraints
+### C.3 Schema Representation Constraints
 
 schema_reference
 
@@ -6393,7 +6343,7 @@ src-wildcard
 
 [Wildcard Representation OK](https://www.w3.org/TR/xmlschema-1/#src-wildcard)
 
-### [![previous sub-section](https://www.w3.org/TR/xmlschema-1/previous.jpg)](https://www.w3.org/TR/xmlschema-1/#outcome-src)C.4 Schema Component Constraints
+### C.4 Schema Component Constraints
 
 a-props-correct
 
