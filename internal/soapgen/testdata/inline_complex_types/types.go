@@ -1,9 +1,13 @@
 package inline_complex_types
 
+import (
+	"github.com/way-platform/soap-go"
+)
+
 // Order_Customer represents an inline complex type
 type Order_Customer struct {
-	Name    string `xml:"name"`
-	Address []byte `xml:"address"`
+	Name    string      `xml:"name"`
+	Address soap.RawXML `xml:"address"`
 }
 
 // OrderCustomer_Address represents an inline complex type
@@ -14,7 +18,7 @@ type OrderCustomer_Address struct {
 
 // Order_Items represents an inline complex type
 type Order_Items struct {
-	Item []byte `xml:"item"`
+	Item []soap.RawXML `xml:"item"`
 }
 
 // OrderItems_Item represents an inline complex type
@@ -27,6 +31,6 @@ type OrderItems_Item struct {
 
 // Order represents the Order element
 type Order struct {
-	Customer []byte `xml:"customer"`
-	Items    []byte `xml:"items"`
+	Customer soap.RawXML `xml:"customer"`
+	Items    soap.RawXML `xml:"items"`
 }

@@ -1,5 +1,9 @@
 package byte_array_handling
 
+import (
+	"github.com/way-platform/soap-go"
+)
+
 // DataContainer_InlineData represents an inline complex type
 type DataContainer_InlineData struct {
 	InnerField string `xml:"innerField"`
@@ -14,12 +18,12 @@ type DataContainer_MultipleInlineData struct {
 
 // DataContainer represents the DataContainer element
 type DataContainer struct {
-	SingleData           string   `xml:"singleData"`
-	MultipleData         []string `xml:"multipleData"`
-	OptionalData         *string  `xml:"optionalData"`
-	OptionalMultipleData []string `xml:"optionalMultipleData"`
-	KnownString          string   `xml:"knownString"`
-	KnownStringArray     []string `xml:"knownStringArray"`
-	InlineData           []byte   `xml:"inlineData"`
-	MultipleInlineData   []byte   `xml:"multipleInlineData"`
+	SingleData           string        `xml:"singleData"`
+	MultipleData         []string      `xml:"multipleData"`
+	OptionalData         *string       `xml:"optionalData"`
+	OptionalMultipleData []string      `xml:"optionalMultipleData"`
+	KnownString          string        `xml:"knownString"`
+	KnownStringArray     []string      `xml:"knownStringArray"`
+	InlineData           soap.RawXML   `xml:",innerxml"`
+	MultipleInlineData   []soap.RawXML `xml:"multipleInlineData"`
 }

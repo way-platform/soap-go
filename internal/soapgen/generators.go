@@ -51,6 +51,17 @@ func generateStructFromElement(g *codegen.File, element *xsd.Element, ctx *Schem
 		return // Skip elements without valid names
 	}
 
+	// Always use standard struct generation
+	// The hybrid approach handles single vs multiple RawXML fields automatically
+
+	// Standard struct generation for simple cases
+	generateStandardStruct(g, element, ctx)
+}
+
+// generateStandardStruct generates a standard struct without custom parsing
+func generateStandardStruct(g *codegen.File, element *xsd.Element, ctx *SchemaContext) {
+	structName := toGoName(element.Name)
+
 	// Add comment
 	g.P("// ", structName, " represents the ", element.Name, " element")
 
@@ -62,10 +73,41 @@ func generateStructFromElement(g *codegen.File, element *xsd.Element, ctx *Schem
 
 	// Generate fields from the complex type or simple type
 	if element.ComplexType != nil {
+		// Count RawXML fields in this struct to determine proper XML tag strategy
+		// Only count single RawXML fields (not arrays) for innerxml decision
+		singleRawXMLCount := 0
+
+		// Count sequence elements that will become single RawXML fields
+		if element.ComplexType.Sequence != nil {
+			for _, field := range element.ComplexType.Sequence.Elements {
+				if field.ComplexType != nil {
+					// Only count single fields (not arrays) for innerxml decision
+					if field.MaxOccurs == "" || field.MaxOccurs == "1" {
+						singleRawXMLCount++
+					}
+				}
+			}
+		}
+
+		// Count extension sequence elements that will become single RawXML fields
+		if element.ComplexType.ComplexContent != nil && element.ComplexType.ComplexContent.Extension != nil {
+			ext := element.ComplexType.ComplexContent.Extension
+			if ext.Sequence != nil {
+				for _, field := range ext.Sequence.Elements {
+					if field.ComplexType != nil {
+						// Only count single fields (not arrays) for innerxml decision
+						if field.MaxOccurs == "" || field.MaxOccurs == "1" {
+							singleRawXMLCount++
+						}
+					}
+				}
+			}
+		}
+
 		// Handle sequence elements
 		if element.ComplexType.Sequence != nil {
 			for _, field := range element.ComplexType.Sequence.Elements {
-				if generateStructFieldWithInlineTypes(g, &field, ctx) {
+				if generateStructFieldWithInlineTypesAndContext(g, &field, ctx, singleRawXMLCount) {
 					hasFields = true
 				}
 			}
@@ -83,7 +125,7 @@ func generateStructFromElement(g *codegen.File, element *xsd.Element, ctx *Schem
 			ext := element.ComplexType.ComplexContent.Extension
 			if ext.Sequence != nil {
 				for _, field := range ext.Sequence.Elements {
-					if generateStructFieldWithInlineTypes(g, &field, ctx) {
+					if generateStructFieldWithInlineTypesAndContext(g, &field, ctx, singleRawXMLCount) {
 						hasFields = true
 					}
 				}
@@ -112,8 +154,8 @@ func generateStructFromElement(g *codegen.File, element *xsd.Element, ctx *Schem
 	g.P()
 }
 
-// generateStructFieldWithInlineTypes generates a Go struct field with support for inline complex types
-func generateStructFieldWithInlineTypes(g *codegen.File, element *xsd.Element, ctx *SchemaContext) bool {
+// generateStructFieldWithInlineTypesAndContext generates a Go struct field with support for inline complex types
+func generateStructFieldWithInlineTypesAndContext(g *codegen.File, element *xsd.Element, ctx *SchemaContext, singleRawXMLCount int) bool {
 	// Handle element references
 	if element.Ref != "" {
 		// Resolve the reference
@@ -161,9 +203,9 @@ func generateStructFieldWithInlineTypes(g *codegen.File, element *xsd.Element, c
 	if element.Type != "" {
 		goType = mapXSDTypeToGoWithContext(element.Type, ctx)
 	} else if element.ComplexType != nil {
-		// For inline complex types without explicit type generation, use []byte to capture raw XML
-		// This allows consumers to parse the XML content later when stronger typing is implemented
-		goType = "[]byte"
+		// For inline complex types without explicit type generation, use soap.RawXML to capture raw XML
+		// This allows consumers to access the complete XML content for manual parsing
+		goType = "soap.RawXML"
 	} else {
 		goType = "string" // fallback
 	}
@@ -186,11 +228,22 @@ func generateStructFieldWithInlineTypes(g *codegen.File, element *xsd.Element, c
 	}
 
 	// Generate the field with XML tag
-	// For []byte fields, we want to capture the element content as-is
-	// Note: Using standard xml:"elementName" tags for []byte fields will capture text content
-	// For complex element content, consumers can manually unmarshal the []byte content
-	g.P("\t", fieldName, " ", goType, " `xml:\"", xmlName, "\"`")
+	// Use ,innerxml only when there's a single RawXML field in the struct
+	// Otherwise use element names to avoid conflicts
+	xmlTag := xmlName
+	if goType == "soap.RawXML" && singleRawXMLCount == 1 {
+		// Use ,innerxml only for single RawXML fields to capture complete inner content
+		xmlTag = ",innerxml"
+	}
+	// For multiple RawXML fields or []soap.RawXML, use element name to capture individual elements
+	g.P("\t", fieldName, " ", goType, " `xml:\"", xmlTag, "\"`")
 	return true
+}
+
+// generateStructFieldWithInlineTypes generates a Go struct field with support for inline complex types
+func generateStructFieldWithInlineTypes(g *codegen.File, element *xsd.Element, ctx *SchemaContext) bool {
+	// Default to rawXMLCount = 0 (use element names) for backwards compatibility
+	return generateStructFieldWithInlineTypesAndContext(g, element, ctx, 0)
 }
 
 // generateAttributeField generates a Go struct field from an XSD attribute

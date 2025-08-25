@@ -242,7 +242,9 @@ func collectRequiredImports(element *xsd.Element, imports map[string]bool, ctx *
 						imports[imp] = true
 					}
 				} else if fieldElement.ComplexType != nil {
-					// Check if inline complex types need imports
+					// For inline complex types, we use soap.RawXML which requires the soap package
+					imports["github.com/way-platform/soap-go"] = true
+					// Check if inline complex types need other imports
 					collectRequiredImportsFromComplexType(fieldElement.ComplexType, imports)
 				}
 			}
@@ -268,6 +270,9 @@ func collectRequiredImports(element *xsd.Element, imports map[string]bool, ctx *
 						for _, imp := range parsedType.RequiresImport() {
 							imports[imp] = true
 						}
+					} else if fieldElement.ComplexType != nil {
+						// For inline complex types, we use soap.RawXML which requires the soap package
+						imports["github.com/way-platform/soap-go"] = true
 					}
 				}
 			}

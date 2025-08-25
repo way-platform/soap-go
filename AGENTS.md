@@ -21,6 +21,8 @@ When developing this SDK, use the WSDL and SOAP specifications in [docs](./docs)
 
 - Lint with `./tools/mage lint`
 
+- Re-generate code with `./tools/mage generate`
+
 - Leave all version control and git to the user/developer. If you see a build error related to having a git diff, this is normal.
 
 ## Testing
@@ -28,3 +30,7 @@ When developing this SDK, use the WSDL and SOAP specifications in [docs](./docs)
 - When fixing issues in the code generator, add tests in [internal/soapgen/golden_test.go](./internal/soapgen/golden_test.go).
 
 - When fixing issues in how the the generated code parses raw XML, add tests in [examples/examples_test.go](./examples/examples_test.go).
+
+## Principles
+
+- Work within the constraints of Go's XML parser. Find simple and effective solutions that align with how "encoding/xml" works.

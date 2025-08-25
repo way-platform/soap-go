@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/way-platform/soap-go"
 	"github.com/way-platform/soap-go/examples/kitchensink"
 )
 
@@ -620,10 +621,9 @@ func TestInlineComplexTypes(t *testing.T) {
 				</items>
 			</InlineTypesTest>`,
 			expected: kitchensink.InlineTypesTest{
-				// []byte fields capture whitespace/formatting, not the nested XML structure
-				// This demonstrates that []byte with standard XML tags captures character data only
-				Customer: []byte("\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t"),
-				Items:    []byte("\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t"),
+				// Both Customer and Items use element names and capture character data only (whitespace)
+				Customer: soap.RawXML("\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t"), // Whitespace only due to XML tag limitation
+				Items:    soap.RawXML("\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t"), // Whitespace only due to XML tag limitation
 			},
 		},
 		{
@@ -633,8 +633,9 @@ func TestInlineComplexTypes(t *testing.T) {
 				<items><item><product>Tool</product><quantity>1</quantity></item></items>
 			</InlineTypesTest>`,
 			expected: kitchensink.InlineTypesTest{
-				Customer: []byte{}, // No whitespace between tags
-				Items:    []byte{}, // No whitespace between tags
+				// Both fields use element names and capture character data only
+				Customer: soap.RawXML(""), // Empty due to XML tag limitation
+				Items:    soap.RawXML(""), // Empty due to XML tag limitation
 			},
 		},
 	}
@@ -729,11 +730,17 @@ func TestUntypedFields(t *testing.T) {
 				</multipleComplexData>
 			</UntypedFieldsTest>`,
 			expected: kitchensink.UntypedFieldsTest{
-				UnknownField:        "Simple text",
-				UnknownArray:        []string{"item1", "item2", "item3"}, // []string not [][]string
-				OptionalUnknown:     stringPtr("Optional value"),
-				ComplexData:         []byte("\n\t\t\t\t\t\n\t\t\t\t"), // Whitespace only
-				MultipleComplexData: []byte("\n\t\t\t\t\t\n\t\t\t\t"), // Whitespace only - []byte not [][]byte
+				UnknownField:    "Simple text",
+				UnknownArray:    []string{"item1", "item2", "item3"}, // []string not [][]string
+				OptionalUnknown: stringPtr("Optional value"),
+				// ComplexData uses ,innerxml and captures ALL inner XML of the parent element
+				ComplexData: soap.RawXML("\n\t\t\t\t<unknownField>Simple text</unknownField>\n\t\t\t\t<unknownArray>item1</unknownArray>\n\t\t\t\t<unknownArray>item2</unknownArray>\n\t\t\t\t<unknownArray>item3</unknownArray>\n\t\t\t\t<optionalUnknown>Optional value</optionalUnknown>\n\t\t\t\t<complexData>\n\t\t\t\t\t<innerField>Complex inner value</innerField>\n\t\t\t\t</complexData>\n\t\t\t\t<multipleComplexData>\n\t\t\t\t\t<innerField>123</innerField>\n\t\t\t\t</multipleComplexData>\n\t\t\t\t<multipleComplexData>\n\t\t\t\t\t<innerField>456</innerField>\n\t\t\t\t</multipleComplexData>\n\t\t\t"),
+				// MultipleComplexData uses element names and captures character data only (whitespace)
+				MultipleComplexData: []soap.RawXML{
+					// TODO: Add custom parsing to capture the raw XML for multiple sequential elements.
+					soap.RawXML("\n\t\t\t\t\t\n\t\t\t\t"), // Whitespace only due to XML tag limitation
+					soap.RawXML("\n\t\t\t\t\t\n\t\t\t\t"), // Whitespace only due to XML tag limitation
+				},
 			},
 		},
 		{
@@ -745,11 +752,15 @@ func TestUntypedFields(t *testing.T) {
 				<multipleComplexData><innerField>0</innerField></multipleComplexData>
 			</UntypedFieldsTest>`,
 			expected: kitchensink.UntypedFieldsTest{
-				UnknownField:        "",
-				UnknownArray:        []string{"single"},
-				OptionalUnknown:     nil,      // Not present
-				ComplexData:         []byte{}, // No whitespace
-				MultipleComplexData: []byte{}, // No whitespace
+				UnknownField:    "",
+				UnknownArray:    []string{"single"},
+				OptionalUnknown: nil, // Not present
+				// ComplexData uses ,innerxml and captures ALL inner XML of the parent element
+				ComplexData: soap.RawXML("\n\t\t\t\t<unknownField></unknownField>\n\t\t\t\t<unknownArray>single</unknownArray>\n\t\t\t\t<complexData><innerField></innerField></complexData>\n\t\t\t\t<multipleComplexData><innerField>0</innerField></multipleComplexData>\n\t\t\t"),
+				// MultipleComplexData uses element names and captures character data only
+				MultipleComplexData: []soap.RawXML{
+					soap.RawXML(""), // Empty due to XML tag limitation
+				},
 			},
 		},
 		{
@@ -762,11 +773,15 @@ func TestUntypedFields(t *testing.T) {
 				<multipleComplexData><innerField>1</innerField></multipleComplexData>
 			</UntypedFieldsTest>`,
 			expected: kitchensink.UntypedFieldsTest{
-				UnknownField:        "test",
-				UnknownArray:        []string{"one", "two"},
-				OptionalUnknown:     nil, // Not present in XML
-				ComplexData:         []byte{},
-				MultipleComplexData: []byte{},
+				UnknownField:    "test",
+				UnknownArray:    []string{"one", "two"},
+				OptionalUnknown: nil, // Not present in XML
+				// ComplexData uses ,innerxml and captures ALL inner XML of the parent element
+				ComplexData: soap.RawXML("\n\t\t\t\t<unknownField>test</unknownField>\n\t\t\t\t<unknownArray>one</unknownArray>\n\t\t\t\t<unknownArray>two</unknownArray>\n\t\t\t\t<complexData><innerField>test</innerField></complexData>\n\t\t\t\t<multipleComplexData><innerField>1</innerField></multipleComplexData>\n\t\t\t"),
+				// MultipleComplexData uses element names and captures character data only
+				MultipleComplexData: []soap.RawXML{
+					soap.RawXML(""), // Empty due to XML tag limitation
+				},
 			},
 		},
 	}
