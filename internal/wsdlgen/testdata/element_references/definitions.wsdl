@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://example.com/test"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://example.com/test">
+
+    <types>
+        <xs:schema targetNamespace="http://example.com/test" elementFormDefault="qualified">
+
+            <!-- Base elements that can be referenced -->
+            <xs:element name="PersonName" type="xs:string" />
+            <xs:element name="PersonAge" type="xs:int" />
+
+            <xs:element name="Address">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="street" type="xs:string" />
+                        <xs:element name="city" type="xs:string" />
+                        <xs:element name="zipCode" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- Element that references other elements -->
+            <xs:element name="Person">
+                <xs:complexType>
+                    <xs:sequence>
+                        <!-- Reference to simple type elements -->
+                        <xs:element ref="tns:PersonName" />
+                        <xs:element ref="tns:PersonAge" />
+
+                        <!-- Reference to complex type element -->
+                        <xs:element ref="tns:Address" />
+
+                        <!-- Optional reference -->
+                        <xs:element ref="tns:PersonName" minOccurs="0" />
+
+                        <!-- Multiple references -->
+                        <xs:element ref="tns:Address" maxOccurs="unbounded" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+        </xs:schema>
+    </types>
+
+</definitions>

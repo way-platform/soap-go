@@ -137,6 +137,7 @@ func generateStructFieldWithInlineTypes(g *codegen.File, element *xsd.Element, c
 					}
 				}
 
+				// For []byte fields, use standard XML tags to capture element content
 				g.P("\t", fieldName, " ", goType, " `xml:\"", xmlName, "\"`")
 				return true
 			}
@@ -184,6 +185,9 @@ func generateStructFieldWithInlineTypes(g *codegen.File, element *xsd.Element, c
 	}
 
 	// Generate the field with XML tag
+	// For []byte fields, we want to capture the element content as-is
+	// Note: Using standard xml:"elementName" tags for []byte fields will capture text content
+	// For complex element content, consumers can manually unmarshal the []byte content
 	g.P("\t", fieldName, " ", goType, " `xml:\"", xmlName, "\"`")
 	return true
 }

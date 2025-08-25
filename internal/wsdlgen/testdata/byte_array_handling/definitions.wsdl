@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://example.com/test"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://example.com/test">
+
+    <types>
+        <xs:schema targetNamespace="http://example.com/test" elementFormDefault="qualified">
+
+            <!-- Test proper handling of arrays with []byte fields -->
+            <xs:element name="DataContainer">
+                <xs:complexType>
+                    <xs:sequence>
+                        <!-- Single untyped field - should be []byte -->
+                        <xs:element name="singleData" />
+
+                        <!-- Multiple untyped fields - should be []byte (NOT [][]byte) -->
+                        <xs:element name="multipleData" maxOccurs="unbounded" />
+
+                        <!-- Optional untyped fields - should be []byte -->
+                        <xs:element name="optionalData" minOccurs="0" />
+
+                        <!-- Optional multiple untyped fields - should be []byte -->
+                        <xs:element name="optionalMultipleData" minOccurs="0" maxOccurs="unbounded" />
+
+                        <!-- Mixed with known types -->
+                        <xs:element name="knownString" type="xs:string" />
+                        <xs:element name="knownStringArray" type="xs:string" maxOccurs="unbounded" />
+
+                        <!-- Inline complex types should generate dedicated types -->
+                        <xs:element name="inlineData">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="innerField" type="xs:string" />
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+
+                        <!-- Multiple inline complex types should generate dedicated types -->
+                        <xs:element name="multipleInlineData" maxOccurs="unbounded">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="innerField" type="xs:int" />
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+        </xs:schema>
+    </types>
+
+</definitions>

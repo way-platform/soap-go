@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://example.com/test"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://example.com/test">
+
+    <types>
+        <xs:schema targetNamespace="http://example.com/test" elementFormDefault="qualified">
+
+            <!-- Custom simple types with restrictions/enumerations -->
+            <xs:simpleType name="StatusType">
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="active" />
+                    <xs:enumeration value="inactive" />
+                    <xs:enumeration value="pending" />
+                </xs:restriction>
+            </xs:simpleType>
+
+            <xs:simpleType name="UserIdType">
+                <xs:restriction base="xs:long">
+                    <xs:pattern value="[0-9]+" />
+                </xs:restriction>
+            </xs:simpleType>
+
+            <!-- Named complex type that should be generated -->
+            <xs:complexType name="UserInfoType">
+                <xs:sequence>
+                    <xs:element name="userId" type="tns:UserIdType" />
+                    <xs:element name="status" type="tns:StatusType" />
+                    <xs:element name="email" type="xs:string" />
+                </xs:sequence>
+            </xs:complexType>
+
+            <!-- Element that references the named complex type -->
+            <xs:element name="User" type="tns:UserInfoType" />
+
+            <!-- Element that uses the enumeration type -->
+            <xs:element name="StatusCheck">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="currentStatus" type="tns:StatusType" />
+                        <xs:element name="targetStatus" type="tns:StatusType" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+        </xs:schema>
+    </types>
+
+</definitions>

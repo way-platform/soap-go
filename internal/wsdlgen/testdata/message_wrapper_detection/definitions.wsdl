@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://example.com/test"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://example.com/test">
+
+    <types>
+        <xs:schema targetNamespace="http://example.com/test" elementFormDefault="qualified">
+
+            <!-- Data type elements (should be generated) -->
+            <xs:element name="LoginRequest">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="username" type="xs:string" />
+                        <xs:element name="password" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="LoginResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="sessionId" type="xs:string" />
+                        <xs:element name="success" type="xs:boolean" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- Message wrapper elements (should be detected and potentially skipped) -->
+            <!-- These use camelCase and reference the PascalCase data types -->
+            <xs:element name="login">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="tns:LoginRequest" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="loginResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="tns:LoginResponse" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- Another operation -->
+            <xs:element name="UserData">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="userId" type="xs:long" />
+                        <xs:element name="userData" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="getUserData">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="tns:UserData" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+        </xs:schema>
+    </types>
+
+</definitions>

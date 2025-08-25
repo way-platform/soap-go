@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://example.com/test"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://example.com/test">
+
+    <types>
+        <xs:schema targetNamespace="http://example.com/test" elementFormDefault="qualified">
+
+            <!-- Test cases where we should generate []byte instead of interface{} -->
+            <xs:element name="MixedContent">
+                <xs:complexType>
+                    <xs:sequence>
+                        <!-- Known type - should be strongly typed -->
+                        <xs:element name="knownField" type="xs:string" />
+
+                        <!-- Unknown/untyped field - should become []byte to capture raw XML -->
+                        <xs:element name="unknownField" />
+
+                        <!-- Array of unknown types - should be []byte not [][]byte -->
+                        <xs:element name="unknownArray" maxOccurs="unbounded" />
+
+                        <!-- Optional unknown field - should be []byte -->
+                        <xs:element name="optionalUnknown" minOccurs="0" />
+
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+        </xs:schema>
+    </types>
+
+</definitions>
