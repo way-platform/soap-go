@@ -1,4 +1,4 @@
-package wsdlgen
+package soapgen
 
 import (
 	"github.com/way-platform/soap-go/internal/codegen"

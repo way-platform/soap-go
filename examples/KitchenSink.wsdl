@@ -9,7 +9,7 @@
             elementFormDefault="qualified">
 
             <!-- Test request with various primitive types -->
-            <xs:element name="TypeTestRequest">
+            <xs:element name="KitchenSinkRequest">
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element name="stringField" type="xs:string" />
@@ -56,7 +56,7 @@
             </xs:element>
 
             <!-- Test response -->
-            <xs:element name="TypeTestResponse">
+            <xs:element name="KitchenSinkResponse">
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element name="result" type="xs:string" />
@@ -68,19 +68,19 @@
     </types>
 
     <!-- Message definitions -->
-    <message name="TypeTestRequestMessage">
-        <part name="request" element="tns:TypeTestRequest" />
+    <message name="KitchenSinkRequestMessage">
+        <part name="request" element="tns:KitchenSinkRequest" />
     </message>
 
-    <message name="TypeTestResponseMessage">
-        <part name="response" element="tns:TypeTestResponse" />
+    <message name="KitchenSinkResponseMessage">
+        <part name="response" element="tns:KitchenSinkResponse" />
     </message>
 
     <!-- Port type definitions -->
-    <portType name="TypeTestPortType">
-        <operation name="TypeTest">
-            <input message="tns:TypeTestRequestMessage" />
-            <output message="tns:TypeTestResponseMessage" />
+    <portType name="KitchenSinkPortType">
+        <operation name="KitchenSink">
+            <input message="tns:KitchenSinkRequestMessage" />
+            <output message="tns:KitchenSinkResponseMessage" />
         </operation>
     </portType>
 
