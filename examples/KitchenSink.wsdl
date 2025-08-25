@@ -8,6 +8,37 @@
             targetNamespace="http://example.com/typetest"
             elementFormDefault="qualified">
 
+            <!-- Enumeration types for testing -->
+            <xs:simpleType name="StatusType">
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="ACTIVE" />
+                    <xs:enumeration value="INACTIVE" />
+                    <xs:enumeration value="PENDING" />
+                </xs:restriction>
+            </xs:simpleType>
+
+            <xs:simpleType name="PriorityType">
+                <xs:restriction base="xs:int">
+                    <xs:enumeration value="1" />
+                    <xs:enumeration value="2" />
+                    <xs:enumeration value="3" />
+                </xs:restriction>
+            </xs:simpleType>
+
+            <!-- Complex type for nested structure -->
+            <xs:complexType name="AddressType">
+                <xs:sequence>
+                    <xs:element name="street" type="xs:string" />
+                    <xs:element name="city" type="xs:string" />
+                    <xs:element name="zipCode" type="xs:string" />
+                </xs:sequence>
+                <xs:attribute name="country" type="xs:string" use="required" />
+                <xs:attribute name="verified" type="xs:boolean" />
+            </xs:complexType>
+
+            <!-- Simple element for references -->
+            <xs:element name="Tag" type="xs:string" />
+
             <!-- Test request with various primitive types -->
             <xs:element name="KitchenSinkRequest">
                 <xs:complexType>
@@ -51,7 +82,37 @@
                         <xs:element name="gDayField" type="xs:gDay" />
                         <xs:element name="gYearMonthField" type="xs:gYearMonth" />
                         <xs:element name="gMonthDayField" type="xs:gMonthDay" />
+
+                        <!-- Edge case fields -->
+                        <!-- Optional fields -->
+                        <xs:element name="optionalString" type="xs:string" minOccurs="0" />
+                        <xs:element name="optionalInt" type="xs:int" minOccurs="0" />
+
+                        <!-- Multiple/unbounded fields -->
+                        <xs:element name="tags" type="xs:string" maxOccurs="unbounded" />
+                        <xs:element name="numbers" type="xs:int" maxOccurs="unbounded" />
+                        <xs:element name="optionalTags" type="xs:string" minOccurs="0"
+                            maxOccurs="unbounded" />
+
+                        <!-- Enumeration fields -->
+                        <xs:element name="status" type="tns:StatusType" />
+                        <xs:element name="priority" type="tns:PriorityType" />
+                        <xs:element name="optionalStatus" type="tns:StatusType" minOccurs="0" />
+
+                        <!-- Complex type field -->
+                        <xs:element name="address" type="tns:AddressType" />
+                        <xs:element name="optionalAddress" type="tns:AddressType" minOccurs="0" />
+
+                        <!-- Simple type element -->
+                        <xs:element name="simpleElement" type="xs:string" />
+
+                        <!-- Complex type field -->
+                        <xs:element name="metadata" type="tns:AddressType" minOccurs="0" />
                     </xs:sequence>
+                    <!-- Attributes on the main element -->
+                    <xs:attribute name="version" type="xs:string" use="required" />
+                    <xs:attribute name="debug" type="xs:boolean" />
+                    <xs:attribute name="timestamp" type="xs:dateTime" />
                 </xs:complexType>
             </xs:element>
 
@@ -63,6 +124,108 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+
+            <!-- Test inline complex types (should generate Outer_Inner naming) -->
+            <xs:element name="InlineTypesTest">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="customer">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="name" type="xs:string" />
+                                    <xs:element name="address">
+                                        <xs:complexType>
+                                            <xs:sequence>
+                                                <xs:element name="street" type="xs:string" />
+                                                <xs:element name="city" type="xs:string" />
+                                            </xs:sequence>
+                                        </xs:complexType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                        <xs:element name="items">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="item" maxOccurs="unbounded">
+                                        <xs:complexType>
+                                            <xs:sequence>
+                                                <xs:element name="product" type="xs:string" />
+                                                <xs:element name="quantity" type="xs:int" />
+                                            </xs:sequence>
+                                        </xs:complexType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- Test element references -->
+            <xs:element name="PersonName" type="xs:string" />
+            <xs:element name="PersonAge" type="xs:int" />
+
+            <xs:element name="PersonInfo">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="tns:PersonName" />
+                        <xs:element ref="tns:PersonAge" />
+                        <xs:element ref="tns:Tag" minOccurs="0" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- Test untyped fields that should become []byte -->
+            <xs:element name="UntypedFieldsTest">
+                <xs:complexType>
+                    <xs:sequence>
+                        <!-- Untyped field - should be string (fallback) -->
+                        <xs:element name="unknownField" />
+
+                        <!-- Array of untyped - should be []string not [][]string -->
+                        <xs:element name="unknownArray" maxOccurs="unbounded" />
+
+                        <!-- Optional untyped - should be *string -->
+                        <xs:element name="optionalUnknown" minOccurs="0" />
+
+                        <!-- Inline complex that should be []byte -->
+                        <xs:element name="complexData">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="innerField" type="xs:string" />
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+
+                        <!-- Multiple inline complex - should be []byte -->
+                        <xs:element name="multipleComplexData" maxOccurs="unbounded">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="innerField" type="xs:int" />
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- Test custom types with enumerations -->
+            <xs:simpleType name="UserIdType">
+                <xs:restriction base="xs:long">
+                    <xs:pattern value="[0-9]+" />
+                </xs:restriction>
+            </xs:simpleType>
+
+            <xs:complexType name="UserInfoType">
+                <xs:sequence>
+                    <xs:element name="userId" type="tns:UserIdType" />
+                    <xs:element name="status" type="tns:StatusType" />
+                    <xs:element name="email" type="xs:string" />
+                </xs:sequence>
+            </xs:complexType>
+
+            <xs:element name="UserTest" type="tns:UserInfoType" />
 
         </xs:schema>
     </types>

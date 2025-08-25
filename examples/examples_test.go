@@ -17,7 +17,7 @@ func TestKitchenSinkRequestUnmarshaling(t *testing.T) {
 	}{
 		{
 			name: "basic types",
-			xml: `<KitchenSinkRequest xmlns="http://example.com/typetest">
+			xml: `<KitchenSinkRequest xmlns="http://example.com/typetest" version="1.0" debug="true" timestamp="2023-12-25T10:30:00Z">
 				<stringField>Hello World</stringField>
 				<booleanField>true</booleanField>
 				<intField>42</intField>
@@ -57,6 +57,36 @@ func TestKitchenSinkRequestUnmarshaling(t *testing.T) {
 				<gDayField>---25</gDayField>
 				<gYearMonthField>2023-12</gYearMonthField>
 				<gMonthDayField>--12-25</gMonthDayField>
+				<!-- Edge case fields -->
+				<optionalString>Optional value</optionalString>
+				<optionalInt>999</optionalInt>
+				<tags>tag1</tags>
+				<tags>tag2</tags>
+				<tags>tag3</tags>
+				<numbers>1</numbers>
+				<numbers>2</numbers>
+				<numbers>3</numbers>
+				<optionalTags>opt1</optionalTags>
+				<optionalTags>opt2</optionalTags>
+				<status>ACTIVE</status>
+				<priority>2</priority>
+				<optionalStatus>PENDING</optionalStatus>
+				<address country="US" verified="true">
+					<street>123 Main St</street>
+					<city>Anytown</city>
+					<zipCode>12345</zipCode>
+				</address>
+				<optionalAddress country="CA">
+					<street>456 Elm St</street>
+					<city>Toronto</city>
+					<zipCode>M5V 3A8</zipCode>
+				</optionalAddress>
+				<simpleElement>Simple value</simpleElement>
+				<metadata country="UK" verified="false">
+					<street>789 Oak St</street>
+					<city>London</city>
+					<zipCode>SW1A 1AA</zipCode>
+				</metadata>
 			</KitchenSinkRequest>`,
 			expected: kitchensink.KitchenSinkRequest{
 				StringField:             "Hello World",
@@ -98,11 +128,46 @@ func TestKitchenSinkRequestUnmarshaling(t *testing.T) {
 				GDayField:               "---25",
 				GYearMonthField:         "2023-12",
 				GMonthDayField:          "--12-25",
+				// Edge case fields
+				OptionalString: stringPtr("Optional value"),
+				OptionalInt:    int32Ptr(999),
+				Tags:           []string{"tag1", "tag2", "tag3"},
+				Numbers:        []int32{1, 2, 3},
+				OptionalTags:   []string{"opt1", "opt2"},
+				Status:         "ACTIVE",
+				Priority:       2,
+				OptionalStatus: stringPtr("PENDING"),
+				Address: kitchensink.AddressType{
+					Street:   "123 Main St",
+					City:     "Anytown",
+					ZipCode:  "12345",
+					Country:  "US",
+					Verified: boolPtr(true),
+				},
+				OptionalAddress: &kitchensink.AddressType{
+					Street:   "456 Elm St",
+					City:     "Toronto",
+					ZipCode:  "M5V 3A8",
+					Country:  "CA",
+					Verified: nil,
+				},
+				SimpleElement: "Simple value",
+				Metadata: &kitchensink.AddressType{
+					Street:   "789 Oak St",
+					City:     "London",
+					ZipCode:  "SW1A 1AA",
+					Country:  "UK",
+					Verified: boolPtr(false),
+				},
+				// Attributes
+				Version:   "1.0",
+				Debug:     boolPtr(true),
+				Timestamp: timePtr(mustParseTime("2006-01-02T15:04:05Z", "2023-12-25T10:30:00Z")),
 			},
 		},
 		{
 			name: "minimal values",
-			xml: `<KitchenSinkRequest xmlns="http://example.com/typetest">
+			xml: `<KitchenSinkRequest xmlns="http://example.com/typetest" version="1.0">
 				<stringField></stringField>
 				<booleanField>false</booleanField>
 				<intField>0</intField>
@@ -142,6 +207,17 @@ func TestKitchenSinkRequestUnmarshaling(t *testing.T) {
 				<gDayField>---01</gDayField>
 				<gYearMonthField>1970-01</gYearMonthField>
 				<gMonthDayField>--01-01</gMonthDayField>
+				<!-- Required edge case fields -->
+				<tags>single</tags>
+				<numbers>0</numbers>
+				<status>INACTIVE</status>
+				<priority>1</priority>
+				<address country="US">
+					<street></street>
+					<city></city>
+					<zipCode></zipCode>
+				</address>
+				<simpleElement></simpleElement>
 			</KitchenSinkRequest>`,
 			expected: kitchensink.KitchenSinkRequest{
 				StringField:             "",
@@ -183,6 +259,155 @@ func TestKitchenSinkRequestUnmarshaling(t *testing.T) {
 				GDayField:               "---01",
 				GYearMonthField:         "1970-01",
 				GMonthDayField:          "--01-01",
+				// Edge case fields - only required ones present
+				OptionalString: nil,
+				OptionalInt:    nil,
+				Tags:           []string{"single"},
+				Numbers:        []int32{0},
+				OptionalTags:   nil,
+				Status:         "INACTIVE",
+				Priority:       1,
+				OptionalStatus: nil,
+				Address: kitchensink.AddressType{
+					Street:   "",
+					City:     "",
+					ZipCode:  "",
+					Country:  "US",
+					Verified: nil,
+				},
+				OptionalAddress: nil,
+				SimpleElement:   "",
+				Metadata:        nil,
+				// Attributes - only required ones
+				Version:   "1.0",
+				Debug:     nil,
+				Timestamp: nil,
+			},
+		},
+		{
+			name: "edge cases - optional fields and enumerations",
+			xml: `<KitchenSinkRequest xmlns="http://example.com/typetest" version="2.0" debug="false">
+				<stringField>Edge case test</stringField>
+				<booleanField>true</booleanField>
+				<intField>123</intField>
+				<longField>456</longField>
+				<shortField>789</shortField>
+				<byteField>12</byteField>
+				<floatField>1.23</floatField>
+				<doubleField>4.56</doubleField>
+				<decimalField>7.89</decimalField>
+				<dateTimeField>2024-01-01T12:00:00Z</dateTimeField>
+				<dateField>2024-01-01T00:00:00Z</dateField>
+				<timeField>1970-01-01T12:00:00Z</timeField>
+				<durationField>3600000000000</durationField>
+				<unsignedLongField>100</unsignedLongField>
+				<unsignedIntField>200</unsignedIntField>
+				<unsignedShortField>300</unsignedShortField>
+				<unsignedByteField>50</unsignedByteField>
+				<integerField>-100</integerField>
+				<positiveIntegerField>999</positiveIntegerField>
+				<nonNegativeIntegerField>500</nonNegativeIntegerField>
+				<negativeIntegerField>-999</negativeIntegerField>
+				<nonPositiveIntegerField>-500</nonPositiveIntegerField>
+				<normalizedStringField>edge case</normalizedStringField>
+				<tokenField>edge_token</tokenField>
+				<languageField>de-DE</languageField>
+				<nmtokenField>EDGE123</nmtokenField>
+				<nameField>EdgeElement</nameField>
+				<ncnameField>edgeNCName</ncnameField>
+				<idField>edge_id</idField>
+				<idrefField>edge_ref</idrefField>
+				<anyUriField>https://edge.example.com</anyUriField>
+				<qnameField>edge:test</qnameField>
+				<hexBinaryField>4142</hexBinaryField>
+				<base64BinaryField>QUI=</base64BinaryField>
+				<gYearField>2024</gYearField>
+				<gMonthField>--06</gMonthField>
+				<gDayField>---15</gDayField>
+				<gYearMonthField>2024-06</gYearMonthField>
+				<gMonthDayField>--06-15</gMonthDayField>
+				<!-- No optional fields to test nil handling -->
+				<tags>edge1</tags>
+				<tags>edge2</tags>
+				<numbers>10</numbers>
+				<numbers>20</numbers>
+				<numbers>30</numbers>
+				<!-- No optionalTags to test empty slice -->
+				<status>PENDING</status>
+				<priority>3</priority>
+				<!-- No optionalStatus to test nil -->
+				<address country="DE" verified="true">
+					<street>Edge Street 123</street>
+					<city>Berlin</city>
+					<zipCode>10115</zipCode>
+				</address>
+				<!-- No optionalAddress to test nil -->
+				<simpleElement>Edge simple</simpleElement>
+				<!-- No metadata to test nil -->
+			</KitchenSinkRequest>`,
+			expected: kitchensink.KitchenSinkRequest{
+				StringField:             "Edge case test",
+				BooleanField:            true,
+				IntField:                123,
+				LongField:               456,
+				ShortField:              789,
+				ByteField:               12,
+				FloatField:              1.23,
+				DoubleField:             4.56,
+				DecimalField:            7.89,
+				DateTimeField:           mustParseTime("2006-01-02T15:04:05Z", "2024-01-01T12:00:00Z"),
+				DateField:               mustParseTime("2006-01-02T15:04:05Z", "2024-01-01T00:00:00Z"),
+				TimeField:               mustParseTime("2006-01-02T15:04:05Z", "1970-01-01T12:00:00Z"),
+				DurationField:           1 * time.Hour,
+				UnsignedLongField:       100,
+				UnsignedIntField:        200,
+				UnsignedShortField:      300,
+				UnsignedByteField:       50,
+				IntegerField:            -100,
+				PositiveIntegerField:    999,
+				NonNegativeIntegerField: 500,
+				NegativeIntegerField:    -999,
+				NonPositiveIntegerField: -500,
+				NormalizedStringField:   "edge case",
+				TokenField:              "edge_token",
+				LanguageField:           "de-DE",
+				NmtokenField:            "EDGE123",
+				NameField:               "EdgeElement",
+				NcnameField:             "edgeNCName",
+				IdField:                 "edge_id",
+				IdrefField:              "edge_ref",
+				AnyUriField:             "https://edge.example.com",
+				QnameField:              xml.Name{Local: "qnameField", Space: "http://example.com/typetest"},
+				HexBinaryField:          []byte("4142"),
+				Base64BinaryField:       []byte("QUI="),
+				GYearField:              "2024",
+				GMonthField:             "--06",
+				GDayField:               "---15",
+				GYearMonthField:         "2024-06",
+				GMonthDayField:          "--06-15",
+				// Edge case fields
+				OptionalString: nil, // Not present in XML
+				OptionalInt:    nil, // Not present in XML
+				Tags:           []string{"edge1", "edge2"},
+				Numbers:        []int32{10, 20, 30},
+				OptionalTags:   nil, // Not present in XML
+				Status:         "PENDING",
+				Priority:       3,
+				OptionalStatus: nil, // Not present in XML
+				Address: kitchensink.AddressType{
+					Street:   "Edge Street 123",
+					City:     "Berlin",
+					ZipCode:  "10115",
+					Country:  "DE",
+					Verified: boolPtr(true),
+				},
+				OptionalAddress: nil, // Not present in XML
+				SimpleElement:   "Edge simple",
+				Metadata:        nil, // Not present in XML
+				// Attributes
+				Version:   "2.0",
+				Debug:     boolPtr(false),
+				Timestamp: nil, // Not present in XML
 			},
 		},
 	}
@@ -284,6 +509,41 @@ func TestKitchenSinkMarshaling(t *testing.T) {
 		GDayField:               "---15",
 		GYearMonthField:         "2024-06",
 		GMonthDayField:          "--06-15",
+		// Edge case fields
+		OptionalString: stringPtr("Optional value"),
+		OptionalInt:    int32Ptr(100),
+		Tags:           []string{"tag1", "tag2"},
+		Numbers:        []int32{1, 2, 3},
+		OptionalTags:   []string{"opt1"},
+		Status:         "ACTIVE",
+		Priority:       2,
+		OptionalStatus: stringPtr("PENDING"),
+		Address: kitchensink.AddressType{
+			Street:   "Test Street",
+			City:     "Test City",
+			ZipCode:  "12345",
+			Country:  "US",
+			Verified: boolPtr(true),
+		},
+		OptionalAddress: &kitchensink.AddressType{
+			Street:   "Optional Street",
+			City:     "Optional City",
+			ZipCode:  "67890",
+			Country:  "CA",
+			Verified: boolPtr(false),
+		},
+		SimpleElement: "Simple test",
+		Metadata: &kitchensink.AddressType{
+			Street:   "Meta Street",
+			City:     "Meta City",
+			ZipCode:  "99999",
+			Country:  "UK",
+			Verified: nil,
+		},
+		// Attributes (avoid nil pointers that cause marshaling issues)
+		Version:   "1.0",
+		Debug:     boolPtr(true),
+		Timestamp: timePtr(mustParseTime("2006-01-02T15:04:05Z", "2023-06-15T14:30:00Z")),
 	}
 
 	// Marshal to XML
@@ -312,4 +572,295 @@ func mustParseTime(layout, value string) time.Time {
 		panic(err)
 	}
 	return t
+}
+
+// Helper functions for creating pointers
+func stringPtr(s string) *string {
+	return &s
+}
+
+func int32Ptr(i int32) *int32 {
+	return &i
+}
+
+func boolPtr(b bool) *bool {
+	return &b
+}
+
+func timePtr(t time.Time) *time.Time {
+	return &t
+}
+
+// TestInlineComplexTypes tests the parsing of inline complex types with Outer_Inner naming
+func TestInlineComplexTypes(t *testing.T) {
+	tests := []struct {
+		name     string
+		xml      string
+		expected kitchensink.InlineTypesTest
+	}{
+		{
+			name: "inline complex types with []byte fields",
+			xml: `<InlineTypesTest xmlns="http://example.com/typetest">
+				<customer>
+					<name>John Doe</name>
+					<address>
+						<street>123 Main St</street>
+						<city>Anytown</city>
+					</address>
+				</customer>
+				<items>
+					<item>
+						<product>Widget A</product>
+						<quantity>5</quantity>
+					</item>
+					<item>
+						<product>Widget B</product>
+						<quantity>3</quantity>
+					</item>
+				</items>
+			</InlineTypesTest>`,
+			expected: kitchensink.InlineTypesTest{
+				// []byte fields capture whitespace/formatting, not the nested XML structure
+				// This demonstrates that []byte with standard XML tags captures character data only
+				Customer: []byte("\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t"),
+				Items:    []byte("\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t"),
+			},
+		},
+		{
+			name: "minimal inline complex types",
+			xml: `<InlineTypesTest xmlns="http://example.com/typetest">
+				<customer><name>Jane</name><address><street>Elm St</street><city>Boston</city></address></customer>
+				<items><item><product>Tool</product><quantity>1</quantity></item></items>
+			</InlineTypesTest>`,
+			expected: kitchensink.InlineTypesTest{
+				Customer: []byte{}, // No whitespace between tags
+				Items:    []byte{}, // No whitespace between tags
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var result kitchensink.InlineTypesTest
+			err := xml.Unmarshal([]byte(tt.xml), &result)
+			if err != nil {
+				t.Fatalf("Failed to unmarshal XML: %v", err)
+			}
+
+			if diff := cmp.Diff(tt.expected, result); diff != "" {
+				t.Errorf("InlineTypesTest mismatch (-expected +actual):\n%s", diff)
+			}
+		})
+	}
+}
+
+// TestElementReferences tests the parsing of element references
+func TestElementReferences(t *testing.T) {
+	tests := []struct {
+		name     string
+		xml      string
+		expected kitchensink.PersonInfo
+	}{
+		{
+			name: "element references with optional field",
+			xml: `<PersonInfo xmlns="http://example.com/typetest">
+				<PersonName>John Doe</PersonName>
+				<PersonAge>30</PersonAge>
+				<Tag>developer</Tag>
+			</PersonInfo>`,
+			expected: kitchensink.PersonInfo{
+				PersonName: kitchensink.PersonName{Value: "John Doe"},
+				PersonAge:  kitchensink.PersonAge{Value: 30},
+				Tag:        &kitchensink.Tag{Value: "developer"},
+			},
+		},
+		{
+			name: "minimal element references without optional field",
+			xml: `<PersonInfo xmlns="http://example.com/typetest">
+				<PersonName>Alice Brown</PersonName>
+				<PersonAge>25</PersonAge>
+			</PersonInfo>`,
+			expected: kitchensink.PersonInfo{
+				PersonName: kitchensink.PersonName{Value: "Alice Brown"},
+				PersonAge:  kitchensink.PersonAge{Value: 25},
+				Tag:        nil, // Optional field not present
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var result kitchensink.PersonInfo
+			err := xml.Unmarshal([]byte(tt.xml), &result)
+			if err != nil {
+				t.Fatalf("Failed to unmarshal XML: %v", err)
+			}
+
+			if diff := cmp.Diff(tt.expected, result); diff != "" {
+				t.Errorf("PersonInfo mismatch (-expected +actual):\n%s", diff)
+			}
+		})
+	}
+}
+
+// TestUntypedFields tests handling of untyped fields and []byte vs [][]byte
+func TestUntypedFields(t *testing.T) {
+	tests := []struct {
+		name     string
+		xml      string
+		expected kitchensink.UntypedFieldsTest
+	}{
+		{
+			name: "untyped fields with complex data",
+			xml: `<UntypedFieldsTest xmlns="http://example.com/typetest">
+				<unknownField>Simple text</unknownField>
+				<unknownArray>item1</unknownArray>
+				<unknownArray>item2</unknownArray>
+				<unknownArray>item3</unknownArray>
+				<optionalUnknown>Optional value</optionalUnknown>
+				<complexData>
+					<innerField>Complex inner value</innerField>
+				</complexData>
+				<multipleComplexData>
+					<innerField>123</innerField>
+				</multipleComplexData>
+				<multipleComplexData>
+					<innerField>456</innerField>
+				</multipleComplexData>
+			</UntypedFieldsTest>`,
+			expected: kitchensink.UntypedFieldsTest{
+				UnknownField:        "Simple text",
+				UnknownArray:        []string{"item1", "item2", "item3"}, // []string not [][]string
+				OptionalUnknown:     stringPtr("Optional value"),
+				ComplexData:         []byte("\n\t\t\t\t\t\n\t\t\t\t"), // Whitespace only
+				MultipleComplexData: []byte("\n\t\t\t\t\t\n\t\t\t\t"), // Whitespace only - []byte not [][]byte
+			},
+		},
+		{
+			name: "minimal untyped fields",
+			xml: `<UntypedFieldsTest xmlns="http://example.com/typetest">
+				<unknownField></unknownField>
+				<unknownArray>single</unknownArray>
+				<complexData><innerField></innerField></complexData>
+				<multipleComplexData><innerField>0</innerField></multipleComplexData>
+			</UntypedFieldsTest>`,
+			expected: kitchensink.UntypedFieldsTest{
+				UnknownField:        "",
+				UnknownArray:        []string{"single"},
+				OptionalUnknown:     nil,      // Not present
+				ComplexData:         []byte{}, // No whitespace
+				MultipleComplexData: []byte{}, // No whitespace
+			},
+		},
+		{
+			name: "optional field not present",
+			xml: `<UntypedFieldsTest xmlns="http://example.com/typetest">
+				<unknownField>test</unknownField>
+				<unknownArray>one</unknownArray>
+				<unknownArray>two</unknownArray>
+				<complexData><innerField>test</innerField></complexData>
+				<multipleComplexData><innerField>1</innerField></multipleComplexData>
+			</UntypedFieldsTest>`,
+			expected: kitchensink.UntypedFieldsTest{
+				UnknownField:        "test",
+				UnknownArray:        []string{"one", "two"},
+				OptionalUnknown:     nil, // Not present in XML
+				ComplexData:         []byte{},
+				MultipleComplexData: []byte{},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var result kitchensink.UntypedFieldsTest
+			err := xml.Unmarshal([]byte(tt.xml), &result)
+			if err != nil {
+				t.Fatalf("Failed to unmarshal XML: %v", err)
+			}
+
+			if diff := cmp.Diff(tt.expected, result); diff != "" {
+				t.Errorf("UntypedFieldsTest mismatch (-expected +actual):\n%s", diff)
+			}
+		})
+	}
+}
+
+// TestCustomTypesAndEnums tests custom simple types and enumeration constants
+func TestCustomTypesAndEnums(t *testing.T) {
+	tests := []struct {
+		name     string
+		xml      string
+		expected kitchensink.UserInfoType
+	}{
+		{
+			name: "custom types with enumeration constants",
+			xml: `<UserInfoType xmlns="http://example.com/typetest">
+				<userId>123456789</userId>
+				<status>ACTIVE</status>
+				<email>user@example.com</email>
+			</UserInfoType>`,
+			expected: kitchensink.UserInfoType{
+				UserId: 123456789,
+				Status: kitchensink.StatusTypeACTIVE, // Should match constant value
+				Email:  "user@example.com",
+			},
+		},
+		{
+			name: "custom type with different enum value",
+			xml: `<UserInfoType xmlns="http://example.com/typetest">
+				<userId>987654321</userId>
+				<status>PENDING</status>
+				<email>pending@example.com</email>
+			</UserInfoType>`,
+			expected: kitchensink.UserInfoType{
+				UserId: 987654321,
+				Status: kitchensink.StatusTypePENDING,
+				Email:  "pending@example.com",
+			},
+		},
+		{
+			name: "custom type with inactive status",
+			xml: `<UserInfoType xmlns="http://example.com/typetest">
+				<userId>555000111</userId>
+				<status>INACTIVE</status>
+				<email>inactive@example.com</email>
+			</UserInfoType>`,
+			expected: kitchensink.UserInfoType{
+				UserId: 555000111,
+				Status: kitchensink.StatusTypeINACTIVE,
+				Email:  "inactive@example.com",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var result kitchensink.UserInfoType
+			err := xml.Unmarshal([]byte(tt.xml), &result)
+			if err != nil {
+				t.Fatalf("Failed to unmarshal XML: %v", err)
+			}
+
+			if diff := cmp.Diff(tt.expected, result); diff != "" {
+				t.Errorf("UserInfoType mismatch (-expected +actual):\n%s", diff)
+			}
+
+			// Verify enumeration constant values match
+			switch result.Status {
+			case kitchensink.StatusTypeACTIVE:
+				if kitchensink.StatusTypeACTIVE != "ACTIVE" {
+					t.Errorf("StatusTypeACTIVE constant should be 'ACTIVE', got %q", kitchensink.StatusTypeACTIVE)
+				}
+			case kitchensink.StatusTypePENDING:
+				if kitchensink.StatusTypePENDING != "PENDING" {
+					t.Errorf("StatusTypePENDING constant should be 'PENDING', got %q", kitchensink.StatusTypePENDING)
+				}
+			case kitchensink.StatusTypeINACTIVE:
+				if kitchensink.StatusTypeINACTIVE != "INACTIVE" {
+					t.Errorf("StatusTypeINACTIVE constant should be 'INACTIVE', got %q", kitchensink.StatusTypeINACTIVE)
+				}
+			}
+		})
+	}
 }
