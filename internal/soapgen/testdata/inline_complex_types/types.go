@@ -1,13 +1,12 @@
 package inline_complex_types
 
-import (
-	"github.com/way-platform/soap-go"
-)
+// RawXML captures raw XML content for untyped elements.
+type RawXML []byte
 
 // Order_Customer represents an inline complex type
 type Order_Customer struct {
-	Name    string      `xml:"name"`
-	Address soap.RawXML `xml:"address"`
+	Name    string `xml:"name"`
+	Address RawXML `xml:"address"`
 }
 
 // OrderCustomer_Address represents an inline complex type
@@ -18,7 +17,7 @@ type OrderCustomer_Address struct {
 
 // Order_Items represents an inline complex type
 type Order_Items struct {
-	Item []soap.RawXML `xml:"item"`
+	Item []RawXML `xml:"item"`
 }
 
 // OrderItems_Item represents an inline complex type
@@ -31,6 +30,6 @@ type OrderItems_Item struct {
 
 // Order represents the Order element
 type Order struct {
-	Customer soap.RawXML `xml:"customer"`
-	Items    soap.RawXML `xml:"items"`
+	Customer RawXML `xml:"customer"`
+	Items    RawXML `xml:"items"`
 }

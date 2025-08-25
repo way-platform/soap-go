@@ -74,6 +74,13 @@ func (g *Generator) generateTypesFile(schema *xsd.Schema, packageName, filename 
 	file.P("package ", packageName)
 	file.P()
 
+	// Generate RawXML type definition if needed
+	if needsRawXML(schema) {
+		file.P("// RawXML captures raw XML content for untyped elements.")
+		file.P("type RawXML []byte")
+		file.P()
+	}
+
 	// Separate data types from message wrapper types
 	dataTypes, messageTypes := categorizeElements(schema.Elements)
 
@@ -118,4 +125,50 @@ func (g *Generator) generateTypesFile(schema *xsd.Schema, packageName, filename 
 	// or in a separate package for SOAP message handling
 
 	return file, nil
+}
+
+// needsRawXML checks if the schema contains any inline complex types that would require RawXML
+func needsRawXML(schema *xsd.Schema) bool {
+	return hasInlineComplexTypes(schema.Elements)
+}
+
+// hasInlineComplexTypes recursively checks if any elements have inline complex types
+func hasInlineComplexTypes(elements []xsd.Element) bool {
+	for _, element := range elements {
+		if hasInlineComplexType(&element) {
+			return true
+		}
+	}
+	return false
+}
+
+// hasInlineComplexType checks if an element has inline complex types
+func hasInlineComplexType(element *xsd.Element) bool {
+	if element.ComplexType != nil {
+		// Check sequence elements
+		if element.ComplexType.Sequence != nil {
+			for _, field := range element.ComplexType.Sequence.Elements {
+				if field.ComplexType != nil {
+					return true
+				}
+				if field.Ref != "" {
+					// Element references might also need checking, but for now we're conservative
+					continue
+				}
+			}
+		}
+
+		// Check extension sequence elements
+		if element.ComplexType.ComplexContent != nil && element.ComplexType.ComplexContent.Extension != nil {
+			ext := element.ComplexType.ComplexContent.Extension
+			if ext.Sequence != nil {
+				for _, field := range ext.Sequence.Elements {
+					if field.ComplexType != nil {
+						return true
+					}
+				}
+			}
+		}
+	}
+	return false
 }

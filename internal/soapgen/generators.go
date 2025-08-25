@@ -203,9 +203,9 @@ func generateStructFieldWithInlineTypesAndContext(g *codegen.File, element *xsd.
 	if element.Type != "" {
 		goType = mapXSDTypeToGoWithContext(element.Type, ctx)
 	} else if element.ComplexType != nil {
-		// For inline complex types without explicit type generation, use soap.RawXML to capture raw XML
+		// For inline complex types without explicit type generation, use RawXML to capture raw XML
 		// This allows consumers to access the complete XML content for manual parsing
-		goType = "soap.RawXML"
+		goType = "RawXML"
 	} else {
 		goType = "string" // fallback
 	}
@@ -231,11 +231,11 @@ func generateStructFieldWithInlineTypesAndContext(g *codegen.File, element *xsd.
 	// Use ,innerxml only when there's a single RawXML field in the struct
 	// Otherwise use element names to avoid conflicts
 	xmlTag := xmlName
-	if goType == "soap.RawXML" && singleRawXMLCount == 1 {
+	if goType == "RawXML" && singleRawXMLCount == 1 {
 		// Use ,innerxml only for single RawXML fields to capture complete inner content
 		xmlTag = ",innerxml"
 	}
-	// For multiple RawXML fields or []soap.RawXML, use element name to capture individual elements
+	// For multiple RawXML fields or []RawXML, use element name to capture individual elements
 	g.P("\t", fieldName, " ", goType, " `xml:\"", xmlTag, "\"`")
 	return true
 }

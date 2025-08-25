@@ -1,8 +1,7 @@
 package byte_array_handling
 
-import (
-	"github.com/way-platform/soap-go"
-)
+// RawXML captures raw XML content for untyped elements.
+type RawXML []byte
 
 // DataContainer_InlineData represents an inline complex type
 type DataContainer_InlineData struct {
@@ -18,12 +17,12 @@ type DataContainer_MultipleInlineData struct {
 
 // DataContainer represents the DataContainer element
 type DataContainer struct {
-	SingleData           string        `xml:"singleData"`
-	MultipleData         []string      `xml:"multipleData"`
-	OptionalData         *string       `xml:"optionalData"`
-	OptionalMultipleData []string      `xml:"optionalMultipleData"`
-	KnownString          string        `xml:"knownString"`
-	KnownStringArray     []string      `xml:"knownStringArray"`
-	InlineData           soap.RawXML   `xml:",innerxml"`
-	MultipleInlineData   []soap.RawXML `xml:"multipleInlineData"`
+	SingleData           string   `xml:"singleData"`
+	MultipleData         []string `xml:"multipleData"`
+	OptionalData         *string  `xml:"optionalData"`
+	OptionalMultipleData []string `xml:"optionalMultipleData"`
+	KnownString          string   `xml:"knownString"`
+	KnownStringArray     []string `xml:"knownStringArray"`
+	InlineData           RawXML   `xml:",innerxml"`
+	MultipleInlineData   []RawXML `xml:"multipleInlineData"`
 }

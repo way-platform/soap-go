@@ -2,9 +2,11 @@ package kitchensink
 
 import (
 	"encoding/xml"
-	"github.com/way-platform/soap-go"
 	"time"
 )
+
+// RawXML captures raw XML content for untyped elements.
+type RawXML []byte
 
 // Enumeration constants
 
@@ -42,8 +44,8 @@ type UserInfoType struct {
 
 // InlineTypesTest_Customer represents an inline complex type
 type InlineTypesTest_Customer struct {
-	Name    string      `xml:"name"`
-	Address soap.RawXML `xml:"address"`
+	Name    string `xml:"name"`
+	Address RawXML `xml:"address"`
 }
 
 // InlinetypestestCustomer_Address represents an inline complex type
@@ -54,7 +56,7 @@ type InlinetypestestCustomer_Address struct {
 
 // InlineTypesTest_Items represents an inline complex type
 type InlineTypesTest_Items struct {
-	Item []soap.RawXML `xml:"item"`
+	Item []RawXML `xml:"item"`
 }
 
 // InlinetypestestItems_Item represents an inline complex type
@@ -145,8 +147,8 @@ type KitchenSinkResponse struct {
 
 // InlineTypesTest represents the InlineTypesTest element
 type InlineTypesTest struct {
-	Customer soap.RawXML `xml:"customer"`
-	Items    soap.RawXML `xml:"items"`
+	Customer RawXML `xml:"customer"`
+	Items    RawXML `xml:"items"`
 }
 
 // PersonName represents the PersonName element
@@ -168,11 +170,11 @@ type PersonInfo struct {
 
 // UntypedFieldsTest represents the UntypedFieldsTest element
 type UntypedFieldsTest struct {
-	UnknownField        string        `xml:"unknownField"`
-	UnknownArray        []string      `xml:"unknownArray"`
-	OptionalUnknown     *string       `xml:"optionalUnknown"`
-	ComplexData         soap.RawXML   `xml:",innerxml"`
-	MultipleComplexData []soap.RawXML `xml:"multipleComplexData"`
+	UnknownField        string   `xml:"unknownField"`
+	UnknownArray        []string `xml:"unknownArray"`
+	OptionalUnknown     *string  `xml:"optionalUnknown"`
+	ComplexData         RawXML   `xml:",innerxml"`
+	MultipleComplexData []RawXML `xml:"multipleComplexData"`
 }
 
 // UserTest represents the UserTest element
