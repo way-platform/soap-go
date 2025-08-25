@@ -70,6 +70,7 @@ type PortType struct {
 type Operation struct {
 	Name           string   `xml:"name,attr"`
 	ParameterOrder string   `xml:"parameterOrder,attr"`
+	Documentation  string   `xml:"documentation"`
 	Input          *Input   `xml:"input"`
 	Output         *Output  `xml:"output"`
 	Faults         []*Fault `xml:"fault"`
@@ -201,8 +202,9 @@ type SOAPFault struct {
 
 // Service corresponds to the <service> element.
 type Service struct {
-	Name  string `xml:"name,attr"`
-	Ports []Port `xml:"port"`
+	Name          string `xml:"name,attr"`
+	Documentation string `xml:"documentation"`
+	Ports         []Port `xml:"port"`
 }
 
 // Port corresponds to the <port> element within a <service>.
