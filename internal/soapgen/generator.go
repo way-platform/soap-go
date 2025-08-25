@@ -2,6 +2,7 @@ package soapgen
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/way-platform/soap-go/internal/codegen"
 	"github.com/way-platform/soap-go/wsdl"
@@ -82,8 +83,13 @@ func (g *Generator) generateTypesFile(schema *xsd.Schema, packageName, filename 
 		collectRequiredImports(element, requiredImports, ctx)
 	}
 
-	// Add imports
+	// Add imports in sorted order for deterministic output
+	var imports []string
 	for imp := range requiredImports {
+		imports = append(imports, imp)
+	}
+	sort.Strings(imports)
+	for _, imp := range imports {
 		file.Import(imp)
 	}
 

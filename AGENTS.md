@@ -22,3 +22,9 @@ When developing this SDK, use the WSDL and SOAP specifications in [docs](./docs)
 - Lint with `./tools/mage lint`
 
 - Leave all version control and git to the user/developer. If you see a build error related to having a git diff, this is normal.
+
+## Testing
+
+- When fixing issues in the code generator, add tests in [internal/soapgen/golden_test.go](./internal/soapgen/golden_test.go).
+
+- When fixing issues in how the the generated code parses raw XML, add tests in [examples/examples_test.go](./examples/examples_test.go).

@@ -7,13 +7,6 @@ import (
 
 // Enumeration constants
 
-// StatusType enumeration values
-const (
-	StatusTypeACTIVE   = "ACTIVE"
-	StatusTypeINACTIVE = "INACTIVE"
-	StatusTypePENDING  = "PENDING"
-)
-
 // PriorityType enumeration values
 const (
 	PriorityType1 = "1"
@@ -21,14 +14,14 @@ const (
 	PriorityType3 = "3"
 )
 
-// Complex types
+// StatusType enumeration values
+const (
+	StatusTypeACTIVE   = "ACTIVE"
+	StatusTypeINACTIVE = "INACTIVE"
+	StatusTypePENDING  = "PENDING"
+)
 
-// UserInfoType represents the UserInfoType complex type
-type UserInfoType struct {
-	UserId int64  `xml:"userId"`
-	Status string `xml:"status"`
-	Email  string `xml:"email"`
-}
+// Complex types
 
 // AddressType represents the AddressType complex type
 type AddressType struct {
@@ -37,6 +30,13 @@ type AddressType struct {
 	ZipCode  string `xml:"zipCode"`
 	Country  string `xml:"country,attr"`
 	Verified *bool  `xml:"verified,attr"`
+}
+
+// UserInfoType represents the UserInfoType complex type
+type UserInfoType struct {
+	UserId int64  `xml:"userId"`
+	Status string `xml:"status"`
+	Email  string `xml:"email"`
 }
 
 // InlineTypesTest_Customer represents an inline complex type

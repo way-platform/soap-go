@@ -1,6 +1,7 @@
 package soapgen
 
 import (
+	"sort"
 	"strings"
 
 	"github.com/way-platform/soap-go/internal/codegen"
@@ -222,7 +223,15 @@ func generateAttributeField(g *codegen.File, attr *xsd.Attribute, ctx *SchemaCon
 func generateSimpleTypeConstants(g *codegen.File, ctx *SchemaContext) {
 	hasEnums := false
 
-	for _, simpleType := range ctx.simpleTypes {
+	// Sort simple type names for deterministic output
+	var names []string
+	for name := range ctx.simpleTypes {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+
+	for _, name := range names {
+		simpleType := ctx.simpleTypes[name]
 		if simpleType.Restriction != nil && len(simpleType.Restriction.Enumerations) > 0 {
 			if !hasEnums {
 				g.P("// Enumeration constants")
@@ -259,7 +268,15 @@ func generateEnumConstants(g *codegen.File, simpleType *xsd.SimpleType) {
 func generateComplexTypes(g *codegen.File, ctx *SchemaContext) {
 	hasTypes := false
 
-	for _, complexType := range ctx.complexTypes {
+	// Sort complex type names for deterministic output
+	var names []string
+	for name := range ctx.complexTypes {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+
+	for _, name := range names {
+		complexType := ctx.complexTypes[name]
 		if !hasTypes {
 			g.P("// Complex types")
 			g.P()
