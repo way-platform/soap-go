@@ -2,6 +2,7 @@ package examples
 
 import (
 	"encoding/xml"
+	"strings"
 	"testing"
 	"time"
 
@@ -877,4 +878,150 @@ func TestCustomTypesAndEnums(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestTimestampFormatHandling tests specific timestamp format scenarios
+func TestTimestampFormatHandling(t *testing.T) {
+	t.Run("standard XSD dateTime format works", func(t *testing.T) {
+		xmlData := `<KitchenSinkRequest xmlns="http://example.com/typetest" version="1.0" timestamp="2023-12-25T10:30:00Z">
+			<dateTimeField>2023-12-25T10:30:00Z</dateTimeField>
+		</KitchenSinkRequest>`
+
+		var req kitchensink.KitchenSinkRequest
+		err := xml.Unmarshal([]byte(xmlData), &req)
+		if err != nil {
+			t.Fatalf("Failed to unmarshal standard XSD format: %v", err)
+		}
+
+		expectedTime := mustParseTime("2006-01-02T15:04:05Z", "2023-12-25T10:30:00Z")
+		if !req.DateTimeField.Equal(expectedTime) {
+			t.Errorf("DateTimeField: expected %v, got %v", expectedTime, req.DateTimeField)
+		}
+		if !req.Timestamp.Equal(expectedTime) {
+			t.Errorf("Timestamp: expected %v, got %v", expectedTime, *req.Timestamp)
+		}
+	})
+
+	t.Run("timezone offset format works", func(t *testing.T) {
+		xmlData := `<KitchenSinkRequest xmlns="http://example.com/typetest" version="1.0" timestamp="2023-12-25T10:30:00-05:00">
+			<dateTimeField>2023-12-25T15:30:00Z</dateTimeField>
+		</KitchenSinkRequest>`
+
+		var req kitchensink.KitchenSinkRequest
+		err := xml.Unmarshal([]byte(xmlData), &req)
+		if err != nil {
+			t.Fatalf("Failed to unmarshal timezone offset format: %v", err)
+		}
+
+		expectedDateTime := mustParseTime("2006-01-02T15:04:05Z", "2023-12-25T15:30:00Z")
+		expectedTimestamp := mustParseTime("2006-01-02T15:04:05-07:00", "2023-12-25T10:30:00-05:00")
+
+		if !req.DateTimeField.Equal(expectedDateTime) {
+			t.Errorf("DateTimeField: expected %v, got %v", expectedDateTime, req.DateTimeField)
+		}
+		if !req.Timestamp.Equal(expectedTimestamp) {
+			t.Errorf("Timestamp: expected %v, got %v", expectedTimestamp, *req.Timestamp)
+		}
+	})
+
+	t.Run("milliseconds precision works", func(t *testing.T) {
+		xmlData := `<KitchenSinkRequest xmlns="http://example.com/typetest" version="1.0" timestamp="2023-12-25T10:30:00.123Z">
+			<dateTimeField>2023-12-25T10:30:00.123Z</dateTimeField>
+		</KitchenSinkRequest>`
+
+		var req kitchensink.KitchenSinkRequest
+		err := xml.Unmarshal([]byte(xmlData), &req)
+		if err != nil {
+			t.Fatalf("Failed to unmarshal milliseconds format: %v", err)
+		}
+
+		expectedTime := mustParseTime("2006-01-02T15:04:05.000Z", "2023-12-25T10:30:00.123Z")
+		if !req.DateTimeField.Equal(expectedTime) {
+			t.Errorf("DateTimeField: expected %v, got %v", expectedTime, req.DateTimeField)
+		}
+		if !req.Timestamp.Equal(expectedTime) {
+			t.Errorf("Timestamp: expected %v, got %v", expectedTime, *req.Timestamp)
+		}
+	})
+
+	t.Run("non-standard space format fails", func(t *testing.T) {
+		xmlData := `<KitchenSinkRequest xmlns="http://example.com/typetest" version="1.0" timestamp="2003-04-20 10:00:00">
+			<dateTimeField>2003-04-20T10:00:00Z</dateTimeField>
+		</KitchenSinkRequest>`
+
+		var req kitchensink.KitchenSinkRequest
+		err := xml.Unmarshal([]byte(xmlData), &req)
+		if err == nil {
+			t.Fatal("Expected error for non-standard timestamp format, but got none")
+		}
+
+		if !strings.Contains(err.Error(), "parsing time") {
+			t.Errorf("Expected parsing time error, got: %v", err)
+		}
+
+		expectedErr := `cannot parse " 10:00:00" as "T"`
+		if !strings.Contains(err.Error(), expectedErr) {
+			t.Errorf("Expected specific error about 'T' separator, got: %v", err)
+		}
+	})
+}
+
+// TestTimestampRoundTrip tests that timestamps marshal and unmarshal correctly
+func TestTimestampRoundTrip(t *testing.T) {
+	originalTime := mustParseTime("2006-01-02T15:04:05Z", "2023-12-25T10:30:00Z")
+
+	req := kitchensink.KitchenSinkRequest{
+		DateTimeField: originalTime,
+		Version:       "1.0",
+		Timestamp:     &originalTime,
+	}
+
+	// Marshal to XML
+	xmlData, err := xml.MarshalIndent(req, "", "  ")
+	if err != nil {
+		t.Fatalf("Failed to marshal to XML: %v", err)
+	}
+
+	// Verify XML contains XSD-compliant format
+	xmlStr := string(xmlData)
+	if !strings.Contains(xmlStr, `timestamp="2023-12-25T10:30:00Z"`) {
+		t.Errorf("Marshaled XML does not contain expected timestamp format, got:\n%s", xmlStr)
+	}
+	if !strings.Contains(xmlStr, `<dateTimeField>2023-12-25T10:30:00Z</dateTimeField>`) {
+		t.Errorf("Marshaled XML does not contain expected dateTimeField format, got:\n%s", xmlStr)
+	}
+
+	// Unmarshal back to struct
+	var unmarshaledReq kitchensink.KitchenSinkRequest
+	err = xml.Unmarshal(xmlData, &unmarshaledReq)
+	if err != nil {
+		t.Fatalf("Failed to unmarshal XML: %v", err)
+	}
+
+	// Compare timestamp fields
+	if !req.DateTimeField.Equal(unmarshaledReq.DateTimeField) {
+		t.Errorf("Round-trip DateTimeField mismatch: original %v, unmarshaled %v",
+			req.DateTimeField, unmarshaledReq.DateTimeField)
+	}
+
+	if !req.Timestamp.Equal(*unmarshaledReq.Timestamp) {
+		t.Errorf("Round-trip Timestamp mismatch: original %v, unmarshaled %v",
+			*req.Timestamp, *unmarshaledReq.Timestamp)
+	}
+}
+
+// TestNonStandardTimestampSolution demonstrates a solution approach for non-standard formats
+func TestNonStandardTimestampSolution(t *testing.T) {
+	t.Run("demonstrates space-separated format issue", func(t *testing.T) {
+		// This format is NOT XSD-compliant but might be encountered in real APIs
+		xmlData := `<Scheduled><Begin>2003-04-20 10:00:00</Begin><End>2003-04-25 12:00:20</End></Scheduled>`
+
+		// For APIs that use this format, consider these approaches:
+		// 1. Parse as string and convert manually
+		// 2. Pre-process XML to replace space with 'T'
+		// 3. Implement custom timestamp type with UnmarshalXMLAttr
+
+		t.Logf("Non-standard format example: %s", xmlData)
+		t.Log("Solution: Use custom timestamp type or pre-process XML for XSD compliance")
+	})
 }
