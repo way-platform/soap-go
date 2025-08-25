@@ -1,4 +1,4 @@
-package wsdlgen
+package soapgen
 
 import (
 	"flag"

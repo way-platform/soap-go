@@ -12,7 +12,7 @@ import (
 
 func TestUnmarshalGlobalWeather(t *testing.T) {
 	// Read the WSDL file
-	wsdlBytes, err := os.ReadFile("testdata/GlobalWeather.wsdl")
+	wsdlBytes, err := os.ReadFile("../examples/GlobalWeather.wsdl")
 	if err != nil {
 		t.Fatalf("reading GlobalWeather.wsdl should not fail: %v", err)
 	}

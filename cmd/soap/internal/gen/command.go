@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
-	"github.com/way-platform/soap-go/internal/wsdlgen"
+	"github.com/way-platform/soap-go/internal/soapgen"
 	"github.com/way-platform/soap-go/wsdl"
 )
 
@@ -22,7 +22,6 @@ func NewCommand() *cobra.Command {
 	outputDir := cmd.Flags().StringP("dir", "d", "", "output directory (required)")
 	_ = cmd.MarkFlagRequired("dir")
 	packageName := cmd.Flags().StringP("package", "p", "", "Go package name (required)")
-	_ = cmd.MarkFlagRequired("package")
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		return run(config{
 			inputFile:   *inputFile,
@@ -40,6 +39,9 @@ type config struct {
 }
 
 func run(cfg config) error {
+	if cfg.packageName == "" {
+		cfg.packageName = filepath.Base(cfg.outputDir)
+	}
 	// Parse the WSDL file
 	defs, err := wsdl.ParseFromFile(cfg.inputFile)
 	if err != nil {
@@ -52,7 +54,7 @@ func run(cfg config) error {
 	}
 
 	// Create generator with configuration
-	generator := wsdlgen.NewGenerator(defs, wsdlgen.Config{
+	generator := soapgen.NewGenerator(defs, soapgen.Config{
 		PackageName: cfg.packageName,
 	})
 
