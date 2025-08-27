@@ -305,12 +305,12 @@ func generateSimpleTypeConstants(g *codegen.File, ctx *SchemaContext) {
 		simpleType := ctx.simpleTypes[name]
 		if simpleType.Restriction != nil && len(simpleType.Restriction.Enumerations) > 0 {
 			if !hasEnums {
-				g.P("// Enumeration constants")
+				g.P("// Enumeration types")
 				g.P()
 				hasEnums = true
 			}
 
-			generateEnumConstants(g, simpleType)
+			generateEnumType(g, simpleType)
 		}
 	}
 
@@ -319,19 +319,46 @@ func generateSimpleTypeConstants(g *codegen.File, ctx *SchemaContext) {
 	}
 }
 
-// generateEnumConstants generates Go constants for a single enumeration type
-func generateEnumConstants(g *codegen.File, simpleType *xsd.SimpleType) {
+// generateEnumType generates Go enum type with constants and methods for a single enumeration type
+func generateEnumType(g *codegen.File, simpleType *xsd.SimpleType) {
 	typeName := toGoName(simpleType.Name)
 
+	// Generate the enum type definition
+	g.P("// ", typeName, " represents an enumeration type")
+	g.P("type ", typeName, " string")
+	g.P()
+
+	// Generate the constants with typed values
 	g.P("// ", typeName, " enumeration values")
 	g.P("const (")
 
+	var enumValues []string
 	for _, enum := range simpleType.Restriction.Enumerations {
 		constName := typeName + toGoName(enum.Value)
-		g.P("\t", constName, " = \"", enum.Value, "\"")
+		g.P("\t", constName, " ", typeName, " = \"", enum.Value, "\"")
+		enumValues = append(enumValues, constName)
 	}
 
 	g.P(")")
+	g.P()
+
+	// Generate String method
+	g.P("// String returns the string representation of ", typeName)
+	g.P("func (e ", typeName, ") String() string {")
+	g.P("\treturn string(e)")
+	g.P("}")
+	g.P()
+
+	// Generate IsValid method
+	g.P("// IsValid returns true if the ", typeName, " value is valid")
+	g.P("func (e ", typeName, ") IsValid() bool {")
+	g.P("\tswitch e {")
+	g.P("\tcase ", strings.Join(enumValues, ", "), ":")
+	g.P("\t\treturn true")
+	g.P("\tdefault:")
+	g.P("\t\treturn false")
+	g.P("\t}")
+	g.P("}")
 	g.P()
 }
 

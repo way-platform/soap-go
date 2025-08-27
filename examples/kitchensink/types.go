@@ -8,21 +8,57 @@ import (
 // RawXML captures raw XML content for untyped elements.
 type RawXML []byte
 
-// Enumeration constants
+// Enumeration types
+
+// PriorityType represents an enumeration type
+type PriorityType string
 
 // PriorityType enumeration values
 const (
-	PriorityType1 = "1"
-	PriorityType2 = "2"
-	PriorityType3 = "3"
+	PriorityType1 PriorityType = "1"
+	PriorityType2 PriorityType = "2"
+	PriorityType3 PriorityType = "3"
 )
+
+// String returns the string representation of PriorityType
+func (e PriorityType) String() string {
+	return string(e)
+}
+
+// IsValid returns true if the PriorityType value is valid
+func (e PriorityType) IsValid() bool {
+	switch e {
+	case PriorityType1, PriorityType2, PriorityType3:
+		return true
+	default:
+		return false
+	}
+}
+
+// StatusType represents an enumeration type
+type StatusType string
 
 // StatusType enumeration values
 const (
-	StatusTypeACTIVE   = "ACTIVE"
-	StatusTypeINACTIVE = "INACTIVE"
-	StatusTypePENDING  = "PENDING"
+	StatusTypeACTIVE   StatusType = "ACTIVE"
+	StatusTypeINACTIVE StatusType = "INACTIVE"
+	StatusTypePENDING  StatusType = "PENDING"
 )
+
+// String returns the string representation of StatusType
+func (e StatusType) String() string {
+	return string(e)
+}
+
+// IsValid returns true if the StatusType value is valid
+func (e StatusType) IsValid() bool {
+	switch e {
+	case StatusTypeACTIVE, StatusTypeINACTIVE, StatusTypePENDING:
+		return true
+	default:
+		return false
+	}
+}
 
 // Complex types
 
@@ -37,9 +73,9 @@ type AddressType struct {
 
 // UserInfoType represents the UserInfoType complex type
 type UserInfoType struct {
-	UserId int64  `xml:"userId"`
-	Status string `xml:"status"`
-	Email  string `xml:"email"`
+	UserId int64      `xml:"userId"`
+	Status StatusType `xml:"status"`
+	Email  string     `xml:"email"`
 }
 
 // InlineTypesTest_Customer represents an inline complex type
@@ -130,9 +166,9 @@ type KitchenSinkRequest struct {
 	Tags                    []string      `xml:"tags"`
 	Numbers                 []int32       `xml:"numbers"`
 	OptionalTags            []string      `xml:"optionalTags"`
-	Status                  string        `xml:"status"`
-	Priority                int32         `xml:"priority"`
-	OptionalStatus          *string       `xml:"optionalStatus"`
+	Status                  StatusType    `xml:"status"`
+	Priority                PriorityType  `xml:"priority"`
+	OptionalStatus          *StatusType   `xml:"optionalStatus"`
 	Address                 AddressType   `xml:"address"`
 	OptionalAddress         *AddressType  `xml:"optionalAddress"`
 	SimpleElement           string        `xml:"simpleElement"`

@@ -136,9 +136,9 @@ func TestKitchenSinkRequestUnmarshaling(t *testing.T) {
 				Tags:           []string{"tag1", "tag2", "tag3"},
 				Numbers:        []int32{1, 2, 3},
 				OptionalTags:   []string{"opt1", "opt2"},
-				Status:         "ACTIVE",
-				Priority:       2,
-				OptionalStatus: stringPtr("PENDING"),
+				Status:         kitchensink.StatusTypeACTIVE,
+				Priority:       kitchensink.PriorityType2,
+				OptionalStatus: statusTypePtr(kitchensink.StatusTypePENDING),
 				Address: kitchensink.AddressType{
 					Street:   "123 Main St",
 					City:     "Anytown",
@@ -268,8 +268,8 @@ func TestKitchenSinkRequestUnmarshaling(t *testing.T) {
 				Tags:           []string{"single"},
 				Numbers:        []int32{0},
 				OptionalTags:   nil,
-				Status:         "INACTIVE",
-				Priority:       1,
+				Status:         kitchensink.StatusTypeINACTIVE,
+				Priority:       kitchensink.PriorityType1,
 				OptionalStatus: nil,
 				Address: kitchensink.AddressType{
 					Street:   "",
@@ -395,8 +395,8 @@ func TestKitchenSinkRequestUnmarshaling(t *testing.T) {
 				Tags:           []string{"edge1", "edge2"},
 				Numbers:        []int32{10, 20, 30},
 				OptionalTags:   nil, // Not present in XML
-				Status:         "PENDING",
-				Priority:       3,
+				Status:         kitchensink.StatusTypePENDING,
+				Priority:       kitchensink.PriorityType3,
 				OptionalStatus: nil, // Not present in XML
 				Address: kitchensink.AddressType{
 					Street:   "Edge Street 123",
@@ -522,9 +522,9 @@ func TestKitchenSinkMarshaling(t *testing.T) {
 		Tags:           []string{"tag1", "tag2"},
 		Numbers:        []int32{1, 2, 3},
 		OptionalTags:   []string{"opt1"},
-		Status:         "ACTIVE",
-		Priority:       2,
-		OptionalStatus: stringPtr("PENDING"),
+		Status:         kitchensink.StatusTypeACTIVE,
+		Priority:       kitchensink.PriorityType2,
+		OptionalStatus: statusTypePtr(kitchensink.StatusTypePENDING),
 		Address: kitchensink.AddressType{
 			Street:   "Test Street",
 			City:     "Test City",
@@ -596,6 +596,10 @@ func boolPtr(b bool) *bool {
 
 func timePtr(t time.Time) *time.Time {
 	return &t
+}
+
+func statusTypePtr(s kitchensink.StatusType) *kitchensink.StatusType {
+	return &s
 }
 
 // TestInlineComplexTypes tests the parsing of inline complex types with Outer_Inner naming
@@ -1493,8 +1497,8 @@ func TestNamespaceRoundTrip(t *testing.T) {
 			GMonthDayField:          "--06-15",
 			Tags:                    []string{"tag1", "tag2"},
 			Numbers:                 []int32{1, 2, 3},
-			Status:                  "ACTIVE",
-			Priority:                2,
+			Status:                  kitchensink.StatusTypeACTIVE,
+			Priority:                kitchensink.PriorityType2,
 			Address: kitchensink.AddressType{
 				Street:  "Test Street",
 				City:    "Test City",

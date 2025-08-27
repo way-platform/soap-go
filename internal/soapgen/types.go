@@ -132,9 +132,8 @@ func resolveSimpleTypeToGo(simpleType *xsd.SimpleType) string {
 
 		// Check if it's an enumeration
 		if len(simpleType.Restriction.Enumerations) > 0 {
-			// For enumerations, we'll use string for now
-			// In the future, we could generate const declarations
-			return baseType.ToGoType()
+			// For enumerations, return the custom enum type name
+			return toGoName(simpleType.Name)
 		}
 
 		return baseType.ToGoType()
