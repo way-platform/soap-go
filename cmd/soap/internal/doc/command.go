@@ -12,9 +12,8 @@ import (
 	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
-	"github.com/way-platform/soap-go/internal/codegen"
+	"github.com/way-platform/soap-go/internal/docgen"
 	"github.com/way-platform/soap-go/wsdl"
-	"github.com/way-platform/soap-go/xsd"
 )
 
 // NewCommand creates a new [cobra.Command] for the doc command.
@@ -41,15 +40,15 @@ func run(ctx context.Context, inputFile, outputFile string, usePager bool) error
 		return err
 	}
 	markdownFilename := strings.TrimSuffix(filepath.Base(inputFile), filepath.Ext(inputFile)) + ".md"
-	g := codegen.NewFile(markdownFilename)
 
-	// Generate markdown documentation
-	if err := generateMarkdown(g, doc); err != nil {
+	// Generate markdown documentation using docgen
+	generator := docgen.NewGenerator(markdownFilename, doc)
+	if err := generator.Generate(); err != nil {
 		return err
 	}
 
 	// Write the markdown file
-	content, err := g.Content()
+	content, err := generator.File().Content()
 	if err != nil {
 		return err
 	}
@@ -72,267 +71,6 @@ func run(ctx context.Context, inputFile, outputFile string, usePager bool) error
 		return os.WriteFile(outputFile, content, 0o644)
 	}
 	return nil
-}
-
-// generateMarkdown generates markdown documentation for a WSDL file
-func generateMarkdown(g *codegen.File, doc *wsdl.Definitions) error {
-	// Title
-	g.P("# ", doc.Name)
-	if doc.TargetNamespace != "" {
-		g.P()
-		g.P("**Namespace:** `", doc.TargetNamespace, "`")
-	}
-	g.P()
-
-	// Build schema map for element lookups
-	schemaMap := buildSchemaMap(doc)
-
-	// Generate documentation for each service
-	for _, service := range doc.Service {
-		if err := generateServiceDoc(g, &service, doc, schemaMap); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// buildSchemaMap creates a map of element names to their definitions for easy lookup
-func buildSchemaMap(doc *wsdl.Definitions) map[string]*xsd.Element {
-	schemaMap := make(map[string]*xsd.Element)
-
-	if doc.Types != nil {
-		for _, schema := range doc.Types.Schemas {
-			for i := range schema.Elements {
-				element := &schema.Elements[i]
-				schemaMap[element.Name] = element
-			}
-		}
-	}
-
-	return schemaMap
-}
-
-// normalizeDocumentation normalizes whitespace in documentation strings
-// by trimming leading/trailing whitespace and replacing any sequence of
-// whitespace characters (including newlines) with a single space
-func normalizeDocumentation(doc string) string {
-	return strings.TrimSpace(strings.Join(strings.Fields(doc), " "))
-}
-
-// generateServiceDoc generates documentation for a single service
-func generateServiceDoc(g *codegen.File, service *wsdl.Service, doc *wsdl.Definitions, schemaMap map[string]*xsd.Element) error {
-	g.P("## ", service.Name)
-	g.P()
-
-	// Add service description if available
-	if service.Documentation != "" {
-		g.P(normalizeDocumentation(service.Documentation))
-		g.P()
-	}
-
-	// Find the corresponding PortType for this service
-	var portType *wsdl.PortType
-	for _, binding := range doc.Binding {
-		for _, port := range service.Ports {
-			if strings.Contains(port.Binding, binding.Name) {
-				// Find the PortType referenced by this binding
-				typeName := strings.TrimPrefix(binding.Type, "tns:")
-				for i := range doc.PortType {
-					if doc.PortType[i].Name == typeName {
-						portType = &doc.PortType[i]
-						break
-					}
-				}
-				break
-			}
-		}
-		if portType != nil {
-			break
-		}
-	}
-
-	if portType == nil {
-		g.P("*No operations found for this service.*")
-		g.P()
-		return nil
-	}
-
-	// Generate documentation for each operation
-	for _, operation := range portType.Operations {
-		if err := generateOperationDoc(g, &operation, doc, schemaMap); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// generateOperationDoc generates documentation for a single operation
-func generateOperationDoc(g *codegen.File, operation *wsdl.Operation, doc *wsdl.Definitions, schemaMap map[string]*xsd.Element) error {
-	g.P("### ", operation.Name)
-	g.P()
-
-	// Add operation description if available
-	if operation.Documentation != "" {
-		g.P(normalizeDocumentation(operation.Documentation))
-		g.P()
-	}
-
-	// Generate request documentation
-	if operation.Input != nil {
-		if err := generateMessageDoc(g, "Request", operation.Input.Message, doc, schemaMap); err != nil {
-			return err
-		}
-	}
-
-	// Generate response documentation
-	if operation.Output != nil {
-		if err := generateMessageDoc(g, "Response", operation.Output.Message, doc, schemaMap); err != nil {
-			return err
-		}
-	}
-
-	g.P()
-	return nil
-}
-
-// generateMessageDoc generates documentation for a request or response message
-func generateMessageDoc(g *codegen.File, messageType, messageName string, doc *wsdl.Definitions, schemaMap map[string]*xsd.Element) error {
-	g.P("#### ", messageType)
-	g.P()
-
-	// Find the message definition
-	var message *wsdl.Message
-	cleanMessageName := strings.TrimPrefix(messageName, "tns:")
-	for i := range doc.Messages {
-		if doc.Messages[i].Name == cleanMessageName {
-			message = &doc.Messages[i]
-			break
-		}
-	}
-
-	if message == nil {
-		g.P("*Message definition not found.*")
-		g.P()
-		return nil
-	}
-
-	// Generate field documentation for each part
-	for _, part := range message.Parts {
-		if part.Element != "" {
-			elementName := strings.TrimPrefix(part.Element, "tns:")
-			element := schemaMap[elementName]
-			if element != nil {
-				generateElementFields(g, element, 0)
-			} else {
-				g.P("- ", part.Name, " (element: ", part.Element, ")")
-			}
-		} else if part.Type != "" {
-			g.P("- ", part.Name, " (type: ", part.Type, ")")
-		}
-	}
-
-	g.P()
-	return nil
-}
-
-// generateElementFields generates hierarchical bullet list for element fields
-func generateElementFields(g *codegen.File, element *xsd.Element, depth int) {
-	indent := strings.Repeat("  ", depth)
-
-	// Generate the field name and type
-	fieldName := element.Name
-	fieldType := element.Type
-	if fieldType == "" && element.ComplexType != nil {
-		fieldType = "complex"
-	}
-
-	// Add occurrence information
-	occurrenceInfo := ""
-	if element.MinOccurs != "" || element.MaxOccurs != "" {
-		min := element.MinOccurs
-		max := element.MaxOccurs
-		if min == "" {
-			min = "1"
-		}
-		if max == "" {
-			max = "1"
-		}
-		if min != "1" || max != "1" {
-			occurrenceInfo = fmt.Sprintf(" (%s..%s)", min, max)
-		}
-	}
-
-	if fieldType != "" {
-		g.P(indent, "- **", fieldName, "** (", fieldType, ")", occurrenceInfo)
-	} else {
-		g.P(indent, "- **", fieldName, "**", occurrenceInfo)
-	}
-
-	// If this element has a complex type, recursively generate its fields
-	if element.ComplexType != nil {
-		generateComplexTypeFields(g, element.ComplexType, depth+1)
-	}
-}
-
-// generateComplexTypeFields generates fields for a complex type
-func generateComplexTypeFields(g *codegen.File, complexType *xsd.ComplexType, depth int) {
-	if complexType.Sequence != nil {
-		generateSequenceFields(g, complexType.Sequence, depth)
-	}
-	if complexType.Choice != nil {
-		generateChoiceFields(g, complexType.Choice, depth)
-	}
-	if complexType.All != nil {
-		generateAllFields(g, complexType.All, depth)
-	}
-
-	// Generate attributes
-	for _, attr := range complexType.Attributes {
-		indent := strings.Repeat("  ", depth)
-		required := ""
-		if attr.Use == "required" {
-			required = " (required)"
-		}
-		g.P(indent, "- **@", attr.Name, "** (", attr.Type, ")", required, " *[attribute]*")
-	}
-}
-
-// generateSequenceFields generates fields for a sequence
-func generateSequenceFields(g *codegen.File, sequence *xsd.Sequence, depth int) {
-	for i := range sequence.Elements {
-		generateElementFields(g, &sequence.Elements[i], depth)
-	}
-	for i := range sequence.Sequences {
-		generateSequenceFields(g, &sequence.Sequences[i], depth)
-	}
-	for i := range sequence.Choices {
-		generateChoiceFields(g, &sequence.Choices[i], depth)
-	}
-}
-
-// generateChoiceFields generates fields for a choice
-func generateChoiceFields(g *codegen.File, choice *xsd.Choice, depth int) {
-	indent := strings.Repeat("  ", depth)
-	g.P(indent, "- **Choice of:**")
-
-	for i := range choice.Elements {
-		generateElementFields(g, &choice.Elements[i], depth+1)
-	}
-	for i := range choice.Sequences {
-		generateSequenceFields(g, &choice.Sequences[i], depth+1)
-	}
-	for i := range choice.Choices {
-		generateChoiceFields(g, &choice.Choices[i], depth+1)
-	}
-}
-
-// generateAllFields generates fields for an all group
-func generateAllFields(g *codegen.File, all *xsd.All, depth int) {
-	for i := range all.Elements {
-		generateElementFields(g, &all.Elements[i], depth)
-	}
 }
 
 // TUI Components for pager
