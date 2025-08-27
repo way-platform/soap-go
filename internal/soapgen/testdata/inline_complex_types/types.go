@@ -34,7 +34,7 @@ type OrderItems_Item struct {
 
 // Order represents the Order element
 type Order struct {
-	XMLName  xml.Name `xml:"http://example.com/test Order"`
-	Customer RawXML   `xml:"customer"`
-	Items    RawXML   `xml:"items"`
+	XMLName  xml.Name       `xml:"http://example.com/test Order"`
+	Customer Order_Customer `xml:"customer"`
+	Items    Order_Items    `xml:"items"`
 }

@@ -74,6 +74,45 @@ func generateInlineComplexTypeStruct(g *codegen.File, typeName string, complexTy
 	g.P()
 }
 
+// generateAnyField generates a RawXML field for xs:any elements (escape hatch for untyped content)
+func generateAnyField(g *codegen.File, anyElement *xsd.Any, ctx *SchemaContext, singleRawXMLCount int) bool {
+	// Generate a field name based on namespace or use a generic name
+	fieldName := "Content"
+	if anyElement.Namespace != "" && anyElement.Namespace != "##any" {
+		// Use namespace to create a meaningful field name
+		fieldName = "AnyContent"
+	}
+
+	// xs:any elements are the perfect use case for RawXML escape hatch
+	goType := "RawXML"
+
+	// Determine XML tag strategy for xs:any elements:
+	// - Use ,innerxml when this is the only untyped content (true escape hatch)
+	// - Use element name when there are multiple untyped fields
+	var xmlTag string
+	if singleRawXMLCount == 1 {
+		// Single xs:any element gets ,innerxml to capture ALL inner content
+		// This is the ideal escape hatch scenario - captures everything regardless of maxOccurs
+		xmlTag = ",innerxml"
+		// Don't use arrays for escape hatch - ,innerxml captures everything as one blob
+		// goType remains "RawXML"
+	} else {
+		// Multiple xs:any elements use element names and can be arrays
+		if anyElement.MaxOccurs == "unbounded" || (anyElement.MaxOccurs != "" && anyElement.MaxOccurs != "1") {
+			goType = "[]" + goType
+		}
+		xmlTag = buildXMLTag("anyContent", anyElement.MinOccurs == "0", false)
+	}
+
+	// Handle optional occurrence (only for non-innerxml cases)
+	if anyElement.MinOccurs == "0" && !strings.HasPrefix(goType, "[]") && xmlTag != ",innerxml" {
+		goType = "*" + goType
+	}
+
+	g.P("\t", fieldName, " ", goType, " `xml:\"", xmlTag, "\"`")
+	return true
+}
+
 // generateStructFromElement generates a Go struct from an XSD element
 func generateStructFromElement(g *codegen.File, element *xsd.Element, ctx *SchemaContext) {
 	structName := toGoName(element.Name)
@@ -111,28 +150,58 @@ func generateStandardStruct(g *codegen.File, element *xsd.Element, ctx *SchemaCo
 		singleRawXMLCount := 0
 
 		// Count sequence elements that will become single RawXML fields
+		// Don't count fields that will get generated struct types
 		if element.ComplexType.Sequence != nil {
 			for _, field := range element.ComplexType.Sequence.Elements {
 				if field.ComplexType != nil {
-					// Only count single fields (not arrays) for innerxml decision
-					if field.MaxOccurs == "" || field.MaxOccurs == "1" {
-						singleRawXMLCount++
+					// Check if this field will get a generated struct type
+					typeName := toGoName(element.Name) + "_" + toGoName(field.Name)
+					if !ctx.anonymousTypes[typeName] {
+						// Only count single fields (not arrays) that will remain as RawXML
+						if field.MaxOccurs == "" || field.MaxOccurs == "1" {
+							singleRawXMLCount++
+						}
 					}
 				}
+			}
+
+			// Count xs:any elements which always become RawXML fields
+			for _, anyField := range element.ComplexType.Sequence.Any {
+				// xs:any elements are escape hatch candidates - count all of them
+				// regardless of maxOccurs, since we can use ,innerxml to capture everything
+				singleRawXMLCount++
+				// Note: We ignore maxOccurs here because for true escape hatch scenarios,
+				// we want to use ,innerxml to capture all content as one blob
+				_ = anyField
 			}
 		}
 
 		// Count extension sequence elements that will become single RawXML fields
+		// Don't count fields that will get generated struct types
 		if element.ComplexType.ComplexContent != nil && element.ComplexType.ComplexContent.Extension != nil {
 			ext := element.ComplexType.ComplexContent.Extension
 			if ext.Sequence != nil {
 				for _, field := range ext.Sequence.Elements {
 					if field.ComplexType != nil {
-						// Only count single fields (not arrays) for innerxml decision
-						if field.MaxOccurs == "" || field.MaxOccurs == "1" {
-							singleRawXMLCount++
+						// Check if this field will get a generated struct type
+						typeName := toGoName(element.Name) + "_" + toGoName(field.Name)
+						if !ctx.anonymousTypes[typeName] {
+							// Only count single fields (not arrays) that will remain as RawXML
+							if field.MaxOccurs == "" || field.MaxOccurs == "1" {
+								singleRawXMLCount++
+							}
 						}
 					}
+				}
+
+				// Count xs:any elements in extensions which always become RawXML fields
+				for _, anyField := range ext.Sequence.Any {
+					// xs:any elements are escape hatch candidates - count all of them
+					// regardless of maxOccurs, since we can use ,innerxml to capture everything
+					singleRawXMLCount++
+					// Note: We ignore maxOccurs here because for true escape hatch scenarios,
+					// we want to use ,innerxml to capture all content as one blob
+					_ = anyField
 				}
 			}
 		}
@@ -140,7 +209,14 @@ func generateStandardStruct(g *codegen.File, element *xsd.Element, ctx *SchemaCo
 		// Handle sequence elements
 		if element.ComplexType.Sequence != nil {
 			for _, field := range element.ComplexType.Sequence.Elements {
-				if generateStructFieldWithInlineTypesAndContext(g, &field, ctx, singleRawXMLCount) {
+				if generateStructFieldWithInlineTypesAndContextAndParent(g, &field, ctx, singleRawXMLCount, element.Name) {
+					hasFields = true
+				}
+			}
+
+			// Handle xs:any elements - these become RawXML fields for escape hatch scenarios
+			for _, anyField := range element.ComplexType.Sequence.Any {
+				if generateAnyField(g, &anyField, ctx, singleRawXMLCount) {
 					hasFields = true
 				}
 			}
@@ -158,7 +234,14 @@ func generateStandardStruct(g *codegen.File, element *xsd.Element, ctx *SchemaCo
 			ext := element.ComplexType.ComplexContent.Extension
 			if ext.Sequence != nil {
 				for _, field := range ext.Sequence.Elements {
-					if generateStructFieldWithInlineTypesAndContext(g, &field, ctx, singleRawXMLCount) {
+					if generateStructFieldWithInlineTypesAndContextAndParent(g, &field, ctx, singleRawXMLCount, element.Name) {
+						hasFields = true
+					}
+				}
+
+				// Handle xs:any elements in extensions
+				for _, anyField := range ext.Sequence.Any {
+					if generateAnyField(g, &anyField, ctx, singleRawXMLCount) {
 						hasFields = true
 					}
 				}
@@ -189,6 +272,11 @@ func generateStandardStruct(g *codegen.File, element *xsd.Element, ctx *SchemaCo
 
 // generateStructFieldWithInlineTypesAndContext generates a Go struct field with support for inline complex types
 func generateStructFieldWithInlineTypesAndContext(g *codegen.File, element *xsd.Element, ctx *SchemaContext, singleRawXMLCount int) bool {
+	return generateStructFieldWithInlineTypesAndContextAndParent(g, element, ctx, singleRawXMLCount, "")
+}
+
+// generateStructFieldWithInlineTypesAndContextAndParent generates a Go struct field with support for inline complex types
+func generateStructFieldWithInlineTypesAndContextAndParent(g *codegen.File, element *xsd.Element, ctx *SchemaContext, singleRawXMLCount int, parentElementName string) bool {
 	// Handle element references
 	if element.Ref != "" {
 		// Resolve the reference
@@ -237,9 +325,21 @@ func generateStructFieldWithInlineTypesAndContext(g *codegen.File, element *xsd.
 	if element.Type != "" {
 		goType = mapXSDTypeToGoWithContext(element.Type, ctx)
 	} else if element.ComplexType != nil {
-		// For inline complex types without explicit type generation, use RawXML to capture raw XML
-		// This allows consumers to access the complete XML content for manual parsing
-		goType = "RawXML"
+		// Check if we have a generated struct type for this inline complex type
+		// Use the same naming convention as the inline type generator
+		if parentElementName != "" {
+			typeName := toGoName(parentElementName) + "_" + toGoName(element.Name)
+			if ctx.anonymousTypes[typeName] {
+				// Use the generated struct type instead of RawXML
+				goType = typeName
+			} else {
+				// Fallback to RawXML for truly untyped content
+				goType = "RawXML"
+			}
+		} else {
+			// No parent context available, fallback to RawXML
+			goType = "RawXML"
+		}
 	} else {
 		goType = "string" // fallback
 	}
@@ -262,15 +362,15 @@ func generateStructFieldWithInlineTypesAndContext(g *codegen.File, element *xsd.
 	}
 
 	// Generate the field with XML tag
-	// Use ,innerxml only when there's a single RawXML field in the struct
-	// Otherwise use element names to avoid conflicts
+	// Use ,innerxml only when there's a single RawXML field in the struct (not for struct types)
+	// Otherwise use element names for proper XML structure parsing
 	var xmlTag string
 	if goType == "RawXML" && singleRawXMLCount == 1 {
 		// Use ,innerxml only for single RawXML fields to capture complete inner content
 		// Don't add omitempty to innerxml tags as they capture all inner content
 		xmlTag = ",innerxml"
 	} else {
-		// For multiple RawXML fields or []RawXML, use element name to capture individual elements
+		// For struct types, multiple RawXML fields, or []RawXML, use element name for proper parsing
 		// Add omitempty for optional fields
 		xmlTag = buildXMLTag(xmlName, element.MinOccurs == "0", false)
 	}

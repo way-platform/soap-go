@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://example.com/test"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://example.com/test">
+
+    <types>
+        <xs:schema targetNamespace="http://example.com/test" elementFormDefault="qualified">
+
+            <!-- Test case where RawXML should be used as escape hatch -->
+            <!-- Single complex untyped field - should get ,innerxml -->
+            <xs:element name="DocumentWithRawContent">
+                <xs:complexType>
+                    <xs:sequence>
+                        <!-- Standard typed fields -->
+                        <xs:element name="title" type="xs:string" />
+                        <xs:element name="version" type="xs:string" />
+
+                        <!-- Single untyped field - should become RawXML with ,innerxml -->
+                        <!-- This represents truly dynamic/untyped content that can't be modeled -->
+                        <xs:element name="dynamicContent">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:any maxOccurs="unbounded" processContents="skip" />
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- Test case with multiple untyped elements - should not use ,innerxml -->
+            <xs:element name="DocumentWithMultipleRawContent">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="title" type="xs:string" />
+
+                        <!-- Multiple untyped fields - should use element names, not ,innerxml -->
+                        <xs:element name="header">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:any maxOccurs="unbounded" processContents="skip" />
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+
+                        <xs:element name="body">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:any maxOccurs="unbounded" processContents="skip" />
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- Test case: pure untyped document - should get ,innerxml -->
+            <xs:element name="PureUntypedDocument">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:any maxOccurs="unbounded" processContents="skip" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+        </xs:schema>
+    </types>
+
+</definitions>

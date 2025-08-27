@@ -42,3 +42,5 @@ When developing this SDK, use the WSDL and SOAP specifications in [docs](./docs)
 - Avoid custom UnmarshalXML methods when possible. Prefer modelling the generated types to capture all the XML data through standard Unmarshalling.
 
 - Keep the `wsdl` and `xsd` packages focused on describing the WSDL and XSD file formats. Keep them clean of business logic.
+
+- For extreme cases of complex data structures that cannot be modelled through standard Unmarshalling, use the `RawXML` type.

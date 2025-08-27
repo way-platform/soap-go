@@ -186,9 +186,9 @@ type KitchenSinkResponse struct {
 
 // InlineTypesTest represents the InlineTypesTest element
 type InlineTypesTest struct {
-	XMLName  xml.Name `xml:"http://example.com/typetest InlineTypesTest"`
-	Customer RawXML   `xml:"customer"`
-	Items    RawXML   `xml:"items"`
+	XMLName  xml.Name                 `xml:"http://example.com/typetest InlineTypesTest"`
+	Customer InlineTypesTest_Customer `xml:"customer"`
+	Items    InlineTypesTest_Items    `xml:"items"`
 }
 
 // PersonName represents the PersonName element
@@ -213,12 +213,12 @@ type PersonInfo struct {
 
 // UntypedFieldsTest represents the UntypedFieldsTest element
 type UntypedFieldsTest struct {
-	XMLName             xml.Name `xml:"http://example.com/typetest UntypedFieldsTest"`
-	UnknownField        string   `xml:"unknownField"`
-	UnknownArray        []string `xml:"unknownArray"`
-	OptionalUnknown     *string  `xml:"optionalUnknown,omitempty"`
-	ComplexData         RawXML   `xml:",innerxml"`
-	MultipleComplexData []RawXML `xml:"multipleComplexData"`
+	XMLName             xml.Name                                `xml:"http://example.com/typetest UntypedFieldsTest"`
+	UnknownField        string                                  `xml:"unknownField"`
+	UnknownArray        []string                                `xml:"unknownArray"`
+	OptionalUnknown     *string                                 `xml:"optionalUnknown,omitempty"`
+	ComplexData         UntypedFieldsTest_ComplexData           `xml:"complexData"`
+	MultipleComplexData []UntypedFieldsTest_MultipleComplexData `xml:"multipleComplexData"`
 }
 
 // UserTest represents the UserTest element

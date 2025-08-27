@@ -632,9 +632,17 @@ func TestInlineComplexTypes(t *testing.T) {
 			</InlineTypesTest>`,
 			expected: kitchensink.InlineTypesTest{
 				XMLName: xml.Name{Space: "http://example.com/typetest", Local: "InlineTypesTest"},
-				// Both Customer and Items use element names and capture character data only (whitespace)
-				Customer: kitchensink.RawXML("\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t"), // Whitespace only due to XML tag limitation
-				Items:    kitchensink.RawXML("\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t"), // Whitespace only due to XML tag limitation
+				// Now properly using struct types that can capture structured data
+				Customer: kitchensink.InlineTypesTest_Customer{
+					Name:    "John Doe",
+					Address: kitchensink.RawXML("\n\t\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t"), // RawXML with element name captures only whitespace
+				},
+				Items: kitchensink.InlineTypesTest_Items{
+					Item: []kitchensink.RawXML{
+						kitchensink.RawXML("\n\t\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t"), // RawXML with element name captures only whitespace
+						kitchensink.RawXML("\n\t\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t"), // RawXML with element name captures only whitespace
+					},
+				},
 			},
 		},
 		{
@@ -645,9 +653,16 @@ func TestInlineComplexTypes(t *testing.T) {
 			</InlineTypesTest>`,
 			expected: kitchensink.InlineTypesTest{
 				XMLName: xml.Name{Space: "http://example.com/typetest", Local: "InlineTypesTest"},
-				// Both fields use element names and capture character data only
-				Customer: kitchensink.RawXML(""), // Empty due to XML tag limitation
-				Items:    kitchensink.RawXML(""), // Empty due to XML tag limitation
+				// Now properly using struct types that can capture structured data
+				Customer: kitchensink.InlineTypesTest_Customer{
+					Name:    "Jane",
+					Address: kitchensink.RawXML(""), // Empty because no whitespace in compact XML
+				},
+				Items: kitchensink.InlineTypesTest_Items{
+					Item: []kitchensink.RawXML{
+						kitchensink.RawXML(""), // Empty because no whitespace in compact XML
+					},
+				},
 			},
 		},
 	}
@@ -763,13 +778,14 @@ func TestUntypedFields(t *testing.T) {
 				UnknownField:    "Simple text",
 				UnknownArray:    []string{"item1", "item2", "item3"}, // []string not [][]string
 				OptionalUnknown: stringPtr("Optional value"),
-				// ComplexData uses ,innerxml and captures ALL inner XML of the parent element
-				ComplexData: kitchensink.RawXML("\n\t\t\t\t<unknownField>Simple text</unknownField>\n\t\t\t\t<unknownArray>item1</unknownArray>\n\t\t\t\t<unknownArray>item2</unknownArray>\n\t\t\t\t<unknownArray>item3</unknownArray>\n\t\t\t\t<optionalUnknown>Optional value</optionalUnknown>\n\t\t\t\t<complexData>\n\t\t\t\t\t<innerField>Complex inner value</innerField>\n\t\t\t\t</complexData>\n\t\t\t\t<multipleComplexData>\n\t\t\t\t\t<innerField>123</innerField>\n\t\t\t\t</multipleComplexData>\n\t\t\t\t<multipleComplexData>\n\t\t\t\t\t<innerField>456</innerField>\n\t\t\t\t</multipleComplexData>\n\t\t\t"),
-				// MultipleComplexData uses element names and captures character data only (whitespace)
-				MultipleComplexData: []kitchensink.RawXML{
-					// TODO: Add custom parsing to capture the raw XML for multiple sequential elements.
-					kitchensink.RawXML("\n\t\t\t\t\t\n\t\t\t\t"), // Whitespace only due to XML tag limitation
-					kitchensink.RawXML("\n\t\t\t\t\t\n\t\t\t\t"), // Whitespace only due to XML tag limitation
+				// ComplexData now uses proper struct type that captures structured data
+				ComplexData: kitchensink.UntypedFieldsTest_ComplexData{
+					InnerField: "Complex inner value",
+				},
+				// MultipleComplexData now uses proper struct types that capture structured data
+				MultipleComplexData: []kitchensink.UntypedFieldsTest_MultipleComplexData{
+					{InnerField: 123},
+					{InnerField: 456},
 				},
 			},
 		},
@@ -786,11 +802,13 @@ func TestUntypedFields(t *testing.T) {
 				UnknownField:    "",
 				UnknownArray:    []string{"single"},
 				OptionalUnknown: nil, // Not present
-				// ComplexData uses ,innerxml and captures ALL inner XML of the parent element
-				ComplexData: kitchensink.RawXML("\n\t\t\t\t<unknownField></unknownField>\n\t\t\t\t<unknownArray>single</unknownArray>\n\t\t\t\t<complexData><innerField></innerField></complexData>\n\t\t\t\t<multipleComplexData><innerField>0</innerField></multipleComplexData>\n\t\t\t"),
-				// MultipleComplexData uses element names and captures character data only
-				MultipleComplexData: []kitchensink.RawXML{
-					kitchensink.RawXML(""), // Empty due to XML tag limitation
+				// ComplexData now uses proper struct type that captures structured data
+				ComplexData: kitchensink.UntypedFieldsTest_ComplexData{
+					InnerField: "",
+				},
+				// MultipleComplexData now uses proper struct types that capture structured data
+				MultipleComplexData: []kitchensink.UntypedFieldsTest_MultipleComplexData{
+					{InnerField: 0},
 				},
 			},
 		},
@@ -808,11 +826,13 @@ func TestUntypedFields(t *testing.T) {
 				UnknownField:    "test",
 				UnknownArray:    []string{"one", "two"},
 				OptionalUnknown: nil, // Not present in XML
-				// ComplexData uses ,innerxml and captures ALL inner XML of the parent element
-				ComplexData: kitchensink.RawXML("\n\t\t\t\t<unknownField>test</unknownField>\n\t\t\t\t<unknownArray>one</unknownArray>\n\t\t\t\t<unknownArray>two</unknownArray>\n\t\t\t\t<complexData><innerField>test</innerField></complexData>\n\t\t\t\t<multipleComplexData><innerField>1</innerField></multipleComplexData>\n\t\t\t"),
-				// MultipleComplexData uses element names and captures character data only
-				MultipleComplexData: []kitchensink.RawXML{
-					kitchensink.RawXML(""), // Empty due to XML tag limitation
+				// ComplexData now uses proper struct type that captures structured data
+				ComplexData: kitchensink.UntypedFieldsTest_ComplexData{
+					InnerField: "test",
+				},
+				// MultipleComplexData now uses proper struct types that capture structured data
+				MultipleComplexData: []kitchensink.UntypedFieldsTest_MultipleComplexData{
+					{InnerField: 1},
 				},
 			},
 		},
