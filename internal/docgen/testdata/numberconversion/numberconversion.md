@@ -1,38 +1,61 @@
-# NumberConversion
+# NumberConversion API Documentation
 
 **Namespace:** `http://www.dataaccess.com/webservicesserver/`
 
-## NumberConversion
+## Overview
 
 The Number Conversion Web Service, implemented with Visual DataFlex, provides functions that convert numbers into words or dollar amounts.
 
-### NumberToWords
+## Available Operations
 
-Returns the word corresponding to the positive number passed as parameter. Limited to quadrillions.
+- **[NumberToWords](#numbertowords)** - Returns the word corresponding to the positive number passed as parameter. Limited to quadrillions.
+- **[NumberToDollars](#numbertodollars)** - Returns the non-zero dollar amount of the passed number.
 
-#### Request
+## Operations
 
-- **NumberToWords** (complex)
-  - **ubiNum** (xs:unsignedLong)
+### NumberToWords {#numbertowords}
 
-#### Response
-
-- **NumberToWordsResponse** (complex)
-  - **NumberToWordsResult** (xs:string)
-
-
-### NumberToDollars
-
-Returns the non-zero dollar amount of the passed number.
+> Returns the word corresponding to the positive number passed as parameter. Limited to quadrillions.
 
 #### Request
 
-- **NumberToDollars** (complex)
-  - **dNum** (xs:decimal)
+**Message:** `NumberToWordsSoapRequest`
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| NumberToWords | object | Yes | - |
+| NumberToWords.ubiNum | xs:unsignedLong | Yes | - |
 
 #### Response
 
-- **NumberToDollarsResponse** (complex)
-  - **NumberToDollarsResult** (xs:string)
+**Message:** `NumberToWordsSoapResponse`
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| NumberToWordsResponse | object | Yes | - |
+| NumberToWordsResponse.NumberToWordsResult | xs:string | Yes | - |
+
+
+### NumberToDollars {#numbertodollars}
+
+> Returns the non-zero dollar amount of the passed number.
+
+#### Request
+
+**Message:** `NumberToDollarsSoapRequest`
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| NumberToDollars | object | Yes | - |
+| NumberToDollars.dNum | xs:decimal | Yes | - |
+
+#### Response
+
+**Message:** `NumberToDollarsSoapResponse`
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| NumberToDollarsResponse | object | Yes | - |
+| NumberToDollarsResponse.NumberToDollarsResult | xs:string | Yes | - |
 
 
