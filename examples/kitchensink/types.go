@@ -79,11 +79,13 @@ type UntypedFieldsTest_MultipleComplexData struct {
 
 // Tag represents the Tag element
 type Tag struct {
-	Value string `xml:",chardata"`
+	XMLName xml.Name `xml:"http://example.com/typetest Tag"`
+	Value   string   `xml:",chardata"`
 }
 
 // KitchenSinkRequest represents the KitchenSinkRequest element
 type KitchenSinkRequest struct {
+	XMLName                 xml.Name      `xml:"http://example.com/typetest KitchenSinkRequest"`
 	StringField             string        `xml:"stringField"`
 	BooleanField            bool          `xml:"booleanField"`
 	IntField                int32         `xml:"intField"`
@@ -142,27 +144,32 @@ type KitchenSinkRequest struct {
 
 // KitchenSinkResponse represents the KitchenSinkResponse element
 type KitchenSinkResponse struct {
-	Result string `xml:"result"`
+	XMLName xml.Name `xml:"http://example.com/typetest KitchenSinkResponse"`
+	Result  string   `xml:"result"`
 }
 
 // InlineTypesTest represents the InlineTypesTest element
 type InlineTypesTest struct {
-	Customer RawXML `xml:"customer"`
-	Items    RawXML `xml:"items"`
+	XMLName  xml.Name `xml:"http://example.com/typetest InlineTypesTest"`
+	Customer RawXML   `xml:"customer"`
+	Items    RawXML   `xml:"items"`
 }
 
 // PersonName represents the PersonName element
 type PersonName struct {
-	Value string `xml:",chardata"`
+	XMLName xml.Name `xml:"http://example.com/typetest PersonName"`
+	Value   string   `xml:",chardata"`
 }
 
 // PersonAge represents the PersonAge element
 type PersonAge struct {
-	Value int32 `xml:",chardata"`
+	XMLName xml.Name `xml:"http://example.com/typetest PersonAge"`
+	Value   int32    `xml:",chardata"`
 }
 
 // PersonInfo represents the PersonInfo element
 type PersonInfo struct {
+	XMLName    xml.Name   `xml:"http://example.com/typetest PersonInfo"`
 	PersonName PersonName `xml:"PersonName"`
 	PersonAge  PersonAge  `xml:"PersonAge"`
 	Tag        *Tag       `xml:"Tag"`
@@ -170,6 +177,7 @@ type PersonInfo struct {
 
 // UntypedFieldsTest represents the UntypedFieldsTest element
 type UntypedFieldsTest struct {
+	XMLName             xml.Name `xml:"http://example.com/typetest UntypedFieldsTest"`
 	UnknownField        string   `xml:"unknownField"`
 	UnknownArray        []string `xml:"unknownArray"`
 	OptionalUnknown     *string  `xml:"optionalUnknown"`
@@ -179,5 +187,6 @@ type UntypedFieldsTest struct {
 
 // UserTest represents the UserTest element
 type UserTest struct {
-	Value UserInfoType `xml:",chardata"`
+	XMLName xml.Name     `xml:"http://example.com/typetest UserTest"`
+	Value   UserInfoType `xml:",chardata"`
 }

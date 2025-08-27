@@ -54,22 +54,22 @@ func TestUnmarshalGlobalWeather(t *testing.T) {
 			{
 				Name: "GlobalWeatherSoap",
 				Operations: []wsdl.Operation{
-					{Name: "GetWeather", Input: &wsdl.Input{Message: "tns:GetWeatherSoapIn"}, Output: &wsdl.Output{Message: "tns:GetWeatherSoapOut"}},
-					{Name: "GetCitiesByCountry", Input: &wsdl.Input{Message: "tns:GetCitiesByCountrySoapIn"}, Output: &wsdl.Output{Message: "tns:GetCitiesByCountrySoapOut"}},
+					{Name: "GetWeather", Documentation: "\n                Get weather report for all major cities around the world.\n            ", Input: &wsdl.Input{Message: "tns:GetWeatherSoapIn"}, Output: &wsdl.Output{Message: "tns:GetWeatherSoapOut"}},
+					{Name: "GetCitiesByCountry", Documentation: "Get all major\n                cities by country name(full / part).", Input: &wsdl.Input{Message: "tns:GetCitiesByCountrySoapIn"}, Output: &wsdl.Output{Message: "tns:GetCitiesByCountrySoapOut"}},
 				},
 			},
 			{
 				Name: "GlobalWeatherHttpGet",
 				Operations: []wsdl.Operation{
-					{Name: "GetWeather", Input: &wsdl.Input{Message: "tns:GetWeatherHttpGetIn"}, Output: &wsdl.Output{Message: "tns:GetWeatherHttpGetOut"}},
-					{Name: "GetCitiesByCountry", Input: &wsdl.Input{Message: "tns:GetCitiesByCountryHttpGetIn"}, Output: &wsdl.Output{Message: "tns:GetCitiesByCountryHttpGetOut"}},
+					{Name: "GetWeather", Documentation: "\n                Get weather report for all major cities around the world.\n            ", Input: &wsdl.Input{Message: "tns:GetWeatherHttpGetIn"}, Output: &wsdl.Output{Message: "tns:GetWeatherHttpGetOut"}},
+					{Name: "GetCitiesByCountry", Documentation: "Get all major\n                cities by country name(full / part).", Input: &wsdl.Input{Message: "tns:GetCitiesByCountryHttpGetIn"}, Output: &wsdl.Output{Message: "tns:GetCitiesByCountryHttpGetOut"}},
 				},
 			},
 			{
 				Name: "GlobalWeatherHttpPost",
 				Operations: []wsdl.Operation{
-					{Name: "GetWeather", Input: &wsdl.Input{Message: "tns:GetWeatherHttpPostIn"}, Output: &wsdl.Output{Message: "tns:GetWeatherHttpPostOut"}},
-					{Name: "GetCitiesByCountry", Input: &wsdl.Input{Message: "tns:GetCitiesByCountryHttpPostIn"}, Output: &wsdl.Output{Message: "tns:GetCitiesByCountryHttpPostOut"}},
+					{Name: "GetWeather", Documentation: "\n                Get weather report for all major cities around the world.\n            ", Input: &wsdl.Input{Message: "tns:GetWeatherHttpPostIn"}, Output: &wsdl.Output{Message: "tns:GetWeatherHttpPostOut"}},
+					{Name: "GetCitiesByCountry", Documentation: "Get all major\n                cities by country name(full / part).", Input: &wsdl.Input{Message: "tns:GetCitiesByCountryHttpPostIn"}, Output: &wsdl.Output{Message: "tns:GetCitiesByCountryHttpPostOut"}},
 				},
 			},
 		},

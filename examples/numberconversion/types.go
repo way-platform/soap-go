@@ -1,21 +1,29 @@
 package numberconversion
 
+import (
+	"encoding/xml"
+)
+
 // NumberToWords represents the NumberToWords element
 type NumberToWords struct {
-	UbiNum uint64 `xml:"ubiNum"`
+	XMLName xml.Name `xml:"http://www.dataaccess.com/webservicesserver/ NumberToWords"`
+	UbiNum  uint64   `xml:"ubiNum"`
 }
 
 // NumberToWordsResponse represents the NumberToWordsResponse element
 type NumberToWordsResponse struct {
-	NumberToWordsResult string `xml:"NumberToWordsResult"`
+	XMLName             xml.Name `xml:"http://www.dataaccess.com/webservicesserver/ NumberToWordsResponse"`
+	NumberToWordsResult string   `xml:"NumberToWordsResult"`
 }
 
 // NumberToDollars represents the NumberToDollars element
 type NumberToDollars struct {
-	DNum float64 `xml:"dNum"`
+	XMLName xml.Name `xml:"http://www.dataaccess.com/webservicesserver/ NumberToDollars"`
+	DNum    float64  `xml:"dNum"`
 }
 
 // NumberToDollarsResponse represents the NumberToDollarsResponse element
 type NumberToDollarsResponse struct {
-	NumberToDollarsResult string `xml:"NumberToDollarsResult"`
+	XMLName               xml.Name `xml:"http://www.dataaccess.com/webservicesserver/ NumberToDollarsResponse"`
+	NumberToDollarsResult string   `xml:"NumberToDollarsResult"`
 }

@@ -86,6 +86,10 @@ func (g *Generator) generateTypesFile(schema *xsd.Schema, packageName, filename 
 
 	// Collect all required imports by analyzing the types used
 	requiredImports := make(map[string]bool)
+
+	// Always add encoding/xml for XMLName fields
+	requiredImports["encoding/xml"] = true
+
 	for _, element := range append(dataTypes, messageTypes...) {
 		collectRequiredImports(element, requiredImports, ctx)
 	}

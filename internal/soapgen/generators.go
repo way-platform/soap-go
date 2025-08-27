@@ -8,6 +8,21 @@ import (
 	"github.com/way-platform/soap-go/xsd"
 )
 
+// generateXMLNameField generates an XMLName field for proper namespace handling
+func generateXMLNameField(g *codegen.File, element *xsd.Element, ctx *SchemaContext) {
+	// Get the target namespace from the schema
+	namespace := ctx.schema.TargetNamespace
+	elementName := element.Name
+
+	if namespace == "" {
+		// If no namespace, use unqualified element name
+		g.P("\tXMLName xml.Name `xml:\"", elementName, "\"`")
+	} else {
+		// Use qualified namespace
+		g.P("\tXMLName xml.Name `xml:\"", namespace, " ", elementName, "\"`")
+	}
+}
+
 // generateInlineComplexTypeStruct generates a struct for an inline complex type
 func generateInlineComplexTypeStruct(g *codegen.File, typeName string, complexType *xsd.ComplexType, ctx *SchemaContext) {
 	// Add comment
@@ -68,8 +83,11 @@ func generateStandardStruct(g *codegen.File, element *xsd.Element, ctx *SchemaCo
 	// Start struct declaration
 	g.P("type ", structName, " struct {")
 
+	// Add XMLName field for namespace handling
+	generateXMLNameField(g, element, ctx)
+
 	// Track if we've added any fields
-	hasFields := false
+	hasFields := true // XMLName counts as a field
 
 	// Generate fields from the complex type or simple type
 	if element.ComplexType != nil {

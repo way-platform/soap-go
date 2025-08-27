@@ -1,5 +1,9 @@
 package inline_complex_types
 
+import (
+	"encoding/xml"
+)
+
 // RawXML captures raw XML content for untyped elements.
 type RawXML []byte
 
@@ -30,6 +34,7 @@ type OrderItems_Item struct {
 
 // Order represents the Order element
 type Order struct {
-	Customer RawXML `xml:"customer"`
-	Items    RawXML `xml:"items"`
+	XMLName  xml.Name `xml:"http://example.com/test Order"`
+	Customer RawXML   `xml:"customer"`
+	Items    RawXML   `xml:"items"`
 }

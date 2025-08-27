@@ -1,5 +1,9 @@
 package enumeration_simple_type
 
+import (
+	"encoding/xml"
+)
+
 // Enumeration constants
 
 // ColorType enumeration values

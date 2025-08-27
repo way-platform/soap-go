@@ -31,6 +31,12 @@ When developing this SDK, use the WSDL and SOAP specifications in [docs](./docs)
 
 - When fixing issues in how the the generated code parses raw XML, add tests in [examples/examples_test.go](./examples/examples_test.go).
 
+- Golden files are updated by running `go test` with the `-update` flag.
+
 ## Principles
 
 - Work within the constraints of Go's XML parser. Find simple and effective solutions that align with how "encoding/xml" works.
+
+- Avoid custom UnmarshalXML methods when possible. Prefer modelling the generated types to capture all the XML data through standard Unmarshalling.
+
+- Keep the `wsdl` and `xsd` packages focused on describing the WSDL and XSD file formats. Keep them clean of business logic.

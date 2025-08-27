@@ -1,5 +1,9 @@
 package custom_types_and_enums
 
+import (
+	"encoding/xml"
+)
+
 // Enumeration constants
 
 // StatusType enumeration values
@@ -20,11 +24,13 @@ type UserInfoType struct {
 
 // User represents the User element
 type User struct {
-	Value UserInfoType `xml:",chardata"`
+	XMLName xml.Name     `xml:"http://example.com/test User"`
+	Value   UserInfoType `xml:",chardata"`
 }
 
 // StatusCheck represents the StatusCheck element
 type StatusCheck struct {
-	CurrentStatus string `xml:"currentStatus"`
-	TargetStatus  string `xml:"targetStatus"`
+	XMLName       xml.Name `xml:"http://example.com/test StatusCheck"`
+	CurrentStatus string   `xml:"currentStatus"`
+	TargetStatus  string   `xml:"targetStatus"`
 }

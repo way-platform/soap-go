@@ -113,6 +113,13 @@ func buildSchemaMap(doc *wsdl.Definitions) map[string]*xsd.Element {
 	return schemaMap
 }
 
+// normalizeDocumentation normalizes whitespace in documentation strings
+// by trimming leading/trailing whitespace and replacing any sequence of
+// whitespace characters (including newlines) with a single space
+func normalizeDocumentation(doc string) string {
+	return strings.TrimSpace(strings.Join(strings.Fields(doc), " "))
+}
+
 // generateServiceDoc generates documentation for a single service
 func generateServiceDoc(g *codegen.File, service *wsdl.Service, doc *wsdl.Definitions, schemaMap map[string]*xsd.Element) error {
 	g.P("## ", service.Name)
@@ -120,7 +127,7 @@ func generateServiceDoc(g *codegen.File, service *wsdl.Service, doc *wsdl.Defini
 
 	// Add service description if available
 	if service.Documentation != "" {
-		g.P(strings.TrimSpace(service.Documentation))
+		g.P(normalizeDocumentation(service.Documentation))
 		g.P()
 	}
 
@@ -168,7 +175,7 @@ func generateOperationDoc(g *codegen.File, operation *wsdl.Operation, doc *wsdl.
 
 	// Add operation description if available
 	if operation.Documentation != "" {
-		g.P(strings.TrimSpace(operation.Documentation))
+		g.P(normalizeDocumentation(operation.Documentation))
 		g.P()
 	}
 
