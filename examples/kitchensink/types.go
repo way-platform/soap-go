@@ -68,7 +68,7 @@ type AddressType struct {
 	City     string `xml:"city"`
 	ZipCode  string `xml:"zipCode"`
 	Country  string `xml:"country,attr"`
-	Verified *bool  `xml:"verified,attr"`
+	Verified *bool  `xml:"verified,attr,omitempty"`
 }
 
 // UserInfoType represents the UserInfoType complex type
@@ -161,21 +161,21 @@ type KitchenSinkRequest struct {
 	GDayField               string        `xml:"gDayField"`
 	GYearMonthField         string        `xml:"gYearMonthField"`
 	GMonthDayField          string        `xml:"gMonthDayField"`
-	OptionalString          *string       `xml:"optionalString"`
-	OptionalInt             *int32        `xml:"optionalInt"`
+	OptionalString          *string       `xml:"optionalString,omitempty"`
+	OptionalInt             *int32        `xml:"optionalInt,omitempty"`
 	Tags                    []string      `xml:"tags"`
 	Numbers                 []int32       `xml:"numbers"`
-	OptionalTags            []string      `xml:"optionalTags"`
+	OptionalTags            []string      `xml:"optionalTags,omitempty"`
 	Status                  StatusType    `xml:"status"`
 	Priority                PriorityType  `xml:"priority"`
-	OptionalStatus          *StatusType   `xml:"optionalStatus"`
+	OptionalStatus          *StatusType   `xml:"optionalStatus,omitempty"`
 	Address                 AddressType   `xml:"address"`
-	OptionalAddress         *AddressType  `xml:"optionalAddress"`
+	OptionalAddress         *AddressType  `xml:"optionalAddress,omitempty"`
 	SimpleElement           string        `xml:"simpleElement"`
-	Metadata                *AddressType  `xml:"metadata"`
+	Metadata                *AddressType  `xml:"metadata,omitempty"`
 	Version                 string        `xml:"version,attr"`
-	Debug                   *bool         `xml:"debug,attr"`
-	Timestamp               *time.Time    `xml:"timestamp,attr"`
+	Debug                   *bool         `xml:"debug,attr,omitempty"`
+	Timestamp               *time.Time    `xml:"timestamp,attr,omitempty"`
 }
 
 // KitchenSinkResponse represents the KitchenSinkResponse element
@@ -208,7 +208,7 @@ type PersonInfo struct {
 	XMLName    xml.Name   `xml:"http://example.com/typetest PersonInfo"`
 	PersonName PersonName `xml:"PersonName"`
 	PersonAge  PersonAge  `xml:"PersonAge"`
-	Tag        *Tag       `xml:"Tag"`
+	Tag        *Tag       `xml:"Tag,omitempty"`
 }
 
 // UntypedFieldsTest represents the UntypedFieldsTest element
@@ -216,7 +216,7 @@ type UntypedFieldsTest struct {
 	XMLName             xml.Name `xml:"http://example.com/typetest UntypedFieldsTest"`
 	UnknownField        string   `xml:"unknownField"`
 	UnknownArray        []string `xml:"unknownArray"`
-	OptionalUnknown     *string  `xml:"optionalUnknown"`
+	OptionalUnknown     *string  `xml:"optionalUnknown,omitempty"`
 	ComplexData         RawXML   `xml:",innerxml"`
 	MultipleComplexData []RawXML `xml:"multipleComplexData"`
 }

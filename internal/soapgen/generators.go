@@ -8,6 +8,21 @@ import (
 	"github.com/way-platform/soap-go/xsd"
 )
 
+// buildXMLTag constructs an XML struct tag with appropriate omitempty behavior
+func buildXMLTag(xmlName string, isOptional bool, isAttribute bool) string {
+	parts := []string{xmlName}
+
+	if isAttribute {
+		parts = append(parts, "attr")
+	}
+
+	if isOptional {
+		parts = append(parts, "omitempty")
+	}
+
+	return strings.Join(parts, ",")
+}
+
 // generateXMLNameField generates an XMLName field for proper namespace handling
 func generateXMLNameField(g *codegen.File, element *xsd.Element, ctx *SchemaContext) {
 	// Get the target namespace from the schema
@@ -199,7 +214,8 @@ func generateStructFieldWithInlineTypesAndContext(g *codegen.File, element *xsd.
 				}
 
 				// For []byte fields, use standard XML tags to capture element content
-				g.P("\t", fieldName, " ", goType, " `xml:\"", xmlName, "\"`")
+				xmlTag := buildXMLTag(xmlName, element.MinOccurs == "0", false)
+				g.P("\t", fieldName, " ", goType, " `xml:\"", xmlTag, "\"`")
 				return true
 			}
 		}
@@ -248,12 +264,16 @@ func generateStructFieldWithInlineTypesAndContext(g *codegen.File, element *xsd.
 	// Generate the field with XML tag
 	// Use ,innerxml only when there's a single RawXML field in the struct
 	// Otherwise use element names to avoid conflicts
-	xmlTag := xmlName
+	var xmlTag string
 	if goType == "RawXML" && singleRawXMLCount == 1 {
 		// Use ,innerxml only for single RawXML fields to capture complete inner content
+		// Don't add omitempty to innerxml tags as they capture all inner content
 		xmlTag = ",innerxml"
+	} else {
+		// For multiple RawXML fields or []RawXML, use element name to capture individual elements
+		// Add omitempty for optional fields
+		xmlTag = buildXMLTag(xmlName, element.MinOccurs == "0", false)
 	}
-	// For multiple RawXML fields or []RawXML, use element name to capture individual elements
 	g.P("\t", fieldName, " ", goType, " `xml:\"", xmlTag, "\"`")
 	return true
 }
@@ -286,7 +306,8 @@ func generateAttributeField(g *codegen.File, attr *xsd.Attribute, ctx *SchemaCon
 	}
 
 	// Generate the field with XML attribute tag
-	g.P("\t", fieldName, " ", goType, " `xml:\"", xmlName, ",attr\"`")
+	xmlTag := buildXMLTag(xmlName, attr.Use != "required", true)
+	g.P("\t", fieldName, " ", goType, " `xml:\"", xmlTag, "\"`")
 	return true
 }
 

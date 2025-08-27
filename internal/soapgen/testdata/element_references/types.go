@@ -30,6 +30,6 @@ type Person struct {
 	PersonName PersonName  `xml:"PersonName"`
 	PersonAge  PersonAge   `xml:"PersonAge"`
 	Address    Address     `xml:"Address"`
-	PersonName *PersonName `xml:"PersonName"`
+	PersonName *PersonName `xml:"PersonName,omitempty"`
 	Address    []Address   `xml:"Address"`
 }

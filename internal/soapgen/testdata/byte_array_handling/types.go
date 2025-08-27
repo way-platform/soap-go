@@ -24,8 +24,8 @@ type DataContainer struct {
 	XMLName              xml.Name `xml:"http://example.com/test DataContainer"`
 	SingleData           string   `xml:"singleData"`
 	MultipleData         []string `xml:"multipleData"`
-	OptionalData         *string  `xml:"optionalData"`
-	OptionalMultipleData []string `xml:"optionalMultipleData"`
+	OptionalData         *string  `xml:"optionalData,omitempty"`
+	OptionalMultipleData []string `xml:"optionalMultipleData,omitempty"`
 	KnownString          string   `xml:"knownString"`
 	KnownStringArray     []string `xml:"knownStringArray"`
 	InlineData           RawXML   `xml:",innerxml"`

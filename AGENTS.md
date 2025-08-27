@@ -35,6 +35,8 @@ When developing this SDK, use the WSDL and SOAP specifications in [docs](./docs)
 
 ## Principles
 
+- The generated code should be as idiomatic as possible and leverage the latest available Go features.
+
 - Work within the constraints of Go's XML parser. Find simple and effective solutions that align with how "encoding/xml" works.
 
 - Avoid custom UnmarshalXML methods when possible. Prefer modelling the generated types to capture all the XML data through standard Unmarshalling.
