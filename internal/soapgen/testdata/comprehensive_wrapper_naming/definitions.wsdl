@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://example.com/test"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://example.com/test">
+
+    <types>
+        <xs:schema targetNamespace="http://example.com/test" elementFormDefault="qualified">
+
+            <!-- Core data types (should get clean names) -->
+            <xs:element name="LoginRequest">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="username" type="xs:string" />
+                        <xs:element name="password" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="LoginResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="sessionId" type="xs:string" />
+                        <xs:element name="success" type="xs:boolean" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="UserInfo">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="userId" type="xs:long" />
+                        <xs:element name="name" type="xs:string" />
+                        <xs:element name="email" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- SOAP message wrappers (should get *Wrapper suffix) -->
+            <!-- camelCase wrapper referencing PascalCase data type -->
+            <xs:element name="login">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="tns:LoginRequest" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- Response wrapper with "response" suffix -->
+            <xs:element name="loginResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="tns:LoginResponse" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- Another operation wrapper -->
+            <xs:element name="getUserInfo">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="tns:UserInfo" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- Mixed case: PascalCase wrapper that should NOT be treated as wrapper -->
+            <xs:element name="LoginData">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="loginAttempts" type="xs:int" />
+                        <xs:element name="lastLogin" type="xs:dateTime" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- Edge case: camelCase but doesn't reference single element - not a wrapper -->
+            <xs:element name="loginStats">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="totalAttempts" type="xs:int" />
+                        <xs:element name="successfulLogins" type="xs:int" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+        </xs:schema>
+    </types>
+
+</definitions>

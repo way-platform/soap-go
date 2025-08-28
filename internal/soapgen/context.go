@@ -122,6 +122,20 @@ func (r *TypeRegistry) shouldGenerate(element *xsd.Element) bool {
 	return true
 }
 
+// shouldGenerateWithName checks if a type with the given name should be generated
+func (r *TypeRegistry) shouldGenerateWithName(element *xsd.Element, typeName string) bool {
+	if typeName == "" {
+		return false // Skip elements without valid names
+	}
+
+	if existing, exists := r.types[typeName]; exists {
+		// Compare structures to see if they're equivalent
+		return !areEquivalentElements(existing, element)
+	}
+	r.types[typeName] = element
+	return true
+}
+
 // areEquivalentElements checks if two elements have the same structure
 func areEquivalentElements(a, b *xsd.Element) bool {
 	// Simple comparison - could be enhanced for more sophisticated checking

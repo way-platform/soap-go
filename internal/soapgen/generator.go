@@ -124,9 +124,13 @@ func (g *Generator) generateTypesFile(schema *xsd.Schema, packageName, filename 
 		}
 	}
 
-	// Skip message wrapper types for now as they cause duplicates
-	// TODO: In the future, we might want to generate these with different names
-	// or in a separate package for SOAP message handling
+	// Generate message wrapper types with *Wrapper suffix to avoid conflicts
+	for _, element := range messageTypes {
+		wrapperTypeName := toGoName(element.Name) + "Wrapper"
+		if typeRegistry.shouldGenerateWithName(element, wrapperTypeName) {
+			generateStructFromElementWithWrapper(file, element, ctx)
+		}
+	}
 
 	return file, nil
 }

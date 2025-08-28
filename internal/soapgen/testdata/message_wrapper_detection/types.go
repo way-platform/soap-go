@@ -24,3 +24,21 @@ type UserData struct {
 	UserId   int64    `xml:"userId"`
 	UserData string   `xml:"userData"`
 }
+
+// LoginWrapper represents the login element
+type LoginWrapper struct {
+	XMLName      xml.Name     `xml:"login"`
+	LoginRequest LoginRequest `xml:"LoginRequest"`
+}
+
+// LoginResponseWrapper represents the loginResponse element
+type LoginResponseWrapper struct {
+	XMLName       xml.Name      `xml:"loginResponse"`
+	LoginResponse LoginResponse `xml:"LoginResponse"`
+}
+
+// GetUserDataWrapper represents the getUserData element
+type GetUserDataWrapper struct {
+	XMLName  xml.Name `xml:"getUserData"`
+	UserData UserData `xml:"UserData"`
+}

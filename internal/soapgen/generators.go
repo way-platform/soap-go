@@ -121,10 +121,28 @@ func generateStructFromElement(g *codegen.File, element *xsd.Element, ctx *Schem
 	generateStandardStruct(g, element, ctx)
 }
 
+// generateStructFromElementWithWrapper generates a Go struct from an XSD element with wrapper naming
+func generateStructFromElementWithWrapper(g *codegen.File, element *xsd.Element, ctx *SchemaContext) {
+	structName := toGoName(element.Name)
+	if structName == "" {
+		return // Skip elements without valid names
+	}
+
+	// Apply wrapper naming convention
+	wrapperStructName := structName + "Wrapper"
+
+	// Generate wrapper struct with modified name
+	generateStandardStructWithName(g, element, ctx, wrapperStructName)
+}
+
 // generateStandardStruct generates a standard struct without custom parsing
 func generateStandardStruct(g *codegen.File, element *xsd.Element, ctx *SchemaContext) {
 	structName := toGoName(element.Name)
+	generateStandardStructWithName(g, element, ctx, structName)
+}
 
+// generateStandardStructWithName generates a standard struct with a custom struct name
+func generateStandardStructWithName(g *codegen.File, element *xsd.Element, ctx *SchemaContext, structName string) {
 	// Add comment
 	g.P("// ", structName, " represents the ", element.Name, " element")
 
