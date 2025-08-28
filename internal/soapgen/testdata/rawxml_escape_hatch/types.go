@@ -26,7 +26,7 @@ type DocumentWithMultipleRawContent_Body struct {
 
 // DocumentWithRawContent represents the DocumentWithRawContent element
 type DocumentWithRawContent struct {
-	XMLName        xml.Name                              `xml:"http://example.com/test DocumentWithRawContent"`
+	XMLName        xml.Name                              `xml:"DocumentWithRawContent"`
 	Title          string                                `xml:"title"`
 	Version        string                                `xml:"version"`
 	DynamicContent DocumentWithRawContent_DynamicContent `xml:"dynamicContent"`
@@ -34,7 +34,7 @@ type DocumentWithRawContent struct {
 
 // DocumentWithMultipleRawContent represents the DocumentWithMultipleRawContent element
 type DocumentWithMultipleRawContent struct {
-	XMLName xml.Name                              `xml:"http://example.com/test DocumentWithMultipleRawContent"`
+	XMLName xml.Name                              `xml:"DocumentWithMultipleRawContent"`
 	Title   string                                `xml:"title"`
 	Header  DocumentWithMultipleRawContent_Header `xml:"header"`
 	Body    DocumentWithMultipleRawContent_Body   `xml:"body"`
@@ -42,6 +42,6 @@ type DocumentWithMultipleRawContent struct {
 
 // PureUntypedDocument represents the PureUntypedDocument element
 type PureUntypedDocument struct {
-	XMLName xml.Name `xml:"http://example.com/test PureUntypedDocument"`
+	XMLName xml.Name `xml:"PureUntypedDocument"`
 	Content RawXML   `xml:",innerxml"`
 }

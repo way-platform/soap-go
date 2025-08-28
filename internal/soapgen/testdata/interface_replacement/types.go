@@ -6,7 +6,7 @@ import (
 
 // MixedContent represents the MixedContent element
 type MixedContent struct {
-	XMLName         xml.Name `xml:"http://example.com/test MixedContent"`
+	XMLName         xml.Name `xml:"MixedContent"`
 	KnownField      string   `xml:"knownField"`
 	UnknownField    string   `xml:"unknownField"`
 	UnknownArray    []string `xml:"unknownArray"`

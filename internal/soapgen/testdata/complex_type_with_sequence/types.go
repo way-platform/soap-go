@@ -6,7 +6,7 @@ import (
 
 // Person represents the Person element
 type Person struct {
-	XMLName xml.Name `xml:"http://example.com/test Person"`
+	XMLName xml.Name `xml:"Person"`
 	Name    string   `xml:"name"`
 	Age     int32    `xml:"age"`
 }

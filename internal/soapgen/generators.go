@@ -23,19 +23,13 @@ func buildXMLTag(xmlName string, isOptional bool, isAttribute bool) string {
 	return strings.Join(parts, ",")
 }
 
-// generateXMLNameField generates an XMLName field for proper namespace handling
+// generateXMLNameField generates an XMLName field for flexible namespace handling
 func generateXMLNameField(g *codegen.File, element *xsd.Element, ctx *SchemaContext) {
-	// Get the target namespace from the schema
-	namespace := ctx.schema.TargetNamespace
+	// Use local name only for flexible namespace handling
+	// This allows the generated code to work with SOAP APIs that deviate from WSDL specs
+	// by having different namespaces than expected while still validating element names
 	elementName := element.Name
-
-	if namespace == "" {
-		// If no namespace, use unqualified element name
-		g.P("\tXMLName xml.Name `xml:\"", elementName, "\"`")
-	} else {
-		// Use qualified namespace
-		g.P("\tXMLName xml.Name `xml:\"", namespace, " ", elementName, "\"`")
-	}
+	g.P("\tXMLName xml.Name `xml:\"", elementName, "\"`")
 }
 
 // generateInlineComplexTypeStruct generates a struct for an inline complex type

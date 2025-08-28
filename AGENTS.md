@@ -15,6 +15,8 @@ When developing this SDK, use the WSDL and SOAP specifications in [docs](./docs)
 
 - The project uses [Mage](https://magefile.org) with build tasks declared in [magefile.go](./tools/magefile.go).
 
+- The CLI in [cmd/soap](./cmd/soap) depends on an already released version of the SDK, to make installation as easy as possible.
+
 ## Developing
 
 - Run tests with `./tools/mage test`
@@ -44,3 +46,5 @@ When developing this SDK, use the WSDL and SOAP specifications in [docs](./docs)
 - Keep the `wsdl` and `xsd` packages focused on describing the WSDL and XSD file formats. Keep them clean of business logic.
 
 - For extreme cases of complex data structures that cannot be modelled through standard Unmarshalling, use the `RawXML` type.
+
+- Avoid configuration options. Pick sane defaults that "just work". The SDK, generated code and tools should be as simple to use as possible.

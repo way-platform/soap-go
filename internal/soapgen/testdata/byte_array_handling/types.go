@@ -21,7 +21,7 @@ type DataContainer_MultipleInlineData struct {
 
 // DataContainer represents the DataContainer element
 type DataContainer struct {
-	XMLName              xml.Name                           `xml:"http://example.com/test DataContainer"`
+	XMLName              xml.Name                           `xml:"DataContainer"`
 	SingleData           string                             `xml:"singleData"`
 	MultipleData         []string                           `xml:"multipleData"`
 	OptionalData         *string                            `xml:"optionalData,omitempty"`

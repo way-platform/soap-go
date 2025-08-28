@@ -6,7 +6,7 @@ import (
 
 // Container represents the Container element
 type Container struct {
-	XMLName  xml.Name `xml:"http://example.com/test Container"`
+	XMLName  xml.Name `xml:"Container"`
 	Required string   `xml:"required"`
 	Optional *string  `xml:"optional,omitempty"`
 	Multiple []string `xml:"multiple"`

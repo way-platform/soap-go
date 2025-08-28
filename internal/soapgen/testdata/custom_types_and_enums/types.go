@@ -42,13 +42,13 @@ type UserInfoType struct {
 
 // User represents the User element
 type User struct {
-	XMLName xml.Name     `xml:"http://example.com/test User"`
+	XMLName xml.Name     `xml:"User"`
 	Value   UserInfoType `xml:",chardata"`
 }
 
 // StatusCheck represents the StatusCheck element
 type StatusCheck struct {
-	XMLName       xml.Name   `xml:"http://example.com/test StatusCheck"`
+	XMLName       xml.Name   `xml:"StatusCheck"`
 	CurrentStatus StatusType `xml:"currentStatus"`
 	TargetStatus  StatusType `xml:"targetStatus"`
 }

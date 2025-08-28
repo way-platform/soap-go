@@ -6,6 +6,6 @@ import (
 
 // TestElement represents the TestElement element
 type TestElement struct {
-	XMLName xml.Name `xml:"http://example.com/test TestElement"`
+	XMLName xml.Name `xml:"TestElement"`
 	Value   string   `xml:",chardata"`
 }
