@@ -191,7 +191,11 @@ func (g *Generator) findPortTypeForService(service *wsdl.Service) *wsdl.PortType
 		for _, port := range service.Ports {
 			if strings.Contains(port.Binding, binding.Name) {
 				// Find the PortType referenced by this binding
-				typeName := strings.TrimPrefix(binding.Type, "tns:")
+				// Remove any namespace prefix (e.g., "tns:", "custom:", etc.)
+				typeName := binding.Type
+				if colonIndex := strings.Index(typeName, ":"); colonIndex >= 0 {
+					typeName = typeName[colonIndex+1:]
+				}
 				for i := range doc.PortType {
 					if doc.PortType[i].Name == typeName {
 						return &doc.PortType[i]
@@ -332,7 +336,11 @@ func (g *Generator) generateMessageDoc(messageType, messageName string, schemaMa
 
 	// Find the message definition
 	var message *wsdl.Message
-	cleanMessageName := strings.TrimPrefix(messageName, "tns:")
+	// Remove any namespace prefix from message name
+	cleanMessageName := messageName
+	if colonIndex := strings.Index(cleanMessageName, ":"); colonIndex >= 0 {
+		cleanMessageName = cleanMessageName[colonIndex+1:]
+	}
 	for i := range doc.Messages {
 		if doc.Messages[i].Name == cleanMessageName {
 			message = &doc.Messages[i]
@@ -353,7 +361,11 @@ func (g *Generator) generateMessageDoc(messageType, messageName string, schemaMa
 	var fields []fieldInfo
 	for _, part := range message.Parts {
 		if part.Element != "" {
-			elementName := strings.TrimPrefix(part.Element, "tns:")
+			// Remove any namespace prefix from element name
+			elementName := part.Element
+			if colonIndex := strings.Index(elementName, ":"); colonIndex >= 0 {
+				elementName = elementName[colonIndex+1:]
+			}
 			element := schemaMap[elementName]
 			if element != nil {
 				g.collectElementFields(element, "", &fields)

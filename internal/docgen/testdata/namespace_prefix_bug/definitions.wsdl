@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:custom="http://example.com/custom"
+    targetNamespace="http://example.com/custom">
+
+    <wsdl:message name="TestRequestMessage">
+        <wsdl:part name="parameters" element="custom:TestRequest" />
+    </wsdl:message>
+
+    <wsdl:message name="TestResponseMessage">
+        <wsdl:part name="parameters" element="custom:TestResponse" />
+    </wsdl:message>
+
+    <wsdl:portType name="TestService">
+        <wsdl:operation name="testOperation">
+            <wsdl:documentation>Test operation with custom namespace prefix.</wsdl:documentation>
+            <wsdl:input message="custom:TestRequestMessage" />
+            <wsdl:output message="custom:TestResponseMessage" />
+        </wsdl:operation>
+    </wsdl:portType>
+
+    <wsdl:binding name="TestServiceBinding" type="custom:TestService">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+        <wsdl:operation name="testOperation">
+            <soap:operation soapAction="testOperation" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+
+    <wsdl:service name="TestService">
+        <wsdl:documentation>Test service with custom namespace prefix binding</wsdl:documentation>
+        <wsdl:port binding="custom:TestServiceBinding" name="TestServicePort">
+            <soap:address location="http://example.com/test" />
+        </wsdl:port>
+    </wsdl:service>
+
+</wsdl:definitions>
