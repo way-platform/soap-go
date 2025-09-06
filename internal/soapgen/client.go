@@ -45,7 +45,11 @@ func (g *Generator) generateClientFile(packageName, filename string) (*codegen.F
 	file.Import("fmt")
 	file.Import("io")
 	file.Import("net/http")
-	file.Import("strings")
+
+	// Check if strings package is needed and add import conditionally
+	if g.needsStringsImport(soapBindings) {
+		file.Import("strings")
+	}
 
 	file.P()
 
@@ -68,6 +72,40 @@ func (g *Generator) generateClientFile(packageName, filename string) (*codegen.F
 	g.generateHelperFunctions(file)
 
 	return file, nil
+}
+
+// needsStringsImport checks if the strings package is needed for the generated client code
+func (g *Generator) needsStringsImport(soapBindings []*wsdl.Binding) bool {
+	// Check if any operation has documentation (uses strings.TrimSpace and strings.ReplaceAll)
+	// This is the main case where strings is actually used in generated code
+	for _, binding := range soapBindings {
+		// Find the port type manually without using strings functions
+		bindingType := binding.Type
+		localBindingType := bindingType
+
+		// Extract local name from binding type (remove namespace prefix if present)
+		// Use manual parsing instead of strings.LastIndex to avoid circular dependency
+		for i := len(bindingType) - 1; i >= 0; i-- {
+			if bindingType[i] == ':' {
+				localBindingType = bindingType[i+1:]
+				break
+			}
+		}
+
+		for i := range g.definitions.PortType {
+			portType := &g.definitions.PortType[i]
+			if portType.Name == localBindingType {
+				for _, operation := range portType.Operations {
+					if operation.Documentation != "" {
+						return true
+					}
+				}
+				break
+			}
+		}
+	}
+
+	return false
 }
 
 // generateClientOptions generates the ClientOption types and implementations
