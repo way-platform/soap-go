@@ -12,13 +12,13 @@ SOAP provides a simple and lightweight mechanism for exchanging structured and t
 
 SOAP consists of three parts:
 
-- The SOAP envelope (see [section 4](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383494)) construct defines an overall framework for expressing **what** is in a message; **who** should deal with it, and **whether** it is optional or mandatory.
-- The SOAP encoding rules (see [section 5](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383512)) defines a serialization mechanism that can be used to exchange instances of application-defined datatypes.
-- The SOAP RPC representation (see [section 7](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383532)) defines a convention that can be used to represent remote procedure calls and responses.
+- The SOAP envelope (see **section 4**) construct defines an overall framework for expressing **what** is in a message; **who** should deal with it, and **whether** it is optional or mandatory.
+- The SOAP encoding rules (see **section 5**) defines a serialization mechanism that can be used to exchange instances of application-defined datatypes.
+- The SOAP RPC representation (see **section 7**) defines a convention that can be used to represent remote procedure calls and responses.
 
 Although these parts are described together as part of SOAP, they are functionally orthogonal. In particular, the envelope and the encoding rules are defined in different namespaces in order to promote simplicity through modularity.
 
-In addition to the SOAP envelope, the SOAP encoding rules and the SOAP RPC conventions, this specification defines two protocol bindings that describe how a SOAP message can be carried in HTTP [[5]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#RFC2616) messages either with or without the HTTP Extension Framework [[6]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#RFC2774).
+In addition to the SOAP envelope, the SOAP encoding rules and the SOAP RPC conventions, this specification defines two protocol bindings that describe how a SOAP message can be carried in HTTP  messages either with or without the HTTP Extension Framework **6**.
 
 ### 1.1 Design Goals
 
@@ -31,21 +31,21 @@ A major design goal for SOAP is simplicity and extensibility. This means that th
 
 ### 1.2 Notational Conventions
 
-The keywords "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in RFC-2119 [[2]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#RFC2119).
+The keywords "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in RFC-2119 .
 
-The namespace prefixes "SOAP-ENV" and "SOAP-ENC" used in this document are associated with the SOAP namespaces "[http://schemas.xmlsoap.org/soap/envelope/](http://schemas.xmlsoap.org/soap/envelope/)" and "[http://schemas.xmlsoap.org/soap/encoding/](http://schemas.xmlsoap.org/soap/encoding/)" respectively.
+The namespace prefixes "SOAP-ENV" and "SOAP-ENC" used in this document are associated with the SOAP namespaces "http://schemas.xmlsoap.org/soap/envelope/" and "http://schemas.xmlsoap.org/soap/encoding/" respectively.
 
-Throughout this document, the namespace prefix "xsi" is assumed to be associated with the URI "[http://www.w3.org/1999/XMLSchema-instance](https://www.w3.org/1999/XMLSchema-instance)" which is defined in the XML Schemas specification [[11]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XMLS2). Similarly, the namespace prefix "xsd" is assumed to be associated with the URI "[http://www.w3.org/1999/XMLSchema](https://www.w3.org/1999/XMLSchema)" which is defined in [[10]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XMLS1). The namespace prefix "tns" is used to indicate whatever is the target namespace of the current document. All other namespace prefixes are samples only.
+Throughout this document, the namespace prefix "xsi" is assumed to be associated with the URI "http://www.w3.org/1999/XMLSchema-instance" which is defined in the XML Schemas specification **11**. Similarly, the namespace prefix "xsd" is assumed to be associated with the URI "http://www.w3.org/1999/XMLSchema" which is defined in **10**. The namespace prefix "tns" is used to indicate whatever is the target namespace of the current document. All other namespace prefixes are samples only.
 
-Namespace URIs of the general form "some-URI" represent some application-dependent or context-dependent URI [[4]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#RFC2396).
+Namespace URIs of the general form "some-URI" represent some application-dependent or context-dependent URI .
 
-This specification uses the augmented Backus-Naur Form (BNF) as described in RFC-2616 [[5]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#RFC2616) for certain constructs.
+This specification uses the augmented Backus-Naur Form (BNF) as described in RFC-2616  for certain constructs.
 
 ### 1.3 Examples of SOAP Messages
 
-In this example, a GetLastTradePrice SOAP request is sent to a StockQuote service. The request takes a string parameter, ticker symbol, and returns a float in the SOAP response. The SOAP Envelope element is the top element of the XML document representing the SOAP message. XML namespaces are used to disambiguate SOAP identifiers from application specific identifiers. The example illustrates the HTTP bindings defined in [section 6](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383526). It is worth noting that the rules governing XML payload format in SOAP are entirely independent of the fact that the payload is carried in HTTP.
+In this example, a GetLastTradePrice SOAP request is sent to a StockQuote service. The request takes a string parameter, ticker symbol, and returns a float in the SOAP response. The SOAP Envelope element is the top element of the XML document representing the SOAP message. XML namespaces are used to disambiguate SOAP identifiers from application specific identifiers. The example illustrates the HTTP bindings defined in **section 6**. It is worth noting that the rules governing XML payload format in SOAP are entirely independent of the fact that the payload is carried in HTTP.
 
-More examples are available in [Appendix A](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383539).
+More examples are available in **Appendix A**.
 
 Example 1 SOAP Message Embedded in HTTP Request
 
@@ -95,44 +95,44 @@ Content-Length: nnnn
 
 SOAP messages are fundamentally one-way transmissions from a sender to a receiver, but as illustrated above, SOAP messages are often combined to implement patterns such as request/response.
 
-SOAP implementations can be optimized to exploit the unique characteristics of particular network systems. For example, the HTTP binding described in [section 6](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383527) provides for SOAP response messages to be delivered as HTTP responses, using the same connection as the inbound request.
+SOAP implementations can be optimized to exploit the unique characteristics of particular network systems. For example, the HTTP binding described in **section 6** provides for SOAP response messages to be delivered as HTTP responses, using the same connection as the inbound request.
 
 Regardless of the protocol to which SOAP is bound, messages are routed along a so-called "message path", which allows for processing at one or more intermediate nodes in addition to the ultimate destination.
 
 A SOAP application receiving a SOAP message MUST process that message by performing the following actions in the order listed below:
 
-1. Identify all parts of the SOAP message intended for that application (see [section 4.2.2](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383499))
-2. Verify that all mandatory parts identified in [step 1](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Ref477590609) are supported by the application for this message (see [section 4.2.3](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383500)) and process them accordingly. If this is not the case then discard the message (see [section 4.4](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383507)). The processor MAY ignore optional parts identified in step 1 without affecting the outcome of the processing.
-3. If the SOAP application is not the ultimate destination of the message then remove all parts identified in [step 1](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Ref477590609) before forwarding the message.
+1. Identify all parts of the SOAP message intended for that application (see **section 4.2.2**)
+2. Verify that all mandatory parts identified in **step 1** are supported by the application for this message (see **section 4.2.3**) and process them accordingly. If this is not the case then discard the message (see **section 4.4**). The processor MAY ignore optional parts identified in step 1 without affecting the outcome of the processing.
+3. If the SOAP application is not the ultimate destination of the message then remove all parts identified in **step 1** before forwarding the message.
 
-Processing a message or a part of a message requires that the SOAP processor understands, among other things, the exchange pattern being used (one way, request/response, multicast, etc.), the role of the recipient in that pattern, the employment (if any) of RPC mechanisms such as the one documented in [section 7](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383532), the representation or encoding of data, as well as other semantics necessary for correct processing.
+Processing a message or a part of a message requires that the SOAP processor understands, among other things, the exchange pattern being used (one way, request/response, multicast, etc.), the role of the recipient in that pattern, the employment (if any) of RPC mechanisms such as the one documented in **section 7**, the representation or encoding of data, as well as other semantics necessary for correct processing.
 
-While attributes such as the SOAP encodingStyle attribute (see [section 4.1.1](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383495)) can be used to describe certain aspects of a message, this specification does not mandate a particular means by which the recipient makes such determinations in general. For example, certain applications will understand that a particular <getStockPrice> element signals an RPC request using the conventions of [section 7](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383532), while another application may infer that all traffic directed to it is encoded as one way messages.
+While attributes such as the SOAP encodingStyle attribute (see **section 4.1.1**) can be used to describe certain aspects of a message, this specification does not mandate a particular means by which the recipient makes such determinations in general. For example, certain applications will understand that a particular <getStockPrice> element signals an RPC request using the conventions of **section 7**, while another application may infer that all traffic directed to it is encoded as one way messages.
 
 ## 3. Relation to XML
 
-All SOAP messages are encoded using XML (see [[7]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XML) for more information on XML).
+All SOAP messages are encoded using XML (see  for more information on XML).
 
-A SOAP application SHOULD include the proper SOAP namespace on all elements and attributes defined by SOAP in messages that it generates. A SOAP application MUST be able to process SOAP namespaces in messages that it receives. It MUST discard messages that have incorrect namespaces (see [section 4.4](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383507)) and it MAY process SOAP messages without SOAP namespaces as though they had the correct SOAP namespaces.
+A SOAP application SHOULD include the proper SOAP namespace on all elements and attributes defined by SOAP in messages that it generates. A SOAP application MUST be able to process SOAP namespaces in messages that it receives. It MUST discard messages that have incorrect namespaces (see **section 4.4**) and it MAY process SOAP messages without SOAP namespaces as though they had the correct SOAP namespaces.
 
-SOAP defines two namespaces (see [[8]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XMLNS) for more information on XML namespaces):
+SOAP defines two namespaces (see  for more information on XML namespaces):
 
-- The SOAP envelope has the namespace identifier "[http://schemas.xmlsoap.org/soap/envelope/](http://schemas.xmlsoap.org/soap/envelope/)"
-- The SOAP serialization has the namespace identifier "[http://schemas.xmlsoap.org/soap/encoding/](http://schemas.xmlsoap.org/soap/encoding/)"
+- The SOAP envelope has the namespace identifier "http://schemas.xmlsoap.org/soap/envelope/"
+- The SOAP serialization has the namespace identifier "http://schemas.xmlsoap.org/soap/encoding/"
 
-A SOAP message MUST NOT contain a Document Type Declaration.  A SOAP message MUST NOT contain Processing Instructions. [[7]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XML)
+A SOAP message MUST NOT contain a Document Type Declaration.  A SOAP message MUST NOT contain Processing Instructions. 
 
-SOAP uses the local, unqualified "id" attribute of type "ID" to specify the unique identifier of an encoded element. SOAP uses the local, unqualified attribute "href" of type "uri-reference" to specify a reference to that value, in a manner conforming to the XML Specification [[7]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XML), XML Schema Specification [[11]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XMLS2), and XML Linking Language Specification [[9]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XMLLINK).
+SOAP uses the local, unqualified "id" attribute of type "ID" to specify the unique identifier of an encoded element. SOAP uses the local, unqualified attribute "href" of type "uri-reference" to specify a reference to that value, in a manner conforming to the XML Specification , XML Schema Specification **11**, and XML Linking Language Specification **9**.
 
-With the exception of the SOAP mustUnderstand attribute (see [section 4.2.3](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383500)) and the SOAP actor attribute (see [section 4.2.2](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383499)), it is generally permissible to have attributes and their values appear in XML instances or alternatively in schemas, with equal effect. That is, declaration in a DTD or schema with a default or fixed value is semantically equivalent to appearance in an instance.
+With the exception of the SOAP mustUnderstand attribute (see **section 4.2.3**) and the SOAP actor attribute (see **section 4.2.2**), it is generally permissible to have attributes and their values appear in XML instances or alternatively in schemas, with equal effect. That is, declaration in a DTD or schema with a default or fixed value is semantically equivalent to appearance in an instance.
 
 ## 4. SOAP Envelope
 
-A SOAP message is an XML document that consists of a mandatory SOAP envelope, an optional SOAP header, and a mandatory SOAP body. This XML document is referred to as a SOAP message for the rest of this specification. The namespace identifier for the elements and attributes defined in this section is "[http://schemas.xmlsoap.org/soap/envelope/](http://schemas.xmlsoap.org/soap/envelope/)". A SOAP message contains the following:
+A SOAP message is an XML document that consists of a mandatory SOAP envelope, an optional SOAP header, and a mandatory SOAP body. This XML document is referred to as a SOAP message for the rest of this specification. The namespace identifier for the elements and attributes defined in this section is "http://schemas.xmlsoap.org/soap/envelope/". A SOAP message contains the following:
 
 - The Envelope is the top element of the XML document representing the message.
-- The Header is a generic mechanism for adding features to a SOAP message in a decentralized manner without prior agreement between the communicating parties. SOAP defines a few attributes that can be used to indicate who should deal with a feature and whether it is optional or mandatory (see [section 4.2](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383497))
-- The Body is a container for mandatory information intended for the ultimate recipient of the message (see [section 4.3](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383503)). SOAP defines one element for the body, which is the Fault element used for reporting errors.
+- The Header is a generic mechanism for adding features to a SOAP message in a decentralized manner without prior agreement between the communicating parties. SOAP defines a few attributes that can be used to indicate who should deal with a feature and whether it is optional or mandatory (see **section 4.2**)
+- The Body is a container for mandatory information intended for the ultimate recipient of the message (see **section 4.3**). SOAP defines one element for the body, which is the Fault element used for reporting errors.
 
 The grammar rules are as follows:
 
@@ -140,14 +140,14 @@ The grammar rules are as follows:
    - The element name is "Envelope".
    - The element MUST be present in a SOAP message
    - The element MAY contain namespace declarations as well as additional attributes. If present, such additional attributes MUST be namespace-qualified. Similarly, the element MAY contain additional sub elements. If present these elements MUST be namespace-qualified and MUST follow the SOAP Body element.
-2. Header (see [section 4.2](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383497))
+2. Header (see **section 4.2**)
    - The element name is "Header".
    - The element MAY be present in a SOAP message. If present, the element MUST be the first immediate child element of a SOAP Envelope element.
    - The element MAY contain a set of header entries each being an immediate child element of the SOAP Header element. All immediate child elements of the SOAP Header element MUST be namespace-qualified.
-3. Body (see [section 4.3](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383503))
+3. Body (see **section 4.3**)
    - The element name is "Body".
    - The element MUST be present in a SOAP message and MUST be an immediate child element of a SOAP Envelope element. It MUST directly follow the SOAP Header element if present. Otherwise it MUST be the first immediate child element of the SOAP Envelope element.
-   - The element MAY contain a set of body entries each being an immediate child element of the SOAP Body element. Immediate child elements of the SOAP Body element MAY be namespace-qualified. SOAP defines the SOAP Fault element, which is used to indicate error messages (see [section 4.4](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383507)).
+   - The element MAY contain a set of body entries each being an immediate child element of the SOAP Body element. Immediate child elements of the SOAP Body element MAY be namespace-qualified. SOAP defines the SOAP Fault element, which is used to indicate error messages (see **section 4.4**).
 
 #### 4.1.1 SOAP encodingStyle Attribute
 
@@ -159,13 +159,13 @@ The attribute value is an ordered list of one or more URIs identifying the seria
 "http://my.host/encoding/restricted http://my.host/encoding/"
 ""
 
-The serialization rules defined by SOAP in section 5 are identified by the URI "[http://schemas.xmlsoap.org/soap/encoding/](http://schemas.xmlsoap.org/soap/encoding/)". Messages using this particular serialization SHOULD indicate this using the SOAP encodingStyle attribute. In addition, all URIs syntactically beginning with "[http://schemas.xmlsoap.org/soap/encoding/](http://schemas.xmlsoap.org/soap/encoding/)" indicate conformance with the SOAP encoding rules defined in [section 5](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383512) (though with potentially tighter rules added).
+The serialization rules defined by SOAP in section 5 are identified by the URI "http://schemas.xmlsoap.org/soap/encoding/". Messages using this particular serialization SHOULD indicate this using the SOAP encodingStyle attribute. In addition, all URIs syntactically beginning with "http://schemas.xmlsoap.org/soap/encoding/" indicate conformance with the SOAP encoding rules defined in **section 5** (though with potentially tighter rules added).
 
 A value of the zero-length URI ("") explicitly indicates that no claims are made for the encoding style of contained elements. This can be used to turn off any claims from containing elements.
 
 #### 4.1.2 Envelope Versioning Model
 
-SOAP does not define a traditional versioning model based on major and minor version numbers. A SOAP message MUST have an Envelope element associated with the "[http://schemas.xmlsoap.org/soap/envelope/](http://schemas.xmlsoap.org/soap/envelope/)" namespace. If a message is received by a SOAP application in which the SOAP Envelope element is associated with a different namespace, the application MUST treat this as a version error and discard the message. If the message is received through a request/response protocol such as HTTP, the application MUST respond with a SOAP VersionMismatch faultcode message (see [section 4.4](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383507)) using the SOAP "[http://schemas.xmlsoap.org/soap/envelope/](http://schemas.xmlsoap.org/soap/envelope/)" namespace.
+SOAP does not define a traditional versioning model based on major and minor version numbers. A SOAP message MUST have an Envelope element associated with the "http://schemas.xmlsoap.org/soap/envelope/" namespace. If a message is received by a SOAP application in which the SOAP Envelope element is associated with a different namespace, the application MUST treat this as a version error and discard the message. If the message is received through a request/response protocol such as HTTP, the application MUST respond with a SOAP VersionMismatch faultcode message (see **section 4.4**) using the SOAP "http://schemas.xmlsoap.org/soap/envelope/" namespace.
 
 ### 4.2 SOAP Header
 
@@ -176,12 +176,12 @@ The Header element is encoded as the first immediate child element of the SOAP E
 The encoding rules for header entries are as follows:
 
 1. A header entry is identified by its fully qualified element name, which consists of the namespace URI and the local name. All immediate child elements of the SOAP Header element MUST be namespace-qualified.
-2. The SOAP encodingStyle attribute MAY be used to indicate the encoding style used for the header entries (see [section 4.1.1](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383495)).
-3. The SOAP mustUnderstand attribute (see [section 4.2.3](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383500)) and SOAP actor attribute (see [section 4.2.2](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383499)) MAY be used to indicate how to process the entry and by whom (see [section 4.2.1](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383498)).
+2. The SOAP encodingStyle attribute MAY be used to indicate the encoding style used for the header entries (see **section 4.1.1**).
+3. The SOAP mustUnderstand attribute (see **section 4.2.3**) and SOAP actor attribute (see **section 4.2.2**) MAY be used to indicate how to process the entry and by whom (see **section 4.2.1**).
 
 #### 4.2.1 Use of Header Attributes
 
-The SOAP Header attributes defined in this section determine how a recipient of a SOAP message should process the message as described in [section 2](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383491). A SOAP application generating a SOAP message SHOULD only use the SOAP Header attributes on immediate child elements of the SOAP Header element. The recipient of a SOAP message MUST ignore all SOAP Header attributes that are not applied to an immediate child element of the SOAP Header element.
+The SOAP Header attributes defined in this section determine how a recipient of a SOAP message should process the message as described in **section 2**. A SOAP application generating a SOAP message SHOULD only use the SOAP Header attributes on immediate child elements of the SOAP Header element. The recipient of a SOAP message MUST ignore all SOAP Header attributes that are not applied to an immediate child element of the SOAP Header element.
 
 An example is a header with an element identifier of "Transaction", a "mustUnderstand" value of "1", and a value of 5. This would be encoded as follows:
 
@@ -200,21 +200,21 @@ A SOAP message travels from the originator to the ultimate destination, potentia
 
 Not all parts of a SOAP message may be intended for the ultimate destination of the SOAP message but, instead, may be intended for one or more of the intermediaries on the message path. The role of a recipient of a header element is similar to that of accepting a contract in that it cannot be extended beyond the recipient. That is, a recipient receiving a header element MUST NOT forward that header element to the next application in the SOAP message path. The recipient MAY insert a similar header element but in that case, the contract is between that application and the recipient of that header element.
 
-The SOAP actor global attribute can be used to indicate the recipient of a header element. The value of the SOAP actor attribute is a URI. The special URI "[http://schemas.xmlsoap.org/soap/actor/next](http://schemas.xmlsoap.org/soap/actor/next)" indicates that the header element is intended for the very first SOAP application that processes the message. This is similar to the hop-by-hop scope model represented by the Connection header field in HTTP.
+The SOAP actor global attribute can be used to indicate the recipient of a header element. The value of the SOAP actor attribute is a URI. The special URI "http://schemas.xmlsoap.org/soap/actor/next" indicates that the header element is intended for the very first SOAP application that processes the message. This is similar to the hop-by-hop scope model represented by the Connection header field in HTTP.
 
 Omitting the SOAP actor attribute indicates that the recipient is the ultimate destination of the SOAP message.
 
-This attribute MUST appear in the SOAP message instance in order to be effective (see section [3](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383492) and [4.2.1](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383498)).
+This attribute MUST appear in the SOAP message instance in order to be effective (see section **3** and **4.2.1**).
 
 #### 4.2.3 SOAP mustUnderstand Attribute
 
-The SOAP mustUnderstand global attribute can be used to indicate whether a header entry is mandatory or optional for the recipient to process. The recipient of a header entry is defined by the SOAP actor attribute (see [section 4.2.2](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383499)). The value of the mustUnderstand attribute is either "1" or "0". The absence of the SOAP mustUnderstand attribute is semantically equivalent to its presence with the value "0".
+The SOAP mustUnderstand global attribute can be used to indicate whether a header entry is mandatory or optional for the recipient to process. The recipient of a header entry is defined by the SOAP actor attribute (see **section 4.2.2**). The value of the mustUnderstand attribute is either "1" or "0". The absence of the SOAP mustUnderstand attribute is semantically equivalent to its presence with the value "0".
 
-If a header element is tagged with a SOAP mustUnderstand attribute with a value of "1", the recipient of that header entry either MUST obey the semantics (as conveyed by the fully qualified name of the element) and process correctly to those semantics, or MUST fail processing the message (see [section 4.4](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383507)).
+If a header element is tagged with a SOAP mustUnderstand attribute with a value of "1", the recipient of that header entry either MUST obey the semantics (as conveyed by the fully qualified name of the element) and process correctly to those semantics, or MUST fail processing the message (see **section 4.4**).
 
 The SOAP mustUnderstand attribute allows for robust evolution. Elements tagged with the SOAP mustUnderstand attribute with a value of "1" MUST be presumed to somehow modify the semantics of their parent or peer elements. Tagging elements in this manner assures that this change in semantics will not be silently (and, presumably, erroneously) ignored by those who may not fully understand it.
 
-This attribute MUST appear in the instance in order to be effective (see section [3](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383492) and [4.2.1](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383498)).
+This attribute MUST appear in the instance in order to be effective (see section **3** and **4.2.1**).
 
 ### 4.3 SOAP Body
 
@@ -227,13 +227,13 @@ All immediate child elements of the Body element are called body entries and eac
 The encoding rules for body entries are as follows:
 
 1. A body entry is identified by its fully qualified element name, which consists of the namespace URI and the local name. Immediate child elements of the SOAP Body element MAY be namespace-qualified.
-2. The SOAP encodingStyle attribute MAY be used to indicate the encoding style used for the body entries (see [section 4.1.1](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383495)).
+2. The SOAP encodingStyle attribute MAY be used to indicate the encoding style used for the body entries (see **section 4.1.1**).
 
-SOAP defines one body entry, which is the Fault entry used for reporting errors (see [section 4.4](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383507)).
+SOAP defines one body entry, which is the Fault entry used for reporting errors (see **section 4.4**).
 
 #### 4.3.1 Relationship between SOAP Header and Body
 
-While the Header and Body are defined as independent elements, they are in fact related. The relationship between a body entry and a header entry is as follows: A body entry is semantically equivalent to a header entry intended for the default actor and with a SOAP mustUnderstand attribute with a value of "1". The default actor is indicated by not using the actor attribute (see [section 4.2.2](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383499)).
+While the Header and Body are defined as independent elements, they are in fact related. The relationship between a body entry and a header entry is as follows: A body entry is semantically equivalent to a header entry intended for the default actor and with a SOAP mustUnderstand attribute with a value of "1". The default actor is indicated by not using the actor attribute (see **section 4.2.2**).
 
 ### 4.4 SOAP Fault
 
@@ -243,15 +243,15 @@ The SOAP Fault element defines the following four subelements:
 
 faultcode
 
-The faultcode element is intended for use by software to provide an algorithmic mechanism for identifying the fault. The faultcode MUST be present in a SOAP Fault element and the faultcode value MUST be a qualified name as defined in [[8]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XMLNS), section 3. SOAP defines a small set of SOAP fault codes covering basic SOAP faults (see [section 4.4.1](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383510))
+The faultcode element is intended for use by software to provide an algorithmic mechanism for identifying the fault. The faultcode MUST be present in a SOAP Fault element and the faultcode value MUST be a qualified name as defined in , section 3. SOAP defines a small set of SOAP fault codes covering basic SOAP faults (see section 4.4.1**)
 
 faultstring
 
-The faultstring element is intended to provide a human readable explanation of the fault and is not intended for algorithmic processing. The faultstring element is similar to the 'Reason-Phrase' defined by HTTP (see [[5]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#RFC2616), [section 6.1](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383527)). It MUST be present in a SOAP Fault element and SHOULD provide at least some information explaining the nature of the fault.
+The faultstring element is intended to provide a human readable explanation of the fault and is not intended for algorithmic processing. The faultstring element is similar to the 'Reason-Phrase' defined by HTTP (see , section 6.1**). It MUST be present in a SOAP Fault element and SHOULD provide at least some information explaining the nature of the fault.
 
 faultactor
 
-The faultactor element is intended to provide information about who caused the fault to happen within the message path (see [section 2](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383491)). It is similar to the SOAP actor attribute (see [section 4.2.2](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383499)) but instead of indicating the destination of the header entry, it indicates the source of the fault. The value of the faultactor attribute is a URI identifying the source. Applications that do not act as the ultimate destination of the SOAP message MUST include the faultactor element in a SOAP Fault element. The ultimate destination of a message MAY use the faultactor element to indicate explicitly that it generated the fault (see also the [detail element below](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Ref477488700)).
+The faultactor element is intended to provide information about who caused the fault to happen within the message path (see **section 2**). It is similar to the SOAP actor attribute (see **section 4.2.2**) but instead of indicating the destination of the header entry, it indicates the source of the fault. The value of the faultactor attribute is a URI identifying the source. Applications that do not act as the ultimate destination of the SOAP message MUST include the faultactor element in a SOAP Fault element. The ultimate destination of a message MAY use the faultactor element to indicate explicitly that it generated the fault (see also the **detail element below**).
 
 detail
 
@@ -261,18 +261,18 @@ The absence of the detail element in the Fault element indicates that the fault 
 
 All immediate child elements of the detail element are called detail entries and each detail entry is encoded as an independent element within the detail element.
 
-The encoding rules for detail entries are as follows (see also [example 10](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Ref477795996)):
+The encoding rules for detail entries are as follows (see also **example 10**):
 
 1. A detail entry is identified by its fully qualified element name, which consists of the namespace URI and the local name. Immediate child elements of the detail element MAY be namespace-qualified.
-2. The SOAP encodingStyle attribute MAY be used to indicate the encoding style used for the detail entries (see [section 4.1.1](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383495)).
+2. The SOAP encodingStyle attribute MAY be used to indicate the encoding style used for the detail entries (see **section 4.1.1**).
 
 Other Fault subelements MAY be present, provided they are namespace-qualified.
 
 #### 4.4.1 SOAP Fault Codes
 
-The faultcode values defined in this section MUST be used in the faultcode element when describing faults defined by this specification. The namespace identifier for these faultcode values is "[http://schemas.xmlsoap.org/soap/envelope/](http://schemas.xmlsoap.org/soap/envelope/)". Use of this space is recommended (but not required) in the specification of methods defined outside of the present specification.
+The faultcode values defined in this section MUST be used in the faultcode element when describing faults defined by this specification. The namespace identifier for these faultcode values is "http://schemas.xmlsoap.org/soap/envelope/". Use of this space is recommended (but not required) in the specification of methods defined outside of the present specification.
 
-The default SOAP faultcode values are defined in an extensible manner that allows for new SOAP faultcode values to be defined while maintaining backwards compatibility with existing faultcode values. The mechanism used is very similar to the 1xx, 2xx, 3xx etc basic status classes classes defined in HTTP (see [[5]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#RFC2616) section 10). However, instead of integers, they are defined as XML qualified names (see [[8]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XMLNS) [section 3](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383492)). The character "." (dot) is used as a separator of faultcode values indicating that what is to the left of the dot is a more generic fault code value than the value to the right. Example
+The default SOAP faultcode values are defined in an extensible manner that allows for new SOAP faultcode values to be defined while maintaining backwards compatibility with existing faultcode values. The mechanism used is very similar to the 1xx, 2xx, 3xx etc basic status classes classes defined in HTTP (see  section 10). However, instead of integers, they are defined as XML qualified names (see **8** **section 3**). The character "." (dot) is used as a separator of faultcode values indicating that what is to the left of the dot is a more generic fault code value than the value to the right. Example
 
 Client.Authentication
 
@@ -280,22 +280,22 @@ The set of faultcode values defined in this document is:
 
 | Name            | Meaning                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| VersionMismatch | The processing party found an invalid namespace for the SOAP Envelope element (see [section 4.1.2](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383496))                                                                                                                                                                                                                                                                                                                                         |
-| MustUnderstand  | An immediate child element of the SOAP Header element that was either not understood or not obeyed by the processing party contained a SOAP mustUnderstand attribute with a value of "1" (see [section 4.2.3](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383500))                                                                                                                                                                                                                              |
-| Client          | The Client class of errors indicate that the message was incorrectly formed or did not contain the appropriate information in order to succeed. For example, the message could lack the proper authentication or payment information. It is generally an indication that the message should not be resent without change. See also [section 4.4](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383507) for a description of the SOAP Fault detail sub-element.                                    |
-| Server          | The Server class of errors indicate that the message could not be processed for reasons not directly attributable to the contents of the message itself but rather to the processing of the message. For example, processing could include communicating with an upstream processor, which didn't respond. The message may succeed at a later point in time. See also [section 4.4](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383507) for a description of the SOAP Fault detail sub-element. |
+| VersionMismatch | The processing party found an invalid namespace for the SOAP Envelope element (see **section 4.1.2**)                                                                                                                                                                                                                                                                                                                                         |
+| MustUnderstand  | An immediate child element of the SOAP Header element that was either not understood or not obeyed by the processing party contained a SOAP mustUnderstand attribute with a value of "1" (see **section 4.2.3**)                                                                                                                                                                                                                              |
+| Client          | The Client class of errors indicate that the message was incorrectly formed or did not contain the appropriate information in order to succeed. For example, the message could lack the proper authentication or payment information. It is generally an indication that the message should not be resent without change. See also **section 4.4** for a description of the SOAP Fault detail sub-element.                                    |
+| Server          | The Server class of errors indicate that the message could not be processed for reasons not directly attributable to the contents of the message itself but rather to the processing of the message. For example, processing could include communicating with an upstream processor, which didn't respond. The message may succeed at a later point in time. See also **section 4.4** for a description of the SOAP Fault detail sub-element. |
 
 ## 5. SOAP Encoding
 
 The SOAP encoding style is based on a simple type system that is a generalization of the common features found in type systems in programming languages, databases and semi-structured data. A type either is a simple (scalar) type or is a compound type constructed as a composite of several parts, each with a type. This is described in more detail below. This section defines rules for serialization of a graph of typed objects. It operates on two levels. First, given a schema in any notation consistent with the type system described, a schema for an XML grammar may be constructed. Second, given a type-system schema and a particular graph of values conforming to that schema, an XML instance may be constructed. In reverse, given an XML instance produced in accordance with these rules, and given also the original schema, a copy of the original value graph may be constructed.
 
-The namespace identifier for the elements and attributes defined in this section is "[http://schemas.xmlsoap.org/soap/encoding/](http://schemas.xmlsoap.org/soap/encoding/)". The encoding samples shown assume all namespace declarations are at a higher element level.
+The namespace identifier for the elements and attributes defined in this section is "http://schemas.xmlsoap.org/soap/encoding/". The encoding samples shown assume all namespace declarations are at a higher element level.
 
-Use of the data model and encoding style described in this section is encouraged but not required; other data models and encodings can be used in conjunction with SOAP (see [section 4.1.1](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383495)).
+Use of the data model and encoding style described in this section is encouraged but not required; other data models and encodings can be used in conjunction with SOAP (see **section 4.1.1**).
 
 ### 5.1 Rules for Encoding Types in XML
 
-XML allows very flexible encoding of data. SOAP defines a narrower set of rules for encoding. This section defines the encoding rules at a high level, and the next section describes the encoding rules for specific types when they require more detail. The encodings described in this section can be used in conjunction with the mapping of RPC calls and responses specified in [Section 7](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383532).
+XML allows very flexible encoding of data. SOAP defines a narrower set of rules for encoding. This section defines the encoding rules at a high level, and the next section describes the encoding rules for specific types when they require more detail. The encodings described in this section can be used in conjunction with the mapping of RPC calls and responses specified in **Section 7**.
 
 To describe encoding, the following terminology is used:
 
@@ -311,20 +311,20 @@ To describe encoding, the following terminology is used:
 10. Given the information in the schema relative to which a graph of values is serialized, it is possible to determine that some values can only be related by a single instance of an accessor. For others, it is not possible to make this determination. If only one accessor can reference it, a value is considered "single-reference". If referenced by more than one, actually or potentially, it is "multi-reference." Note that it is possible for a certain value to be considered "single-reference" relative to one schema and "multi-reference" relative to another.
 11. Syntactically, an element may be "independent" or "embedded." An independent element is any element appearing at the top level of a serialization. All others are embedded elements.
 
-Although it is possible to use the xsi:type attribute such that a graph of values is self-describing both in its structure and the types of its values, the serialization rules permit that the types of values MAY be determinate only by reference to a schema. Such schemas MAY be in the notation described by "XML Schema Part 1: Structures" [[10]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XMLS1) and "XML Schema Part 2: Datatypes" [[11]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XMLS2) or MAY be in any other notation. Note also that, while the serialization rules apply to compound types other than arrays and structs, many schemas will contain only struct and array types.
+Although it is possible to use the xsi:type attribute such that a graph of values is self-describing both in its structure and the types of its values, the serialization rules permit that the types of values MAY be determinate only by reference to a schema. Such schemas MAY be in the notation described by "XML Schema Part 1: Structures"  and "XML Schema Part 2: Datatypes" **11** or MAY be in any other notation. Note also that, while the serialization rules apply to compound types other than arrays and structs, many schemas will contain only struct and array types.
 
 The rules for serialization are as follows:
 
 1. All values are represented as element content. A multi-reference value MUST be represented as the content of an independent element. A single-reference value SHOULD not be (but MAY be).
 2. For each element containing a value, the type of the value MUST be represented by at least one of the following conditions: (a) the containing element instance contains an xsi:type attribute, (b) the containing element instance is itself contained within an element containing a (possibly defaulted) SOAP-ENC:arrayType attribute or (c) or the name of the element bears a definite relation to the type, that type then determinable from a schema.
-3. A simple value is represented as character data, that is, without any subelements. Every simple value must have a type that is either listed in the XML Schemas Specification, part 2 [[11]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XMLS2) or whose source type is listed therein (see also [section 5.2](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383514)).
-4. A Compound Value is encoded as a sequence of elements, each accessor represented by an embedded element whose name corresponds to the name of the accessor. Accessors whose names are local to their containing types have unqualified element names; all others have qualified names (see also [section 5.4](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383519)).
-5. A multi-reference simple or compound value is encoded as an independent element containing a local, unqualified attribute named "id" and of type "ID" per the XML Specification [[7]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XML). Each accessor to this value is an empty element having a local, unqualified attribute named "href" and of type "uri-reference" per the XML Schema Specification [[11]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XMLS2), with a "href" attribute value of a URI fragment identifier referencing the corresponding independent element.
-6. Strings and byte arrays are represented as multi-reference simple types, but special rules allow them to be represented efficiently for common cases (see also section [5.2.1](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383515) and [5.2.3](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383517)). An accessor to a string or byte-array value MAY have an attribute named "id" and of type "ID" per the XML Specification [[7]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XML). If so, all other accessors to the same value are encoded as empty elements having a local, unqualified attribute named "href" and of type "uri-reference" per the XML Schema Specification [[11]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XMLS2), with a "href" attribute value of a URI fragment identifier referencing the single element containing the value.
+3. A simple value is represented as character data, that is, without any subelements. Every simple value must have a type that is either listed in the XML Schemas Specification, part 2  or whose source type is listed therein (see also **section 5.2**.
+4. A Compound Value is encoded as a sequence of elements, each accessor represented by an embedded element whose name corresponds to the name of the accessor. Accessors whose names are local to their containing types have unqualified element names; all others have qualified names (see also **section 5.4**).
+5. A multi-reference simple or compound value is encoded as an independent element containing a local, unqualified attribute named "id" and of type "ID" per the XML Specification . Each accessor to this value is an empty element having a local, unqualified attribute named "href" and of type "uri-reference" per the XML Schema Specification **11**, with a "href" attribute value of a URI fragment identifier referencing the corresponding independent element.
+6. Strings and byte arrays are represented as multi-reference simple types, but special rules allow them to be represented efficiently for common cases (see also section **5.2.1** and **5.2.3**). An accessor to a string or byte-array value MAY have an attribute named "id" and of type "ID" per the XML Specification **7**. If so, all other accessors to the same value are encoded as empty elements having a local, unqualified attribute named "href" and of type "uri-reference" per the XML Schema Specification **11**, with a "href" attribute value of a URI fragment identifier referencing the single element containing the value.
 7. It is permissible to encode several references to a value as though these were references to several distinct values, but only when from context it is known that the meaning of the XML instance is unaltered.
-8. Arrays are compound values (see also [section 5.4.2](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383522)). SOAP arrays are defined as having a type of "SOAP-ENC:Array" or a type derived there from.
+8. Arrays are compound values (see also **section 5.4.2**). SOAP arrays are defined as having a type of "SOAP-ENC:Array" or a type derived there from.
 
-   SOAP arrays have one or more dimensions (rank) whose members are distinguished by ordinal position. An array value is represented as a series of elements reflecting the array, with members appearing in ascending ordinal sequence. For multi-dimensional arrays the dimension on the right side varies most rapidly. Each member element is named as an independent element (see [rule 2](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Ref4777957005)).
+   SOAP arrays have one or more dimensions (rank) whose members are distinguished by ordinal position. An array value is represented as a series of elements reflecting the array, with members appearing in ascending ordinal sequence. For multi-dimensional arrays the dimension on the right side varies most rapidly. Each member element is named as an independent element (see ** rule 2**.
 
    SOAP arrays can be single-reference or multi-reference values, and consequently may be represented as the content of either an embedded or independent element.
 
@@ -333,7 +333,7 @@ The rules for serialization are as follows:
    ```
    arrayTypeValue = atype asize
    atype          = QName _( rank )
-   rank           = "[" _( "," ) "]"
+   rank           = "[" _( "," ) "**]"
    asize          = "[" #length "]"
    length         = 1\*DIGIT
    ```
@@ -344,7 +344,7 @@ The rules for serialization are as follows:
 
    For example, an array with 5 members of type array of integers would have an arrayTypeValue value of "int[][5]" of which the atype value is "int[]" and the asize value is "[5]". Likewise, an array with 3 members of type two-dimensional arrays of integers would have an arrayTypeValue value of "int[,][3]" of which the atype value is "int[,]" and the asize value is "[3]".
 
-   A SOAP array member MAY contain a "SOAP-ENC:offset" attribute indicating the offset position of that item in the enclosing array. This can be used to indicate the offset position of a partially represented array (see [section 5.4.2.1](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383523)). Likewise, an array member MAY contain a "SOAP-ENC:position" attribute indicating the position of that item in the enclosing array. This can be used to describe members of sparse arrays (see [section 5.4.2.2](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383524)). The value of the "SOAP-ENC:offset" and the "SOAP-ENC:position" attribute is defined as follows:
+   A SOAP array member MAY contain a "SOAP-ENC:offset" attribute indicating the offset position of that item in the enclosing array. This can be used to indicate the offset position of a partially represented array (see **section 5.4.2.1**). Likewise, an array member MAY contain a "SOAP-ENC:position" attribute indicating the position of that item in the enclosing array. This can be used to describe members of sparse arrays (see **section 5.4.2.2**). The value of the "SOAP-ENC:offset" and the "SOAP-ENC:position" attribute is defined as follows:
 
    arrayPoint = "[" #length "]"
 
@@ -352,11 +352,11 @@ The rules for serialization are as follows:
 
 9. A NULL value or a default value MAY be represented by omission of the accessor element. A NULL value MAY also be indicated by an accessor element containing the attribute xsi:null with value '1' or possibly other application-dependent attributes and values.
 
-Note that [rule 2](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Ref4777957005) allows independent elements and also elements representing the members of arrays to have names which are not identical to the type of the contained value.
+Note that **rule 2** allows independent elements and also elements representing the members of arrays to have names which are not identical to the type of the contained value.
 
 ### 5.2 Simple Types
 
-For simple types, SOAP adopts all the types found in the section "Built-in datatypes" of the "XML Schema Part 2: Datatypes" Specification [[11]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XMLS2), both the value and lexical spaces. Examples include:
+For simple types, SOAP adopts all the types found in the section "Built-in datatypes" of the "XML Schema Part 2: Datatypes" Specification , both the value and lexical spaces. Examples include:
 
 | Type            | Example                   |
 | --------------- | ------------------------- |
@@ -386,9 +386,9 @@ The datatypes declared in the XML Schema specification may be used directly in e
 <color>Blue</color>
 ```
 
-All simple values MUST be encoded as the content of elements whose type is either defined in "XML Schema Part 2: Datatypes" Specification [[11]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XMLS2), or is based on a type found there by using the mechanisms provided in the XML Schema specification.
+All simple values MUST be encoded as the content of elements whose type is either defined in "XML Schema Part 2: Datatypes" Specification , or is based on a type found there by using the mechanisms provided in the XML Schema specification.
 
-If a simple value is encoded as an independent element or member of a heterogenous array it is convenient to have an element declaration corresponding to the datatype. Because the "XML Schema Part 2: Datatypes" Specification [[11]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XMLS2) includes type definitions but does not include corresponding element declarations, the SOAP-ENC schema and namespace declares an element for every simple datatype. These MAY be used.
+If a simple value is encoded as an independent element or member of a heterogenous array it is convenient to have an element declaration corresponding to the datatype. Because the "XML Schema Part 2: Datatypes" Specification  includes type definitions but does not include corresponding element declarations, the SOAP-ENC schema and namespace declares an element for every simple datatype. These MAY be used.
 
 ```xml
 <SOAP-ENC:int id="int1">45</SOAP-ENC:int>
@@ -396,7 +396,7 @@ If a simple value is encoded as an independent element or member of a heterogeno
 
 #### 5.2.1 Strings
 
-The datatype "string" is defined in "XML Schema Part 2: Datatypes" Specification [[11]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XMLS2). Note that this is not identical to the type called "string" in many database or programming languages, and in particular may forbid some characters those languages would permit. (Those values must be represented by using some datatype other than xsd:string.)
+The datatype "string" is defined in "XML Schema Part 2: Datatypes" Specification . Note that this is not identical to the type called "string" in many database or programming languages, and in particular may forbid some characters those languages would permit. (Those values must be represented by using some datatype other than xsd:string.)
 
 A string MAY be encoded as a single-reference or a multi-reference value.
 
@@ -427,9 +427,9 @@ Schema fragments for these examples could appear similar to the following:
 
 #### 5.2.2 Enumerations
 
-The "XML Schema Part 2: Datatypes" Specification [[11]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XMLS2) defines a mechanism called "enumeration." The SOAP data model adopts this mechanism directly. However, because programming and other languages often define enumeration somewhat differently, we spell-out the concept in more detail here and describe how a value that is a member of an enumerated list of possible values is to be encoded. Specifically, it is encoded as the name of the value.
+The "XML Schema Part 2: Datatypes" Specification  defines a mechanism called "enumeration." The SOAP data model adopts this mechanism directly. However, because programming and other languages often define enumeration somewhat differently, we spell-out the concept in more detail here and describe how a value that is a member of an enumerated list of possible values is to be encoded. Specifically, it is encoded as the name of the value.
 
-"Enumeration" as a concept indicates a set of distinct names. A specific enumeration is a specific list of distinct values appropriate to the base type. For example the set of color names ("Green", "Blue", "Brown") could be defined as an enumeration based on the string built-in type. The values ("1", "3", "5") are a possible enumeration based on integer, and so on. "XML Schema Part 2: Datatypes" [[11]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XMLS2) supports enumerations for all of the simple types except for boolean. The language of "XML Schema Part 1: Structures" Specification [[10]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XMLS1) can be used to define enumeration types. If a schema is generated from another notation in which no specific base type is applicable, use "string". In the following schema example "EyeColor" is defined as a string with the possible values of "Green", "Blue", or "Brown" enumerated, and instance data is shown accordingly.
+"Enumeration" as a concept indicates a set of distinct names. A specific enumeration is a specific list of distinct values appropriate to the base type. For example the set of color names ("Green", "Blue", "Brown") could be defined as an enumeration based on the string built-in type. The values ("1", "3", "5") are a possible enumeration based on integer, and so on. "XML Schema Part 2: Datatypes"  supports enumerations for all of the simple types except for boolean. The language of "XML Schema Part 1: Structures" Specification **10** can be used to define enumeration types. If a schema is generated from another notation in which no specific base type is applicable, use "string". In the following schema example "EyeColor" is defined as a string with the possible values of "Green", "Blue", or "Brown" enumerated, and instance data is shown accordingly.
 
 ```xml
 <element name="EyeColor" type="tns:EyeColor"/>
@@ -454,7 +454,7 @@ An array of bytes MAY be encoded as a single-reference or a multi-reference valu
 
 In particular, the containing element of the array of bytes value MAY have an "id" attribute. Additional accessor elements MAY then have matching "href" attributes.
 
-The recommended representation of an opaque array of bytes is the 'base64' encoding defined in XML Schemas [[10]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XMLS1)[[11]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XMLS2), which uses the base64 encoding algorithm defined in 2045 [[13]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#RFC2045). However, the line length restrictions that normally apply to base64 data in MIME do not apply in SOAP. A "SOAP-ENC:base64" subtype is supplied for use with SOAP.
+The recommended representation of an opaque array of bytes is the 'base64' encoding defined in XML Schemas **11**, which uses the base64 encoding algorithm defined in 2045 **13**. However, the line length restrictions that normally apply to base64 data in MIME do not apply in SOAP. A "SOAP-ENC:base64" subtype is supplied for use with SOAP.
 
 ```xml
 <picture xsi:type="SOAP-ENC:base64">
@@ -635,7 +635,7 @@ And this is a schema fragment describing the above structures:
 
 #### 5.4.2 Arrays
 
-SOAP arrays are defined as having a type of "SOAP-ENC:Array" or a type derived there from (see also [rule 8](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Ref4777957010)). Arrays are represented as element values, with no specific constraint on the name of the containing element (just as values generally do not constrain the name of their containing element).
+SOAP arrays are defined as having a type of "SOAP-ENC:Array" or a type derived there from (see also **rule 8**). Arrays are represented as element values, with no specific constraint on the name of the containing element (just as values generally do not constrain the name of their containing element).
 
 Arrays can contain elements which themselves can be of any type, including nested arrays. New types formed by restrictions of SOAP-ENC:Array can also be created to represent, for example, arrays limited to integers or arrays of some user-defined enumeration.
 
@@ -658,7 +658,7 @@ The following example is a schema fragment and an array containing integer array
 
 In that example, the array "myFavoriteNumbers" contains several members each of which is a value of type SOAP-ENC:int. This can be determined by inspection of the SOAP-ENC:arrayType attribute. Note that the SOAP-ENC:Array type allows unqualified element names without restriction. These convey no type information, so when used they must either have an xsi:type attribute or the containing element must have a SOAP-ENC:arrayType attribute. Naturally, types derived from SOAP-ENC:Array may declare local elements, with type information.
 
-As previously noted, the SOAP-ENC schema contains declarations of elements with names corresponding to each simple type in the "XML Schema Part 2: Datatypes" Specification [[11]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XMLS2). It also contains a declaration for "Array". Using these, we might write
+As previously noted, the SOAP-ENC schema contains declarations of elements with names corresponding to each simple type in the "XML Schema Part 2: Datatypes" Specification . It also contains a declaration for "Array". Using these, we might write
 
 ```xml
 <SOAP-ENC:Array SOAP-ENC:arrayType="xsd:int[2]">
@@ -831,7 +831,7 @@ Here is another example of a single-reference array value encoded as an embedded
 
 ##### 5.4.2.1 Partially Transmitted Arrays
 
-SOAP provides support for partially transmitted arrays, known as "varying" arrays in some contexts [[12]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#XMLS2). A partially transmitted array indicates in an "SOAP-ENC:offset" attribute the zero-origin offset of the first element transmitted. If omitted, the offset is taken as zero.
+SOAP provides support for partially transmitted arrays, known as "varying" arrays in some contexts . A partially transmitted array indicates in an "SOAP-ENC:offset" attribute the zero-origin offset of the first element transmitted. If omitted, the offset is taken as zero.
 
 The following is an example of an array of size five that transmits only the third and fourth element counting from zero:
 
@@ -926,18 +926,18 @@ This section describes how to use SOAP within HTTP with or without using the HTT
 
 SOAP naturally follows the HTTP request/response message model providing SOAP request parameters in a HTTP request and SOAP response parameters in a HTTP response. Note, however, that SOAP intermediaries are NOT the same as HTTP intermediaries. That is, an HTTP intermediary addressed with the HTTP Connection header field cannot be expected to inspect or process the SOAP entity body carried in the HTTP request.
 
-HTTP applications MUST use the media type "text/xml" according to RFC 2376 [[3]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#RFC2376) when including SOAP entity bodies in HTTP messages.
+HTTP applications MUST use the media type "text/xml" according to RFC 2376  when including SOAP entity bodies in HTTP messages.
 
 ### 6.1 SOAP HTTP Request
 
-Although SOAP might be used in combination with a variety of HTTP request methods, this binding only defines SOAP within HTTP POST requests (see [section 7](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383532) for how to use SOAP for RPC and [section 6.3](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383530) for how to use the HTTP Extension Framework).
+Although SOAP might be used in combination with a variety of HTTP request methods, this binding only defines SOAP within HTTP POST requests (see **section 7** for how to use SOAP for RPC and section 6.3** for how to use the HTTP Extension Framework).
 
 #### 6.1.1 The SOAPAction HTTP Header Field
 
 The SOAPAction HTTP request header field can be used to indicate the intent of the SOAP HTTP request. The value is a URI identifying the intent. SOAP places no restrictions on the format or specificity of the URI or that it is resolvable. An HTTP client MUST use this header field when issuing a SOAP HTTP Request.
 
 soapaction    = "SOAPAction" ":" [ <"> URI-reference <"> ]
-URI-reference = <as defined in RFC 2396 [[4]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#RFC2396)>
+URI-reference = <as defined in RFC 2396 >
 
 The presence and content of the SOAPAction header field can be used by servers such as firewalls to appropriately filter SOAP request messages in HTTP. The header field value of empty string ("") means that the intent of the SOAP message is provided by the HTTP Request-URI. No value means that there is no indication of the intent of the message.
 
@@ -952,11 +952,11 @@ SOAPAction:
 
 SOAP HTTP follows the semantics of the HTTP Status codes for communicating status information in HTTP. For example, a 2xx status code indicates that the client's request including the SOAP component was successfully received, understood, and accepted etc.
 
-In case of a SOAP error while processing the request, the SOAP HTTP server MUST issue an HTTP 500 "Internal Server Error" response and include a SOAP message in the response containing a SOAP Fault element (see [section 4.4](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383507)) indicating the SOAP processing error.
+In case of a SOAP error while processing the request, the SOAP HTTP server MUST issue an HTTP 500 "Internal Server Error" response and include a SOAP message in the response containing a SOAP Fault element (see **section 4.4**) indicating the SOAP processing error.
 
 ### 6.3 The HTTP Extension Framework
 
-A SOAP message MAY be used together with the HTTP Extension Framework [[6]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#RFC2774) in order to identify the presence and intent of a SOAP HTTP request.
+A SOAP message MAY be used together with the HTTP Extension Framework  in order to identify the presence and intent of a SOAP HTTP request.
 
 Whether to use the Extension Framework or plain HTTP is a question of policy and capability of the communicating parties. Clients can force the use of the HTTP Extension Framework by using a mandatory extension declaration and the "M-" HTTP method name prefix. Servers can force the use of the HTTP Extension Framework by using the 510 "Not Extended" HTTP status code. That is, using one extra round trip, either party can detect the policy of the other party and act accordingly.
 
@@ -1018,9 +1018,9 @@ Content-Length: nnnn
 
 One of the design goals of SOAP is to encapsulate and exchange RPC calls using the extensibility and flexibility of XML. This section defines a uniform representation of remote procedure calls and responses.
 
-Although it is anticipated that this representation is likely to be used in combination with the encoding style defined in [section 5](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383512) other representations are possible. The SOAP encodingStyle attribute (see section [4.3.2](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383495)) can be used to indicate the encoding style of the method call and or the response using the representation described in this section.
+Although it is anticipated that this representation is likely to be used in combination with the encoding style defined in **section 5** other representations are possible. The SOAP encodingStyle attribute (see section 4.3.2**) can be used to indicate the encoding style of the method call and or the response using the representation described in this section.
 
-Using SOAP for RPC is orthogonal to the SOAP protocol binding (see [section 6](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383526)). In the case of using HTTP as the protocol binding, an RPC call maps naturally to an HTTP request and an RPC response maps to an HTTP response. However, using SOAP for RPC is not limited to the HTTP protocol binding.
+Using SOAP for RPC is orthogonal to the SOAP protocol binding (see **section 6**). In the case of using HTTP as the protocol binding, an RPC call maps naturally to an HTTP request and an RPC response maps to an HTTP response. However, using SOAP for RPC is not limited to the HTTP protocol binding.
 
 To make a method call, the following information is needed:
 
@@ -1030,21 +1030,21 @@ To make a method call, the following information is needed:
 - The parameters to the method
 - Optional header data
 
-SOAP relies on the protocol binding to provide a mechanism for carrying the URI. For example, for HTTP the request URI indicates the resource that the invocation is being made against. Other than it be a valid URI, SOAP places no restriction on the form of an address (see [[4]](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#RFC2396) for more information on URIs).
+SOAP relies on the protocol binding to provide a mechanism for carrying the URI. For example, for HTTP the request URI indicates the resource that the invocation is being made against. Other than it be a valid URI, SOAP places no restriction on the form of an address (see  for more information on URIs).
 
 ### 7.1 RPC and SOAP Body
 
-RPC method calls and responses are both carried in the SOAP Body element (see [section 4.3](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383503)) using the following representation:
+RPC method calls and responses are both carried in the SOAP Body element (see ** section 4.3**) using the following representation:
 
 - A method invocation is modelled as a struct.
-- The method invocation is viewed as a single struct containing an accessor for each [in] or [in/out] parameter. The struct is both named and typed identically to the method name.
+- The method invocation is viewed as a single struct containing an accessor for each [in**] or [in/out] parameter. The struct is both named and typed identically to the method name.
 - Each [in] or [in/out] parameter is viewed as an accessor, with a name corresponding to the name of the parameter and type corresponding to the type of the parameter. These appear in the same order as in the method signature.
 - A method response is modelled as a struct.
 - The method response is viewed as a single struct containing an accessor for the return value and each [out] or [in/out] parameter. The first accessor is the return value followed by the parameters in the same order as in the method signature.
 - Each parameter accessor has a name corresponding to the name of the parameter and type corresponding to the type of the parameter. The name of the return value accessor is not significant. Likewise, the name of the struct is not significant. However, a convention is to name it after the method name with the string "Response" appended.
-- A method fault is encoded using the SOAP Fault element (see [section 4.4](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383507)). If a protocol binding adds additional rules for fault expression, those also MUST be followed.
+- A method fault is encoded using the SOAP Fault element (see **section 4.4**). If a protocol binding adds additional rules for fault expression, those also MUST be followed.
 
-As noted above, method and response structs can be encoded according to the rules in [section 5](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383512), or other encodings can be specified using the encodingStyle attribute (see [section 4.1.1](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Toc478383495)).
+As noted above, method and response structs can be encoded according to the rules in **section 5**, or other encodings can be specified using the encodingStyle attribute (see **section 4.1.1**).
 
 Applications MAY process requests with missing parameters but also MAY return a fault.
 
@@ -1064,7 +1064,7 @@ Not described in this document are methods for integrity and privacy protection.
 
 ### A.1 Sample Encoding of Call Requests
 
-Example 5 Similar to [Example 1](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Ref477488396) but with a Mandatory Header
+Example 5 Similar to **Example 1** but with a Mandatory Header
 
 POST /StockQuote HTTP/1.1
 Host: www.stockquoteserver.com
@@ -1091,7 +1091,7 @@ SOAPAction: "Some-URI"
 </SOAP-ENV:Envelope>
 ```
 
-Example 6 Similar to [Example 1](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Ref477488396) but with multiple request parameters
+Example 6 Similar to **Example 1** but with multiple request parameters
 
 ```http
 POST /StockQuote HTTP/1.1
@@ -1118,7 +1118,7 @@ SOAPAction: "Some-URI"
 
 ### A.2 Sample Encoding of Response
 
-Example 7 Similar to [Example 2](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Ref477488602) but with a Mandatory Header
+Example 7 Similar to **Example 2** but with a Mandatory Header
 
 ```http
 HTTP/1.1 200 OK
@@ -1146,7 +1146,7 @@ Content-Length: nnnn
 </SOAP-ENV:Envelope>
 ```
 
-Example 8 Similar to [Example 2](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Ref477488602) but with a Struct
+Example 8 Similar to **Example 2** but with a Struct
 
 ```http
 HTTP/1.1 200 OK
@@ -1174,7 +1174,7 @@ Content-Length: nnnn
 </SOAP-ENV:Envelope>
 ```
 
-Example 9 Similar to [Example 2](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Ref477488602) but Failing to honor Mandatory Header
+Example 9 Similar to **Example 2** but Failing to honor Mandatory Header
 
 ```http
 HTTP/1.1 500 Internal Server Error
@@ -1194,7 +1194,7 @@ Content-Length: nnnn
 </SOAP-ENV:Envelope>
 ```
 
-Example 10 Similar to [Example 2](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/#_Ref477488602) but Failing to handle Body
+Example 10 Similar to **Example 2** but Failing to handle Body
 
 ```http
 HTTP/1.1 500 Internal Server Error

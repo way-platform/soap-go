@@ -20,23 +20,23 @@ A WSDL document defines **services** as collections of network endpoints, or **p
 - **Port**– a single endpoint defined as a combination of a binding and a network address.
 - **Service**– a collection of related endpoints.
 
-These elements are described in detail in Section 2. It is important to observe that WSDL does not introduce a new type definition language. WSDL recognizes the need for rich type systems for describing message formats, and supports the XML Schemas specification (XSD) [[11]](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_9.__) as its canonical type system. However, since it is unreasonable to expect a single type system grammar to be used to describe all message formats present and future, WSDL allows using other type definition languages via extensibility.
+These elements are described in detail in Section 2. It is important to observe that WSDL does not introduce a new type definition language. WSDL recognizes the need for rich type systems for describing message formats, and supports the XML Schemas specification (XSD)  as its canonical type system. However, since it is unreasonable to expect a single type system grammar to be used to describe all message formats present and future, WSDL allows using other type definition languages via extensibility.
 
 In addition, WSDL defines a common **binding** mechanism. This is used to attach a specific protocol or data format or structure to an abstract message, operation, or endpoint. It allows the reuse of abstract definitions.
 
 In addition to the core service definition framework, this specification introduces specific **binding extensions** for the following protocols and message formats:
 
-- SOAP 1.1 ([see Section 3](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_6.__))
-- HTTP GET / POST ([see Section 4](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_7.__))
-- MIME ([see Section 5](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_8.__))
+- SOAP 1.1 (**see Section 3**)
+- HTTP GET / POST (**see Section 4**)
+- MIME (**see Section 5**)
 
-Although defined within this document, the above language extensions are layered on top of the core [service definition framework](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_3.__). Nothing precludes the use of other binding extensions with WSDL.
+Although defined within this document, the above language extensions are layered on top of the core **service definition framework**. Nothing precludes the use of other binding extensions with WSDL.
 
 ### 1.2 WSDL Document Example
 
 The following example shows the WSDL definition of a simple service providing stock quotes. The service supports a single operation called GetLastTradePrice, which is deployed using the SOAP 1.1 protocol over HTTP. The request takes a ticker symbol of type string, and returns the price as a float. A detailed description of the elements used in this definition can be found in Section 2 (core language) and Section 3 (SOAP binding).
 
-This example uses a fixed XML format instead of the SOAP encoding (for an example using the SOAP encoding, see [Example 4](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_rpcexample)).
+This example uses a fixed XML format instead of the SOAP encoding (for an example using the SOAP encoding, see **Example 4**).
 
 **Example 1 SOAP 1.1 Request/Response via HTTP**
 
@@ -111,7 +111,7 @@ xmlns="http://schemas.xmlsoap.org/wsdl/">
 
 ### 1.2 Notational Conventions
 
-1. The keywords "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in RFC-2119 [[2]](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_9.__).
+1. The keywords "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in RFC-2119 .
 
 2. The following namespace prefixes are used throughout this document:
 
@@ -121,12 +121,12 @@ xmlns="http://schemas.xmlsoap.org/wsdl/">
 | soap    | http://schemas.xmlsoap.org/wsdl/soap/                                                         | WSDL namespace for WSDL SOAP binding.                                                                                                                                                                                           |
 | http    | http://schemas.xmlsoap.org/wsdl/http/                                                         | WSDL namespace for WSDL HTTP GET & POST binding.                                                                                                                                                                                |
 | mime    | http://schemas.xmlsoap.org/wsdl/mime/                                                         | WSDL namespace for WSDL MIME binding.                                                                                                                                                                                           |
-| soapenc | [http://schemas.xmlsoap.org/soap/encoding/](http://schemas.xmlsoap.org/soap/encoding/)        | Encoding namespace as defined by SOAP 1.1 [[8]](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_9.__).                                                                                                                           |
-| soapenv | [http://schemas.xmlsoap.org/soap/envelope/](http://schemas.xmlsoap.org/soap/envelope/)        | Envelope namespace as defined by SOAP 1.1 [[8]](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_9.__).                                                                                                                           |
-| xsi     | [http://www.w3.org/2000/10/XMLSchema-instance](https://www.w3.org/2000/10/XMLSchema-instance) | Instance namespace as defined by XSD [[10]](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_9.__).                                                                                                                               |
-| xsd     | [http://www.w3.org/2000/10/XMLSchema](https://www.w3.org/2000/10/XMLSchema)                   | Schema namespace as defined by XSD [[10]](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_9.__).                                                                                                                                 |
+| soapenc | http://schemas.xmlsoap.org/soap/encoding/        | Encoding namespace as defined by SOAP 1.1 **8**.                                                                                                                           |
+| soapenv | http://schemas.xmlsoap.org/soap/envelope/        | Envelope namespace as defined by SOAP 1.1 **8**.                                                                                                                           |
+| xsi     | http://www.w3.org/2000/10/XMLSchema-instance | Instance namespace as defined by XSD **10**.                                                                                                                               |
+| xsd     | http://www.w3.org/2000/10/XMLSchema                   | Schema namespace as defined by XSD **10**.                                                                                                                                 |
 | tns     | (various)                                                                                     | The “this namespace” (tns) prefix is used as a convention to refer to the current document.                                                                                                                                     |
-| (other) | (various)                                                                                     | All other namespace prefixes are samples only. In particular, URIs starting with “http://example.com” represent some application-dependent or context-dependent URI [[4]](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_9.__). |
+| (other) | (various)                                                                                     | All other namespace prefixes are samples only. In particular, URIs starting with “http://example.com” represent some application-dependent or context-dependent URI **4**. |
 
 3. This specification uses an **informal syntax** to describe the XML grammar of a WSDL document:
 
@@ -138,7 +138,7 @@ xmlns="http://schemas.xmlsoap.org/wsdl/">
 - The XML namespace prefixes (defined above) are used to indicate the namespace of the element being defined.
 - Examples starting with <?xml contain enough information to conform to this specification; others examples are fragments and require additional information to be specified in order to conform.
 
-XSD schemas are provided as a formal definition of WSDL grammar (see [section A4](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#A4)).
+XSD schemas are provided as a formal definition of WSDL grammar (see **section A4**).
 
 ## 2. Service Definition
 
@@ -240,18 +240,18 @@ WSDL allows associating a **namespace** with a document **location** using an **
 </definitions>
 ```
 
-A reference to a WSDL definition is made using a [QName](https://www.w3.org/TR/xmlschema-2/#QName). The following types of definitions contained in a WSDL document may be referenced:
+A reference to a WSDL definition is made using a **QName**. The following types of definitions contained in a WSDL document may be referenced:
 
 - WSDL definitions: service, port, message, bindings, and portType
 - Other definitions: if additional definitions are added via extensibility, they SHOULD use QName linking.
 
 Each WSDL definition type listed above has its own **name scope** (i.e. port names and message names never conflict). Names within a name scope MUST be unique within the WSDL document.
 
-The resolution of QNames in WSDL is similar to the resolution of QNames described by the XML Schemas specification [[11]](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_9.__).
+The resolution of QNames in WSDL is similar to the resolution of QNames described by the XML Schemas specification .
 
 #### 2.1.2 Authoring Style
 
-The use of the **import** element allows the separation of the different elements of a service definition into independent documents, which can then be imported as needed. This technique helps writing clearer service definitions, by separating the definitions according to their level of abstraction. It also maximizes the ability to reuse service definitions of all kinds. As a result, WSDL documents structured in this way are easier to use and maintain. Example 2 below shows how to use this authoring style to define the service presented in [Example 1](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_example1). Here we separate the definitions in three documents: data type definitions, abstract definitions, and specific service bindings. The use of this mechanism is of course not limited to the definitions explicitly presented in the example, which uses only language elements defined in this specification. Other types of definitions based on additional language extensions can be encoded and reused in a similar fashion.
+The use of the **import** element allows the separation of the different elements of a service definition into independent documents, which can then be imported as needed. This technique helps writing clearer service definitions, by separating the definitions according to their level of abstraction. It also maximizes the ability to reuse service definitions of all kinds. As a result, WSDL documents structured in this way are easier to use and maintain. Example 2 below shows how to use this authoring style to define the service presented in **Example 1**. Here we separate the definitions in three documents: data type definitions, abstract definitions, and specific service bindings. The use of this mechanism is of course not limited to the definitions explicitly presented in the example, which uses only language elements defined in this specification. Other types of definitions based on additional language extensions can be encoded and reused in a similar fashion.
 
 **Example 2. Alternative authoring style for the service in Example 1.**
 
@@ -294,8 +294,8 @@ xmlns:xsd1="http://example.com/stockquote/schemas"
 xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
 xmlns="http://schemas.xmlsoap.org/wsdl/">
 
-**<import namespace="http://example.com/stockquote/schemas"
-           location="http://example.com/stockquote/stockquote.xsd"/>**
+`<import namespace="http://example.com/stockquote/schemas"
+           location="http://example.com/stockquote/stockquote.xsd"/>`
 
     <message name="GetLastTradePriceInput">
         <part name="body" element="xsd1:TradePriceRequest"/>
@@ -328,8 +328,8 @@ xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
 xmlns:defs="http://example.com/stockquote/definitions"
 xmlns="http://schemas.xmlsoap.org/wsdl/">
 
-**<import namespace="http://example.com/stockquote/definitions"
-           location="http://example.com/stockquote/stockquote.wsdl"/>**
+`<import namespace="http://example.com/stockquote/definitions"
+           location="http://example.com/stockquote/stockquote.wsdl"/>`
 
     <binding name="StockQuoteSoapBinding" type="defs:StockQuotePortType">
         <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
@@ -356,7 +356,7 @@ xmlns="http://schemas.xmlsoap.org/wsdl/">
 
 #### 2.1.3 Language Extensibility and Binding
 
-In WSDL the term binding refers to the process associating protocol or data format information with an abstract entity like a message, operation, or portType. WSDL allows elements representing a specific technology (referred to here as **extensibility elements**) under various elements defined by WSDL. These points of extensibility are typically used to specify binding information for a particular protocol or message format, but are not limited to such use. Extensibility elements MUST use an XML namespace different from that of WSDL. The specific locations in the document where extensibility elements can appear are described in detail in [section A3](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#A3).
+In WSDL the term binding refers to the process associating protocol or data format information with an abstract entity like a message, operation, or portType. WSDL allows elements representing a specific technology (referred to here as **extensibility elements**) under various elements defined by WSDL. These points of extensibility are typically used to specify binding information for a particular protocol or message format, but are not limited to such use. Extensibility elements MUST use an XML namespace different from that of WSDL. The specific locations in the document where extensibility elements can appear are described in detail in **section A3**.
 
 Extensibility elements are commonly used to specify some technology specific binding. To distinguish whether the semantic of the technology specific binding is required for communication or optional, extensibility elements MAY place a **wsdl:required** attribute of type boolean on the element. The default value for required is false. The required attribute is defined in the namespace "http://schemas.xmlsoap.org/wsdl/".
 
@@ -384,7 +384,7 @@ The XSD type system can be used to define the types in a message regardless of w
 
 - Use element form (not attribute).
 - Don't include attributes or elements that are peculiar to the wire encoding (e.g. have nothing to do with the abstract content of the message). Some examples are soap:root, soap:encodingStyle, xmi:id, xmi:name.
-- Array types should extend the Array type defined in the SOAP v1.1 encoding schema ([http://schemas.xmlsoap.org/soap/encoding/](http://schemas.xmlsoap.org/soap/encoding/)) (regardless of whether the resulting form actually uses the encoding specified in Section 5 of the SOAP v1.1 document). Use the name ArrayOfXXX for array types (where XXX is the type of the items in the array).  The type of the items in the array and the array dimensions are specified by using a default value for the soapenc:arrayType attribute.  At the time of this writing, the XSD specification does not have a mechanism for specifying the default value of an attribute which contains a QName value.  To overcome this limitation, WSDL introduces the **arrayType** attribute (from namespace http://schemas.xmlsoap.org/wsdl/) which has the semantic of providing the default value.  If XSD is revised to support this functionality, the revised mechanism SHOULD be used in favor of the arrayType attribute defined by WSDL.
+- Array types should extend the Array type defined in the SOAP v1.1 encoding schema (http://schemas.xmlsoap.org/soap/encoding/) (regardless of whether the resulting form actually uses the encoding specified in Section 5 of the SOAP v1.1 document). Use the name ArrayOfXXX for array types (where XXX is the type of the items in the array).  The type of the items in the array and the array dimensions are specified by using a default value for the soapenc:arrayType attribute.  At the time of this writing, the XSD specification does not have a mechanism for specifying the default value of an attribute which contains a QName value.  To overcome this limitation, WSDL introduces the **arrayType** attribute (from namespace http://schemas.xmlsoap.org/wsdl/) which has the semantic of providing the default value.  If XSD is revised to support this functionality, the revised mechanism SHOULD be used in favor of the arrayType attribute defined by WSDL.
 - Use the xsd:anyType type to represent a field/parameter which can have any type.
 
 However, since it is unreasonable to expect a single type system grammar can be used to describe all abstract types present and future, WSDL allows type systems to be added via extensibility elements. An extensibility element may appear under the **types** element to identify the type definition system being used and to provide an XML container element for the type definitions. The role of this element can be compared to that of the **schema** element of the XML Schema language.
@@ -461,8 +461,8 @@ Multiple part elements are used if the message has multiple logical units. For e
     </types>
 
     <message name="PO">
-        **<part name="po" element="tns:PO"/>**
-        **<part name="invoice" element="tns:Invoice"/>**
+        `<part name="po" element="tns:PO"/>`
+        `<part name="invoice" element="tns:Invoice"/>`
     </message>
 
 </definitions>
@@ -500,17 +500,19 @@ However, if the message contents are sufficiently complex, then an alternative s
                </all>
            </complexType>
 
-           **<complexType name="Composite">**
-               **<choice>**
-                   **<element name="PO" minOccurs="1" maxOccurs="1" type="tns:POType"/>**
-                   **<element name="Invoice" minOccurs="0" maxOccurs="unbounded" type="tns:InvoiceType"/>**
-               **</choice>**
-           **</complexType>**
+           `<complexType name="Composite">`
+               `<choice>`
+                   `<element name="PO" minOccurs="1" maxOccurs="1" type="tns:POType"/>`
+```
+<element name="Invoice" minOccurs="0" maxOccurs="unbounded" type="tns:InvoiceType"/>
+```
+               `</choice>`
+           `</complexType>`
         </schema>
     </types>
 
     <message name="PO">
-        **<part name="composite" type="tns:Composite"/>**
+        `<part name="composite" type="tns:Composite"/>`
     </message>
 
 </definitions>
@@ -526,9 +528,9 @@ A port type is a named set of abstract operations and the abstract messages invo
 
 ```xml
 <wsdl:definitions .... >
-**<wsdl:portType name="nmtoken">**
+`<wsdl:portType name="nmtoken">`
 **<wsdl:operation name="nmtoken" .... /> \***
-**</wsdl:portType>**
+`</wsdl:portType>`
 </wsdl:definitions>
 ```
 
@@ -554,7 +556,7 @@ Although request/response or solicit/response are logically correlated in the WS
 
 Although the base WSDL structure supports bindings for these four transmission primitives, WSDL only defines bindings for the One-way and Request-response primitives.  It is expected that specifications that define the protocols for Solicit-response or Notification would also include WSDL binding extensions that allow use of these primitives.
 
-Operations refer to the messages involved using the **message** attribute of type QName. This attribute follows the rules defined by WSDL for linking (see [section 2.1.2](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_document-n)).
+Operations refer to the messages involved using the **message** attribute of type QName. This attribute follows the rules defined by WSDL for linking (see **section 2.1.2**).
 
 #### 2.4.1 One-way Operation
 
@@ -562,9 +564,9 @@ The grammar for a one-way operation is:
 
 ```xml
 <wsdl:definitions .... > <wsdl:portType .... > \*
-**<wsdl:operation name="nmtoken">**
-**<wsdl:input name="nmtoken"? message="qname"/>**
-**</wsdl:operation>**
+`<wsdl:operation name="nmtoken">`
+`<wsdl:input name="nmtoken"? message="qname"/>`
+`</wsdl:operation>`
 </wsdl:portType >
 </wsdl:definitions>
 ```
@@ -579,8 +581,8 @@ The grammar for a request-response operation is:
 <wsdl:definitions .... >
 <wsdl:portType .... > \*
 <wsdl:operation name="nmtoken" parameterOrder="nmtokens">
-**<wsdl:input name="nmtoken"? message="qname"/>**
-**<wsdl:output name="nmtoken"? message="qname"/>**
+`<wsdl:input name="nmtoken"? message="qname"/>`
+`<wsdl:output name="nmtoken"? message="qname"/>`
 **<wsdl:fault name="nmtoken" message="qname"/>\***
 </wsdl:operation>
 </wsdl:portType >
@@ -599,8 +601,8 @@ The grammar for a solicit-response operation is:
 <wsdl:definitions .... >
 <wsdl:portType .... > \*
 <wsdl:operation name="nmtoken" parameterOrder="nmtokens">
-**<wsdl:output name="nmtoken"? message="qname"/>**
-**<wsdl:input name="nmtoken"? message="qname"/>**
+`<wsdl:output name="nmtoken"? message="qname"/>`
+`<wsdl:input name="nmtoken"? message="qname"/>`
 **<wsdl:fault name="nmtoken" message="qname"/>\***
 </wsdl:operation>
 </wsdl:portType >
@@ -618,9 +620,9 @@ The grammar for a notification operation is:
 ```xml
 <wsdl:definitions .... >
 <wsdl:portType .... > \*
-**<wsdl:operation name="nmtoken">**
-**<wsdl:output name="nmtoken"? message="qname"/>**
-**</wsdl:operation>**
+`<wsdl:operation name="nmtoken">`
+`<wsdl:output name="nmtoken"? message="qname"/>`
+`</wsdl:operation>`
 </wsdl:portType >
 </wsdl:definitions>
 ```
@@ -658,22 +660,24 @@ A binding defines message format and protocol details for operations and message
 **<wsdl:operation name="nmtoken"> \***
 **<-- extensibility element (2) --> \***
 **<wsdl:input name="nmtoken"? > ?**
-**<-- extensibility element (3) -->**
-**</wsdl:input>**
+```
+<-- extensibility element (3) -->
+```
+`</wsdl:input>`
 **<wsdl:output name="nmtoken"? > ?**
 **<-- extensibility element (4) --> \***
-**</wsdl:output>**
+`</wsdl:output>`
 **<wsdl:fault name="nmtoken"> \***
 **<-- extensibility element (5) --> \***
-**</wsdl:fault>**
-**</wsdl:operation>**
-**</wsdl:binding>**
+`</wsdl:fault>`
+`</wsdl:operation>`
+`</wsdl:binding>`
 </wsdl:definitions>
 ```
 
 The **name** attribute provides a unique name among all bindings defined within in the enclosing WSDL document.
 
-A binding references the portType that it binds using the **type** attribute. This QName value follows the linking rules defined by WSDL (see [section 2.1.2](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_document-n)).
+A binding references the portType that it binds using the **type** attribute. This QName value follows the linking rules defined by WSDL (see **section 2.1.2**).
 
 Binding extensibility elements are used to specify the concrete grammar for the input (3), output (4), and fault messages (5). Per-operation binding information (2) as well as per-binding information (1) may also be specified.
 
@@ -691,15 +695,17 @@ A port defines an individual endpoint by specifying a single address for a bindi
 <wsdl:definitions .... >
 <wsdl:service .... > \*
 **<wsdl:port name="nmtoken" binding="qname"> \***
-**<-- extensibility element (1) -->**
-**</wsdl:port>**
+```
+<-- extensibility element (1) -->
+```
+`</wsdl:port>`
 </wsdl:service>
 </wsdl:definitions>
 ```
 
 The **name** attribute provides a unique name among all ports defined within in the enclosing WSDL document.
 
-The **binding** attribute (of type QName) refers to the binding using the linking rules defined by WSDL (see [Section 2.1.2](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_document-n)).
+The **binding** attribute (of type QName) refers to the binding using the linking rules defined by WSDL (see **Section 2.1.2**).
 
 Binding extensibility elements (1) are used to specify the address information for the port.
 
@@ -738,8 +744,8 @@ WSDL includes a binding for SOAP 1.1 endpoints, which supports the specification
 
 This binding grammar it is not an exhaustive specification since the set of SOAP bindings is evolving. Nothing precludes additional SOAP bindings to be derived from portions of this grammar. For example:
 
-- SOAP bindings that do not employ a URI addressing scheme may substitute another addressing scheme by replacing the soap:address element defined in [section 3.8](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_soap:address).
-- SOAP bindings that do not require a SOAPAction omit the soapAction attribute defined in [section 3.4](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_soap:operation).
+- SOAP bindings that do not employ a URI addressing scheme may substitute another addressing scheme by replacing the soap:address element defined in **section 3.8**.
+- SOAP bindings that do not require a SOAPAction omit the soapAction attribute defined in **section 3.4**.
 
 ### 3.1 SOAP Examples
 
@@ -759,7 +765,7 @@ In the following example, a SubscribeToQuotes SOAP 1.1 one-way message is sent t
 
     <message name="SubscribeToQuotes">
         <part name="body" element="xsd1:SubscribeToQuotes"/>
-        **<part name="subscribeheader" element="xsd1:SubscriptionHeader"/>**
+        `<part name="subscribeheader" element="xsd1:SubscriptionHeader"/>`
     </message>
 
     <portType name="StockQuotePortType">
@@ -769,7 +775,7 @@ In the following example, a SubscribeToQuotes SOAP 1.1 one-way message is sent t
     </portType>
 
     <binding name="StockQuoteSoap" type="tns:StockQuotePortType">
-        **<soap:binding style="document" transport="http://example.com/smtp"/>**
+        `<soap:binding style="document" transport="http://example.com/smtp"/>`
         <operation name="SubscribeToQuotes">
            <input message="tns:SubscribeToQuotes">
                **<soap:body parts="body" use="literal"/>
@@ -780,7 +786,7 @@ In the following example, a SubscribeToQuotes SOAP 1.1 one-way message is sent t
 
     <service name="StockQuoteService">
         <port name="StockQuotePort" binding="tns:StockQuoteSoap">
-           **<soap:address location="mailto:subscribe@example.com"/>**
+           `<soap:address location="mailto:subscribe@example.com"/>`
         </port>
     </service>
 
@@ -833,16 +839,16 @@ This example describes that a GetTradePrice SOAP 1.1 request may be sent to a St
     </portType>
 
     <binding name="StockQuoteSoapBinding" type="tns:StockQuotePortType">
-        **<soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>**
+        `<soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>`
         <operation name="GetTradePrice">
-           **<soap:operation soapAction="http://example.com/GetTradePrice"/>**
+           `<soap:operation soapAction="http://example.com/GetTradePrice"/>`
            <input>
-               **<soap:body use="encoded" namespace="http://example.com/stockquote"**
-                          **encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>**
+               `<soap:body use="encoded" namespace="http://example.com/stockquote"**
+                          **encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>`
            </input>
            <output>
-               **<soap:body use="encoded" namespace="http://example.com/stockquote"**
-                          **encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>**
+               `<soap:body use="encoded" namespace="http://example.com/stockquote"**
+                          **encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>`
            </output>
         </operation>>
     </binding>
@@ -850,7 +856,7 @@ This example describes that a GetTradePrice SOAP 1.1 request may be sent to a St
     <service name="StockQuoteService">
         <documentation>My first service</documentation>
         <port name="StockQuotePort" binding="tns:StockQuoteBinding">
-           **<soap:address location="http://example.com/stockquote"/>**
+           `<soap:address location="http://example.com/stockquote"/>`
         </port>
     </service>
 
@@ -941,36 +947,36 @@ The SOAP Binding extends WSDL with the following extension elements:
 ```xml
 <definitions .... >
 <binding .... >
-**<soap:binding style="rpc|document" transport="uri">**
+`<soap:binding style="rpc|document" transport="uri">`
 <operation .... >
 **<soap:operation soapAction="uri"? style="rpc|document"?>?**
 <input>
-**<soap:body parts="nmtokens"? use="literal|encoded"
-encodingStyle="uri-list"? namespace="uri"?>**
+`<soap:body parts="nmtokens"? use="literal|encoded"
+encodingStyle="uri-list"? namespace="uri"?>`
 **<soap:header message="qname" part="nmtoken" use="literal|encoded"**
 **encodingStyle="uri-list"? namespace="uri"?>\***
 **<soap:headerfault message="qname" part="nmtoken" use="literal|encoded"**
 **encodingStyle="uri-list"? namespace="uri"?/>\***
-**<soap:header>**
+`<soap:header>`
 </input>
 <output>
-**<soap:body parts="nmtokens"? use="literal|encoded"
-encodingStyle="uri-list"? namespace="uri"?>**
+`<soap:body parts="nmtokens"? use="literal|encoded"
+encodingStyle="uri-list"? namespace="uri"?>`
 **<soap:header message="qname" part="nmtoken" use="literal|encoded"**
 **encodingStyle="uri-list"? namespace="uri"?>\***
 **<soap:headerfault message="qname" part="nmtoken" use="literal|encoded"**
 **encodingStyle="uri-list"? namespace="uri"?/>\***
-**<soap:header>**
+`<soap:header>`
 </output>
 <fault>\*
-**<soap:fault name="nmtoken" use="literal|encoded"
-encodingStyle="uri-list"? namespace="uri"?>**
+`<soap:fault name="nmtoken" use="literal|encoded"
+encodingStyle="uri-list"? namespace="uri"?>`
 </fault>
 </operation>
 </binding>
 
     <port .... >
-        **<soap:address location="uri"/>**
+        `<soap:address location="uri"/>`
     </port>
 
 </definitions>
@@ -987,12 +993,12 @@ The soap:binding element MUST be present when using the SOAP binding.
 ```xml
 <definitions .... >
 <binding .... >
-**<soap:binding transport="uri"? style="rpc|document"?>**
+`<soap:binding transport="uri"? style="rpc|document"?>`
 </binding>
 </definitions>
 ```
 
-The value of the **style** attribute is the default for the style attribute for each contained operation. If the style attribute is omitted, it is assumed to be "document". See [section 3.4](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_soap:operation) for more information on the semantics of style.
+The value of the **style** attribute is the default for the style attribute for each contained operation. If the style attribute is omitted, it is assumed to be "document". See **section 3.4** for more information on the semantics of style.
 
 The value of the required **transport** attribute indicates which transport of SOAP this binding corresponds to. The URI value **http://schemas.xmlsoap.org/soap/http** corresponds to the HTTP binding in the SOAP specification. Other URIs may be used here to indicate other transports (such as SMTP, FTP, etc.).
 
@@ -1010,7 +1016,7 @@ The soap:operation element provides information for the operation as a whole.
 </definitions>
 ```
 
-The **style** attribute indicates whether the operation is RPC-oriented (messages containing parameters and return values) or document-oriented (message containing document(s)). This information may be used to select an appropriate programming model. The value of this attribute also affects the way in which the Body of the SOAP message is constructed, as explained in [Section 3.5](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_soap:body) below. If the attribute is not specified, it defaults to the value specified in the soap:binding element. If the soap:binding element does not specify a style, it is assumed to be "document".
+The **style** attribute indicates whether the operation is RPC-oriented (messages containing parameters and return values) or document-oriented (message containing document(s)). This information may be used to select an appropriate programming model. The value of this attribute also affects the way in which the Body of the SOAP message is constructed, as explained in **Section 3.5** below. If the attribute is not specified, it defaults to the value specified in the soap:binding element. If the soap:binding element does not specify a style, it is assumed to be "document".
 
 The **soapAction** attribute specifies the value of the SOAPAction header for this operation. This URI value should be used directly as the value for the SOAPAction header; no attempt should be made to make a relative URI value absolute when making the request. For the HTTP protocol binding of SOAP, this is value required (it has no default value). For other SOAP protocol bindings, it MUST NOT be specified, and the soap:operation element MAY be omitted.
 
@@ -1032,12 +1038,12 @@ The same mechanisms are used to define the content of the Body and parameter acc
 <binding .... >
 <operation .... >
 <input>
-**<soap:body parts="nmtokens"? use="literal|encoded"?**
-**encodingStyle="uri-list"? namespace="uri"?>**
+`<soap:body parts="nmtokens"? use="literal|encoded"?**
+**encodingStyle="uri-list"? namespace="uri"?>`
 </input>
 <output>
-**<soap:body parts="nmtokens"? use="literal|encoded"?**
-**encodingStyle="uri-list"? namespace="uri"?>**
+`<soap:body parts="nmtokens"? use="literal|encoded"?**
+**encodingStyle="uri-list"? namespace="uri"?>`
 </output>
 </operation>
 </binding>
@@ -1050,21 +1056,21 @@ The required **use** attribute indicates whether the message parts are encoded u
 
 If use is **encoded**, then each message part references an abstract type using the **type** attribute. These abstract types are used to produce a concrete message by applying an encoding specified by the **encodingStyle** attribute. The part **names**, **types** and value of the **namespace** attribute are all inputs to the encoding, although the namespace attribute only applies to content not explicitly defined by the abstract types. If the referenced encoding style allows variations in it’s format (such as the SOAP encoding does), then all variations MUST be supported ("reader makes right").
 
-If use is **literal**, then each part references a concrete schema definition using either the **element** or **type** attribute. In the first case, the element referenced by the part will appear directly under the Body element (for document style bindings) or under an accessor element named after the message part (in rpc style). In the second, the type referenced by the part becomes the schema type of the enclosing element (Body for document style or part accessor element for rpc style). For an example that illustrates defining the contents of a composite Body using a type, see [section 2.3.1](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_message).  The value of the **encodingStyle** attribute MAY be used when the use is literal to indicate that the concrete format was derived using a particular encoding (such as the SOAP encoding), but that only the specified variation is supported ("writer makes right").
+If use is **literal**, then each part references a concrete schema definition using either the **element** or **type** attribute. In the first case, the element referenced by the part will appear directly under the Body element (for document style bindings) or under an accessor element named after the message part (in rpc style). In the second, the type referenced by the part becomes the schema type of the enclosing element (Body for document style or part accessor element for rpc style). For an example that illustrates defining the contents of a composite Body using a type, see **section 2.3.1**.  The value of the **encodingStyle** attribute MAY be used when the use is literal to indicate that the concrete format was derived using a particular encoding (such as the SOAP encoding), but that only the specified variation is supported ("writer makes right").
 
 The value of the **encodingStyle** attribute is a list of URIs, each separated by a single space. The URI's represent encodings used within the message, in order from most restrictive to least restrictive (exactly like the encodingStyle attribute defined in the SOAP specification).
 
 ### 3.6 soap:fault
 
-The soap:fault element specifies the contents of the contents of the SOAP Fault Details element. It is patterned after the soap:body element (see [section 3.5](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_soap:body)).
+The soap:fault element specifies the contents of the contents of the SOAP Fault Details element. It is patterned after the soap:body element (see **section 3.5**).
 
 ```xml
 <definitions .... >
 <binding .... >
 <operation .... >
 <fault>\*
-**<soap:fault name="nmtoken" use="literal|encoded"
-encodingStyle="uri-list"? namespace="uri"?>**
+`<soap:fault name="nmtoken" use="literal|encoded"
+encodingStyle="uri-list"? namespace="uri"?>`
 </fault>
 </operation>
 </binding>
@@ -1073,13 +1079,13 @@ encodingStyle="uri-list"? namespace="uri"?>**
 
 The **name** attribute relates the soap:fault to the wsdl:fault defined for the operation.
 
-The fault message MUST have a single part. The **use**, **encodingStyle** and **namespace** attributes are all used in the same way as with soap:body (see [section 3.5](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_soap:body)), only style="document" is assumed since faults do not contain parameters.
+The fault message MUST have a single part. The **use**, **encodingStyle** and **namespace** attributes are all used in the same way as with soap:body (see **section 3.5**), only style="document" is assumed since faults do not contain parameters.
 
 ### 3.7 soap:header and soap:headerfault
 
-The soap:header and soap:headerfault elements allows header to be defined that are transmitted inside the Header element of the SOAP Envelope. It is patterned after the soap:body element (see [section 3.5](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_soap:body)).
+The soap:header and soap:headerfault elements allows header to be defined that are transmitted inside the Header element of the SOAP Envelope. It is patterned after the soap:body element (see **section 3.5**).
 
-It is not necessary to exhaustively list all headers that appear in the SOAP Envelope using soap:header. For example, extensions (see [section 2.1.3](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_language)) to WSDL may imply specific headers should be added to the actual payload and it is not required to list those headers here.
+It is not necessary to exhaustively list all headers that appear in the SOAP Envelope using soap:header. For example, extensions (see **section 2.1.3**) to WSDL may imply specific headers should be added to the actual payload and it is not required to list those headers here.
 
 ```xml
 <definitions .... >
@@ -1090,21 +1096,21 @@ It is not necessary to exhaustively list all headers that appear in the SOAP Env
 **encodingStyle="uri-list"? namespace="uri"?>\***
 **<soap:headerfault message="qname" part="nmtoken" use="literal|encoded"**
 **encodingStyle="uri-list"? namespace="uri"?/>\***
-**<soap:header>**
+`<soap:header>`
 </input>
 <output>
 **<soap:header message="qname" part="nmtoken" use="literal|encoded"**
 **encodingStyle="uri-list"? namespace="uri"?>\***
 **<soap:headerfault message="qname" part="nmtoken" use="literal|encoded"**
 **encodingStyle="uri-list"? namespace="uri"?/>\***
-**<soap:header>**
+`<soap:header>`
 </output>
 </operation>
 </binding>
 </definitions>
 ```
 
-The **use**, **encodingStyle** and **namespace** attributes are all used in the same way as with soap:body (see [section 3.5](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_soap:body)), only style="document" is assumed since headers do not contain parameters.
+The **use**, **encodingStyle** and **namespace** attributes are all used in the same way as with soap:body (see **section 3.5**), only style="document" is assumed since headers do not contain parameters.
 
 Together, the **message** attribute (of type QName) and the **part** attribute (of type nmtoken) reference the message part that defines the header type. The schema referenced by the part MAY include definitions for the soap:actor and soap:mustUnderstand attributes if use="literal", but MUST NOT if use="encoded". The referenced message need not be the same as the message that defines the SOAP Body.
 
@@ -1118,7 +1124,7 @@ The SOAP address binding is used to give a port an address (a URI). A port using
 <definitions .... >
 <port .... >
 <binding .... >
-**<soap:address location="uri"/>**
+`<soap:address location="uri"/>`
 </binding>
 </port>
 </definitions>
@@ -1178,43 +1184,43 @@ For each port, the response is either a GIF or a JPEG image.
     </service>
 
     <binding name="b1" type="pt1">
-        **<http:binding verb="GET"/>**
+        `<http:binding verb="GET"/>`
         <operation name="o1">
-           **<http:operation location="o1/A(part1)B(part2)/(part3)"/>**
+           `<http:operation location="o1/A(part1)B(part2)/(part3)"/>`
            <input>
-               **<http:urlReplacement/>**
+               `<http:urlReplacement/>`
            </input>
            <output>
-               **<mime:content type="image/gif"/>**
-               **<mime:content type="image/jpeg"/>**
+               `<mime:content type="image/gif"/>`
+               `<mime:content type="image/jpeg"/>`
            </output>
         </operation>
     </binding>
 
     <binding name="b2" type="pt1">
-        **<http:binding verb="GET"/>**
+        `<http:binding verb="GET"/>`
         <operation name="o1">
-           **<http:operation location="o1"/>**
-           **<input>**
-               **<http:urlEncoded/>**
-           **</input>**
+           `<http:operation location="o1"/>`
+           `<input>`
+               `<http:urlEncoded/>`
+           `</input>`
            <output>
-               **<mime:content type="image/gif"/>**
-               **<mime:content type="image/jpeg"/>**
+               `<mime:content type="image/gif"/>`
+               `<mime:content type="image/jpeg"/>`
            </output>
         </operation>
     </binding>
 
     <binding name="b3" type="pt1">
-        **<http:binding verb="POST"/>**
+        `<http:binding verb="POST"/>`
         <operation name="o1">
-           **<http:operation location="o1"/>**
+           `<http:operation location="o1"/>`
            <input>
-               **<mime:content type="application/x-www-form-urlencoded"/>**
+               `<mime:content type="application/x-www-form-urlencoded"/>`
            </input>
            <output>
-               **<mime:content type="image/gif"/>**
-               **<mime:content type="image/jpeg"/>**
+               `<mime:content type="image/gif"/>`
+               `<mime:content type="image/jpeg"/>`
            </output>
         </operation>
     </binding>
@@ -1229,20 +1235,24 @@ The HTTP GET/POST Binding extends WSDL with the following extension elements:
 ```xml
 <definitions .... >
 <binding .... >
-**<http:binding verb="nmtoken"/>**
+`<http:binding verb="nmtoken"/>`
 <operation .... >
-**<http:operation location="uri"/>**
+`<http:operation location="uri"/>`
 <input .... >
-**<-- mime elements -->**
+```
+<-- mime elements -->
+```
 </input>
 <output .... >
-**<-- mime elements -->**
+```
+<-- mime elements -->
+```
 </output>
 </operation>
 </binding>
 
     <port .... >
-        **<http:address location="uri"/>**
+        `<http:address location="uri"/>`
     </port>
 
 </definitions>
@@ -1252,7 +1262,7 @@ These elements are covered in the subsequent sections.
 
 ### 4.3 http:address
 
-The **location** attribute specifies the base URI for the port. The value of the attribute is combined with the values of the location attribute of the http:operation binding element. See [section 4.5](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_http:operation) for more details.
+The **location** attribute specifies the base URI for the port. The value of the attribute is combined with the values of the location attribute of the http:operation binding element. See **section 4.5** for more details.
 
 ### 4.4 http:binding
 
@@ -1261,7 +1271,7 @@ The **http:binding** element indicates that this binding uses the HTTP protocol.
 ```xml
 <definitions .... >
 <binding .... >
-**<http:binding verb="nmtoken"/>**
+`<http:binding verb="nmtoken"/>`
 </binding>
 </definitions>
 ```
@@ -1276,7 +1286,7 @@ The **location** attribute specifies a relative URI for the operation. This URI 
 <definitions .... >
 <binding .... >
 <operation .... >
-**<http:operation location="uri"/>**
+`<http:operation location="uri"/>`
 </operation>
 </binding>
 </definitions>
@@ -1290,7 +1300,7 @@ The urlEncoded element indicates that all the message parts are encoded into the
 <http:urlEncoded/>
 ```
 
-For more information on the rules for URI-encoding parameters, see [[5](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_9.__)], [[6](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_9.__)], and [[7](https://www.w3.org/TR/2001/NOTE-wsdl-20010315#_9.__)].
+For more information on the rules for URI-encoding parameters, see [**5**], **[6**], and **[7**].
 
 ### 4.7 http:urlReplacement
 
@@ -1373,30 +1383,30 @@ This example describes that a GetCompanyInfo SOAP 1.1 request may be sent to a S
 
     <binding name="b1" type="tns:pt1">
         <operation name="GetCompanyInfo">
-           **<soap:operation soapAction="http://example.com/GetCompanyInfo"/>**
+           `<soap:operation soapAction="http://example.com/GetCompanyInfo"/>`
            <input>
-               **<soap:body use="literal"/>**
+               `<soap:body use="literal"/>`
            </input>
            <output>
-               **<mime:multipartRelated>**
-                   **<mime:part>**
-                       **<soap:body parts="body" use="literal"/>**
-                   **</mime:part>**
-                   **<mime:part>**
-                       **<mime:content part="docs" type="text/html"/>**
-                   **</mime:part>**
-                   **<mime:part>**
-                       **<mime:content part="logo" type="image/gif"/>**
-                       **<mime:content part="logo" type="image/jpeg"/>**
-                   **</mime:part>**
-               **</mime:multipartRelated>**
+               `<mime:multipartRelated>`
+                   `<mime:part>`
+                       `<soap:body parts="body" use="literal"/>`
+                   `</mime:part>`
+                   `<mime:part>`
+                       `<mime:content part="docs" type="text/html"/>`
+                   `</mime:part>`
+                   `<mime:part>`
+                       `<mime:content part="logo" type="image/gif"/>`
+                       `<mime:content part="logo" type="image/jpeg"/>`
+                   `</mime:part>`
+               `</mime:multipartRelated>`
            </output>
         </operation>
     </binding>
 
     <service name="CompanyInfoService">
         <port name="CompanyInfoPort"binding="tns:b1">
-           **<soap:address location="http://example.com/companyinfo"/>**
+           `<soap:address location="http://example.com/companyinfo"/>`
         </port>
     </service>
 
@@ -1430,10 +1440,14 @@ They are used at the following locations in WSDL:
 <binding .... >
 <operation .... >
 <input .... >
-**<-- mime elements -->**
+```
+<-- mime elements -->
+```
 </input>
 <output .... >
-**<-- mime elements -->**
+```
+<-- mime elements -->
+```
 </output>
 </operation>
 </binding>
@@ -1495,21 +1509,21 @@ To specify XML payloads that are not SOAP compliant (do not have a SOAP Envelope
 
 ## 6. References
 
-[2] S. Bradner, "Key words for use in RFCs to Indicate Requirement Levels", [RFC 2119](http://www.normos.org/ietf/rfc/rfc2119.txt), Harvard University, March 1997
+[2] S. Bradner, "Key words for use in RFCs to Indicate Requirement Levels", RFC 2119, Harvard University, March 1997
 
-[4] T. Berners-Lee, R. Fielding, L. Masinter, "Uniform Resource Identifiers (URI): Generic Syntax", [RFC 2396](http://www.normos.org/ietf/rfc/rfc2396.txt), MIT/LCS, U.C. Irvine, Xerox Corporation, August 1998.
+[4] T. Berners-Lee, R. Fielding, L. Masinter, "Uniform Resource Identifiers (URI): Generic Syntax", RFC 2396, MIT/LCS, U.C. Irvine, Xerox Corporation, August 1998.
 
-[5] [http://www.w3.org/TR/html401/interact/forms.html - submit-format](https://www.w3.org/TR/html401/interact/forms.html#submit-format)
+[5]
 
-[6] [http://www.w3.org/TR/html401/appendix/notes.html - ampersands-in-uris](https://www.w3.org/TR/html401/appendix/notes.html#ampersands-in-uris)
+[6]
 
-[7] [http://www.w3.org/TR/html401/interact/forms.html - h-17.13.4](https://www.w3.org/TR/html401/interact/forms.html#h-17.13.4)
+[7]
 
-[8] Simple Object Access Protocol (SOAP) 1.1 "[http://www.w3.org/TR/2000/NOTE-SOAP-20000508/](https://www.w3.org/TR/2000/NOTE-SOAP-20000508/)"
+[8] Simple Object Access Protocol (SOAP) 1.1 "**http://www.w3.org/TR/2000/NOTE-SOAP-20000508/**"
 
-[10] W3C Working Draft "[XML Schema Part 1: Structures](https://www.w3.org/TR/xmlschema-1/)". This is work in progress.
+[10] W3C Working Draft "**XML Schema Part 1: Structures**". This is work in progress.
 
-[11] W3C Working Draft "[XML Schema Part 2: Datatypes](https://www.w3.org/TR/xmlschema-2/)". This is work in progress.
+[11] W3C Working Draft "**XML Schema Part 2: Datatypes**". This is work in progress.
 
 ## A 1. Notes on URIs
 
@@ -1517,11 +1531,11 @@ This section does not directly contribute to the specification, but provide back
 
 ### A 1.1 XML namespaces & schema locations
 
-It is a common misperception to equate the targetNamespace of an XML schema or the value of the _xmlns_ attribute in XML instances with the location of the corresponding schema. Since namespaces are in fact URIs, and URIs may be locations, and you may be able to retrieve a schema from that location, it does not mean that is the only schema that is associated with that namespace. There can be multiple schemas associated with a particular namespace, and it is up to a processor of XML to determine which one to use in a particular processing context. The WSDL specification provides the processing context here via the _<import>_ mechanism, which is based on the XML schemas grammar for the similar concept.
+It is a common misperception to equate the targetNamespace of an XML schema or the value of the *xmlns* attribute in XML instances with the location of the corresponding schema. Since namespaces are in fact URIs, and URIs may be locations, and you may be able to retrieve a schema from that location, it does not mean that is the only schema that is associated with that namespace. There can be multiple schemas associated with a particular namespace, and it is up to a processor of XML to determine which one to use in a particular processing context. The WSDL specification provides the processing context here via the *<import>* mechanism, which is based on the XML schemas grammar for the similar concept.
 
 ### A 1.2 Relative URIs
 
-Throughout this document you see fully qualified URIs used in WSDL and XSD documents. The use of a fully qualified URI is simply to illustrate the referencing concepts. The use of relative URIs is completely allowed and is warranted in many cases. For information on processing relative URIs, see [http://www.normos.org/ietf/rfc/rfc2396.txt](http://www.normos.org/ietf/rfc/rfc2396.txt).
+Throughout this document you see fully qualified URIs used in WSDL and XSD documents. The use of a fully qualified URI is simply to illustrate the referencing concepts. The use of relative URIs is completely allowed and is warranted in many cases. For information on processing relative URIs, see http://www.normos.org/ietf/rfc/rfc2396.txt.
 
 ### A 1.3 Generating URIs
 
@@ -1571,15 +1585,15 @@ Extensibility elements can appear at the following locations in a WSDL document:
 
 | Location                             | Meaning                                                                   | Possible usage                                                                                                                                                                                    |
 | ------------------------------------ | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| definitions                          | The extensibility element applies to the WSDL document as a whole.        | · Introduce additional information or definitions to a WSDL document as a whole.                                                                                                                  |
-| definitions/types                    | The extensibility element is a type system.                               | · Specify the format of the message in a type system other than XSD.                                                                                                                              |
-| definitions/service                  | The extensibility element applies to the service.                         | · Introduce additional information or definitions for the service.                                                                                                                                |
-| definitions/service/port             | The extensibility element applies to the port.                            | · Specify an address for the port.                                                                                                                                                                |
-| definitions/binding                  | The extensibility element applies to the binding as a whole.              | · Provide protocol specific information that applies to all the operations in the port type being bound.                                                                                          |
-| definitions/binding/operation        | The extensibility element applies to the operation as a whole.            | · Provide protocol specific information that applies to both the input message and the output message.                                                                                            |
-| definitions/binding/operation/input  | The extensibility element applies to the input message for the operation. | · Provide details on how abstract message parts map into the concrete protocol and data formats of the binding.<br><br>· Provide additional protocol specific information for the input message.  |
-| definitions/binding/operation/output | The extensibility element applies to the output message of the operation. | · Provide details on how abstract message parts map into the concrete protocol and data formats of the binding.<br><br>· Provide additional protocol specific information for the output message. |
-| definitions/binding/operation/fault  | The extensibility element applies to a fault message of the operation.    | · Provide details on how abstract message parts map into the concrete protocol and data formats of the binding.<br><br>· Provide additional protocol specific information for the fault message.  |
+| definitions                          | The extensibility element applies to the WSDL document as a whole.        | - Introduce additional information or definitions to a WSDL document as a whole.                                                                                                                  |
+| definitions/types                    | The extensibility element is a type system.                               | - Specify the format of the message in a type system other than XSD.                                                                                                                              |
+| definitions/service                  | The extensibility element applies to the service.                         | - Introduce additional information or definitions for the service.                                                                                                                                |
+| definitions/service/port             | The extensibility element applies to the port.                            | - Specify an address for the port.                                                                                                                                                                |
+| definitions/binding                  | The extensibility element applies to the binding as a whole.              | - Provide protocol specific information that applies to all the operations in the port type being bound.                                                                                          |
+| definitions/binding/operation        | The extensibility element applies to the operation as a whole.            | - Provide protocol specific information that applies to both the input message and the output message.                                                                                            |
+| definitions/binding/operation/input  | The extensibility element applies to the input message for the operation. | - Provide details on how abstract message parts map into the concrete protocol and data formats of the binding.<br><br>· Provide additional protocol specific information for the input message.  |
+| definitions/binding/operation/output | The extensibility element applies to the output message of the operation. | - Provide details on how abstract message parts map into the concrete protocol and data formats of the binding.<br><br>· Provide additional protocol specific information for the output message. |
+| definitions/binding/operation/fault  | The extensibility element applies to a fault message of the operation.    | - Provide details on how abstract message parts map into the concrete protocol and data formats of the binding.<br><br>· Provide additional protocol specific information for the fault message.  |
 
 ---
 
