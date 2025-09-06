@@ -1,6 +1,9 @@
+# GoReleaser
 build/
+# Semantic release
 .generated-go-semantic-release-changelog.md
 .semrel
-
 # Proprietary test data
 **/testdata/proprietary_*
+# CLI
+cmd/soap/soap

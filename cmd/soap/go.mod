@@ -10,7 +10,7 @@ require (
 	github.com/charmbracelet/lipgloss v1.1.1-0.20250404203927-76690c660834
 	github.com/charmbracelet/lipgloss/v2 v2.0.0-beta1
 	github.com/spf13/cobra v1.9.1
-	github.com/way-platform/soap-go v0.11.2
+	github.com/way-platform/soap-go v0.15.0
 )
 
 require (

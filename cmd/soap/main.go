@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/fang"
 	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/spf13/cobra"
+	"github.com/way-platform/soap-go/cmd/soap/internal/call"
 	"github.com/way-platform/soap-go/cmd/soap/internal/doc"
 	"github.com/way-platform/soap-go/cmd/soap/internal/gen"
 )
@@ -49,6 +50,8 @@ func newRootCommand() *cobra.Command {
 	cmd.AddCommand(gen.NewCommand())
 	cmd.AddGroup(doc.NewGroup())
 	cmd.AddCommand(doc.NewCommand())
+	cmd.AddGroup(call.NewGroup())
+	cmd.AddCommand(call.NewCommand())
 	cmd.AddGroup(&cobra.Group{
 		ID:    "utils",
 		Title: "Utils",
