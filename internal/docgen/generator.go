@@ -77,6 +77,11 @@ func (g *Generator) generateMarkdown() error {
 		}
 	}
 
+	// Generate custom types section
+	if err := g.generateCustomTypesSection(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -765,4 +770,272 @@ func (g *Generator) collectAllFieldsWithSchema(all *xsd.All, prefix string, fiel
 	for i := range all.Elements {
 		g.collectElementFieldsWithSchema(&all.Elements[i], prefix, fields, schemaMap, visited, level)
 	}
+}
+
+// generateCustomTypesSection generates documentation for custom types defined in the schema
+func (g *Generator) generateCustomTypesSection() error {
+	doc := g.definitions
+
+	if doc.Types == nil || len(doc.Types.Schemas) == 0 {
+		return nil
+	}
+
+	// Collect all custom types from all schemas
+	var simpleTypes []customSimpleType
+	var complexTypes []customComplexType
+
+	for _, schema := range doc.Types.Schemas {
+		// Collect simple types
+		for i := range schema.SimpleTypes {
+			simpleType := &schema.SimpleTypes[i]
+			if simpleType.Name != "" {
+				customType := customSimpleType{
+					Name:          simpleType.Name,
+					BaseType:      g.getSimpleTypeBase(simpleType),
+					Documentation: g.getSimpleTypeDocumentation(simpleType),
+					Restrictions:  g.getSimpleTypeRestrictions(simpleType),
+				}
+				simpleTypes = append(simpleTypes, customType)
+			}
+		}
+
+		// Collect complex types
+		for i := range schema.ComplexTypes {
+			complexType := &schema.ComplexTypes[i]
+			if complexType.Name != "" {
+				customType := customComplexType{
+					Name:          complexType.Name,
+					Documentation: g.getComplexTypeDocumentation(complexType),
+					Structure:     g.getComplexTypeStructure(complexType),
+				}
+				complexTypes = append(complexTypes, customType)
+			}
+		}
+	}
+
+	// Only generate the section if we have custom types
+	if len(simpleTypes) == 0 && len(complexTypes) == 0 {
+		return nil
+	}
+
+	g.output.P("## Custom Types")
+	g.output.P()
+	g.output.P("This section documents the custom data types defined in the schema.")
+	g.output.P()
+
+	// Generate simple types section
+	if len(simpleTypes) > 0 {
+		g.output.P("### Simple Types")
+		g.output.P()
+		for _, simpleType := range simpleTypes {
+			g.generateSimpleTypeDoc(&simpleType)
+		}
+	}
+
+	// Generate complex types section
+	if len(complexTypes) > 0 {
+		g.output.P("### Complex Types")
+		g.output.P()
+		for _, complexType := range complexTypes {
+			g.generateComplexTypeDoc(&complexType)
+		}
+	}
+
+	return nil
+}
+
+type customSimpleType struct {
+	Name          string
+	BaseType      string
+	Documentation string
+	Restrictions  []typeRestriction
+}
+
+type customComplexType struct {
+	Name          string
+	Documentation string
+	Structure     string
+}
+
+type typeRestriction struct {
+	Type        string // "enumeration", "pattern", "length", etc.
+	Value       string
+	Description string
+}
+
+// getSimpleTypeBase extracts the base type from a simple type restriction
+func (g *Generator) getSimpleTypeBase(simpleType *xsd.SimpleType) string {
+	if simpleType.Restriction != nil && simpleType.Restriction.Base != "" {
+		base := simpleType.Restriction.Base
+		// Remove namespace prefix if present
+		if colonIndex := strings.Index(base, ":"); colonIndex >= 0 {
+			base = base[colonIndex+1:]
+		}
+		return base
+	}
+	return ""
+}
+
+// getSimpleTypeDocumentation extracts documentation from a simple type
+func (g *Generator) getSimpleTypeDocumentation(simpleType *xsd.SimpleType) string {
+	if simpleType.Annotation != nil && len(simpleType.Annotation.Documentation) > 0 {
+		return normalizeDocumentation(simpleType.Annotation.Documentation[0].Content)
+	}
+	return ""
+}
+
+// getSimpleTypeRestrictions extracts restrictions from a simple type
+func (g *Generator) getSimpleTypeRestrictions(simpleType *xsd.SimpleType) []typeRestriction {
+	var restrictions []typeRestriction
+
+	if simpleType.Restriction == nil {
+		return restrictions
+	}
+
+	// Handle enumerations
+	for _, enum := range simpleType.Restriction.Enumerations {
+		restrictions = append(restrictions, typeRestriction{
+			Type:  "enumeration",
+			Value: enum.Value,
+		})
+	}
+
+	// Handle patterns
+	for _, pattern := range simpleType.Restriction.Patterns {
+		restrictions = append(restrictions, typeRestriction{
+			Type:  "pattern",
+			Value: pattern.Value,
+		})
+	}
+
+	// Handle length constraints
+	if simpleType.Restriction.MinLength != nil {
+		restrictions = append(restrictions, typeRestriction{
+			Type:  "minLength",
+			Value: simpleType.Restriction.MinLength.Value,
+		})
+	}
+	if simpleType.Restriction.MaxLength != nil {
+		restrictions = append(restrictions, typeRestriction{
+			Type:  "maxLength",
+			Value: simpleType.Restriction.MaxLength.Value,
+		})
+	}
+
+	return restrictions
+}
+
+// getComplexTypeDocumentation extracts documentation from a complex type
+func (g *Generator) getComplexTypeDocumentation(complexType *xsd.ComplexType) string {
+	if complexType.Annotation != nil && len(complexType.Annotation.Documentation) > 0 {
+		return normalizeDocumentation(complexType.Annotation.Documentation[0].Content)
+	}
+	return ""
+}
+
+// getComplexTypeStructure provides a brief description of the complex type structure
+func (g *Generator) getComplexTypeStructure(complexType *xsd.ComplexType) string {
+	var parts []string
+
+	if complexType.Sequence != nil {
+		elementCount := len(complexType.Sequence.Elements)
+		if elementCount > 0 {
+			parts = append(parts, fmt.Sprintf("%d elements", elementCount))
+		}
+	}
+
+	if complexType.Choice != nil {
+		elementCount := len(complexType.Choice.Elements)
+		if elementCount > 0 {
+			parts = append(parts, fmt.Sprintf("choice of %d elements", elementCount))
+		}
+	}
+
+	attributeCount := len(complexType.Attributes)
+	if attributeCount > 0 {
+		parts = append(parts, fmt.Sprintf("%d attributes", attributeCount))
+	}
+
+	if len(parts) == 0 {
+		return "Complex structure"
+	}
+
+	return strings.Join(parts, ", ")
+}
+
+// generateSimpleTypeDoc generates documentation for a single simple type
+func (g *Generator) generateSimpleTypeDoc(simpleType *customSimpleType) {
+	g.output.P("#### ", simpleType.Name)
+	g.output.P()
+
+	if simpleType.BaseType != "" {
+		g.output.P("**Base Type:** `", simpleType.BaseType, "`")
+		g.output.P()
+	}
+
+	if simpleType.Documentation != "" {
+		g.output.P(simpleType.Documentation)
+		g.output.P()
+	}
+
+	// Document restrictions
+	if len(simpleType.Restrictions) > 0 {
+		// Group restrictions by type
+		enums := []typeRestriction{}
+		patterns := []typeRestriction{}
+		lengths := []typeRestriction{}
+
+		for _, restriction := range simpleType.Restrictions {
+			switch restriction.Type {
+			case "enumeration":
+				enums = append(enums, restriction)
+			case "pattern":
+				patterns = append(patterns, restriction)
+			case "minLength", "maxLength":
+				lengths = append(lengths, restriction)
+			}
+		}
+
+		if len(enums) > 0 {
+			g.output.P("**Allowed Values:**")
+			for _, enum := range enums {
+				g.output.P("- `", enum.Value, "`")
+			}
+			g.output.P()
+		}
+
+		if len(patterns) > 0 {
+			g.output.P("**Pattern:**")
+			for _, pattern := range patterns {
+				g.output.P("- `", pattern.Value, "`")
+			}
+			g.output.P()
+		}
+
+		if len(lengths) > 0 {
+			g.output.P("**Length Constraints:**")
+			for _, length := range lengths {
+				g.output.P("- ", length.Type, ": ", length.Value)
+			}
+			g.output.P()
+		}
+	}
+
+	g.output.P()
+}
+
+// generateComplexTypeDoc generates documentation for a single complex type
+func (g *Generator) generateComplexTypeDoc(complexType *customComplexType) {
+	g.output.P("#### ", complexType.Name)
+	g.output.P()
+
+	g.output.P("**Structure:** ", complexType.Structure)
+	g.output.P()
+
+	if complexType.Documentation != "" {
+		g.output.P(complexType.Documentation)
+		g.output.P()
+	}
+
+	g.output.P()
 }
