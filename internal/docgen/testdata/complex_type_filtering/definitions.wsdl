@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:tns="http://example.com/complexfiltering"
+    targetNamespace="http://example.com/complexfiltering">
+
+    <types>
+        <xs:schema targetNamespace="http://example.com/complexfiltering"
+            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            elementFormDefault="qualified">
+
+            <!-- Complex type WITH documentation - should appear -->
+            <xs:complexType name="DocumentedType">
+                <xs:annotation>
+                    <xs:documentation>This type has documentation and should appear in Custom Types
+                        section</xs:documentation>
+                </xs:annotation>
+                <xs:sequence>
+                    <xs:element name="field1" type="xs:string" />
+                </xs:sequence>
+            </xs:complexType>
+
+            <!-- Complex type WITHOUT documentation - should NOT appear -->
+            <xs:complexType name="UndocumentedType">
+                <xs:sequence>
+                    <xs:element name="field1" type="xs:string" />
+                </xs:sequence>
+            </xs:complexType>
+
+            <!-- Another complex type WITHOUT documentation - should NOT appear -->
+            <xs:complexType name="AnotherUndocumentedType">
+                <xs:sequence>
+                    <xs:element name="field1" type="xs:string" />
+                    <xs:element name="field2" type="xs:int" />
+                </xs:sequence>
+                <xs:attribute name="attr1" type="xs:string" />
+            </xs:complexType>
+
+            <!-- Simple type WITHOUT documentation - should NOT appear in Simple Types -->
+            <xs:simpleType name="UndocumentedSimpleType">
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="VALUE1" />
+                    <xs:enumeration value="VALUE2" />
+                </xs:restriction>
+            </xs:simpleType>
+
+            <!-- Simple type WITH documentation - should appear -->
+            <xs:simpleType name="DocumentedSimpleType">
+                <xs:annotation>
+                    <xs:documentation>This simple type has documentation</xs:documentation>
+                </xs:annotation>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="OPTION1" />
+                    <xs:enumeration value="OPTION2" />
+                </xs:restriction>
+            </xs:simpleType>
+
+            <xs:element name="TestRequest">
+                <xs:complexType>
+                    <xs:sequence>
+                        <!-- This should reference the documented types -->
+                        <xs:element name="DocumentedField" type="tns:DocumentedType" />
+                        <xs:element name="UndocumentedField" type="tns:UndocumentedType" />
+                        <xs:element name="SimpleField" type="tns:DocumentedSimpleType" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="TestResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="Success" type="xs:boolean" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+        </xs:schema>
+    </types>
+
+    <message name="TestRequest">
+        <part name="parameters" element="tns:TestRequest" />
+    </message>
+
+    <message name="TestResponse">
+        <part name="parameters" element="tns:TestResponse" />
+    </message>
+
+    <portType name="FilteringPortType">
+        <operation name="TestFiltering">
+            <documentation>Tests complex type filtering based on documentation</documentation>
+            <input message="tns:TestRequest" />
+            <output message="tns:TestResponse" />
+        </operation>
+    </portType>
+
+    <binding name="FilteringBinding" type="tns:FilteringPortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+        <operation name="TestFiltering">
+            <soap:operation soapAction="http://example.com/complexfiltering/TestFiltering" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+        </operation>
+    </binding>
+
+    <service name="FilteringService">
+        <documentation>Service for testing complex type filtering</documentation>
+        <port name="FilteringPort" binding="tns:FilteringBinding">
+            <soap:address location="http://example.com/complexfiltering" />
+        </port>
+    </service>
+
+</definitions>

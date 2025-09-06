@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:tns="http://example.com/inlinetypes"
+    targetNamespace="http://example.com/inlinetypes">
+
+    <types>
+        <xs:schema targetNamespace="http://example.com/inlinetypes"
+            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            elementFormDefault="qualified">
+
+            <!-- Named simple type for hyperlink testing -->
+            <xs:simpleType name="NamedStatusType">
+                <xs:annotation>
+                    <xs:documentation>A named status type for testing hyperlinks</xs:documentation>
+                </xs:annotation>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="ACTIVE" />
+                    <xs:enumeration value="INACTIVE" />
+                </xs:restriction>
+            </xs:simpleType>
+
+            <!-- Complex type WITH documentation (should appear in Custom Types) -->
+            <xs:complexType name="DocumentedComplexType">
+                <xs:annotation>
+                    <xs:documentation>This complex type has documentation and should appear in the
+                        Custom Types section</xs:documentation>
+                </xs:annotation>
+                <xs:sequence>
+                    <xs:element name="field1" type="xs:string" />
+                </xs:sequence>
+            </xs:complexType>
+
+            <!-- Complex type WITHOUT documentation (should NOT appear in Custom Types) -->
+            <xs:complexType name="UndocumentedComplexType">
+                <xs:sequence>
+                    <xs:element name="field1" type="xs:string" />
+                </xs:sequence>
+            </xs:complexType>
+
+            <!-- Test request with inline simple types -->
+            <xs:element name="TestInlineTypesRequest">
+                <xs:complexType>
+                    <xs:sequence>
+                        <!-- Inline enum with documentation -->
+                        <xs:element name="Priority">
+                            <xs:annotation>
+                                <xs:documentation>Priority level for the request</xs:documentation>
+                            </xs:annotation>
+                            <xs:simpleType>
+                                <xs:restriction base="xs:string">
+                                    <xs:enumeration value="HIGH" />
+                                    <xs:enumeration value="MEDIUM" />
+                                    <xs:enumeration value="LOW" />
+                                </xs:restriction>
+                            </xs:simpleType>
+                        </xs:element>
+
+                        <!-- Inline enum without documentation -->
+                        <xs:element name="Category">
+                            <xs:simpleType>
+                                <xs:restriction base="xs:string">
+                                    <xs:enumeration value="URGENT" />
+                                    <xs:enumeration value="NORMAL" />
+                                </xs:restriction>
+                            </xs:simpleType>
+                        </xs:element>
+
+                        <!-- Inline type with pattern -->
+                        <xs:element name="Code">
+                            <xs:simpleType>
+                                <xs:restriction base="xs:string">
+                                    <xs:pattern value="[A-Z]{2}-[0-9]{4}" />
+                                </xs:restriction>
+                            </xs:simpleType>
+                        </xs:element>
+
+                        <!-- Inline type with length constraints -->
+                        <xs:element name="ShortText">
+                            <xs:simpleType>
+                                <xs:restriction base="xs:string">
+                                    <xs:minLength value="1" />
+                                    <xs:maxLength value="50" />
+                                </xs:restriction>
+                            </xs:simpleType>
+                        </xs:element>
+
+                        <!-- Duplicate inline enum (should be deduplicated) -->
+                        <xs:element name="SecondPriority">
+                            <xs:simpleType>
+                                <xs:restriction base="xs:string">
+                                    <xs:enumeration value="HIGH" />
+                                    <xs:enumeration value="MEDIUM" />
+                                    <xs:enumeration value="LOW" />
+                                </xs:restriction>
+                            </xs:simpleType>
+                        </xs:element>
+
+                        <!-- Reference to named type (should be hyperlinked) -->
+                        <xs:element name="Status" type="tns:NamedStatusType" />
+
+                        <!-- Reference to complex type -->
+                        <xs:element name="Details" type="tns:DocumentedComplexType" />
+
+                        <!-- Built-in type (should NOT be hyperlinked) -->
+                        <xs:element name="Description" type="xs:string" />
+                    </xs:sequence>
+
+                    <!-- Attribute with inline type -->
+                    <xs:attribute name="Version">
+                        <xs:simpleType>
+                            <xs:restriction base="xs:string">
+                                <xs:enumeration value="1.0" />
+                                <xs:enumeration value="2.0" />
+                            </xs:restriction>
+                        </xs:simpleType>
+                    </xs:attribute>
+
+                    <!-- Attribute referencing named type -->
+                    <xs:attribute name="RequestStatus" type="tns:NamedStatusType" />
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="TestInlineTypesResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="Success" type="xs:boolean" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+        </xs:schema>
+    </types>
+
+    <message name="TestInlineTypesRequest">
+        <part name="parameters" element="tns:TestInlineTypesRequest" />
+    </message>
+
+    <message name="TestInlineTypesResponse">
+        <part name="parameters" element="tns:TestInlineTypesResponse" />
+    </message>
+
+    <portType name="InlineTypesPortType">
+        <operation name="TestInlineTypes">
+            <documentation>Tests inline simple types and hyperlink generation</documentation>
+            <input message="tns:TestInlineTypesRequest" />
+            <output message="tns:TestInlineTypesResponse" />
+        </operation>
+    </portType>
+
+    <binding name="InlineTypesBinding" type="tns:InlineTypesPortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+        <operation name="TestInlineTypes">
+            <soap:operation soapAction="http://example.com/inlinetypes/TestInlineTypes" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+        </operation>
+    </binding>
+
+    <service name="InlineTypesService">
+        <documentation>Service for testing inline simple types and hyperlinks</documentation>
+        <port name="InlineTypesPort" binding="tns:InlineTypesBinding">
+            <soap:address location="http://example.com/inlinetypes" />
+        </port>
+    </service>
+
+</definitions>

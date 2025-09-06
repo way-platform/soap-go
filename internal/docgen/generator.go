@@ -2,6 +2,7 @@ package docgen
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"golang.org/x/text/cases"
@@ -14,15 +15,27 @@ import (
 
 // Generator generates Markdown documentation from WSDL definitions.
 type Generator struct {
-	definitions *wsdl.Definitions
-	output      *codegen.File
+	definitions       *wsdl.Definitions
+	output            *codegen.File
+	filename          string
+	inlineSimpleTypes map[string]*inlineSimpleTypeInfo // Track inline simple types by element path
+}
+
+// inlineSimpleTypeInfo holds information about an inline simple type
+type inlineSimpleTypeInfo struct {
+	ElementPath   string
+	ElementName   string
+	SimpleType    *xsd.SimpleType
+	Documentation string
 }
 
 // NewGenerator creates a new [Generator] for the given WSDL definitions.
 func NewGenerator(filename string, definitions *wsdl.Definitions) *Generator {
 	return &Generator{
-		definitions: definitions,
-		output:      codegen.NewFile(filename),
+		definitions:       definitions,
+		output:            codegen.NewFile(filename),
+		filename:          filename,
+		inlineSimpleTypes: make(map[string]*inlineSimpleTypeInfo),
 	}
 }
 
@@ -70,9 +83,12 @@ func (g *Generator) generateMarkdown() error {
 	g.output.P("## Operations")
 	g.output.P()
 
+	// Build initial custom types map for hyperlinking
+	customTypesMap := g.buildCustomTypesMap()
+
 	// Generate documentation for each service
 	for _, service := range doc.Service {
-		if err := g.generateServiceDoc(&service, schemaMap); err != nil {
+		if err := g.generateServiceDoc(&service, schemaMap, customTypesMap); err != nil {
 			return err
 		}
 	}
@@ -235,6 +251,37 @@ func (g *Generator) buildSchemaMap() map[string]*xsd.Element {
 	return schemaMap
 }
 
+// buildCustomTypesMap creates a map of custom type names for hyperlinking
+func (g *Generator) buildCustomTypesMap() map[string]bool {
+	customTypes := make(map[string]bool)
+	doc := g.definitions
+
+	if doc.Types == nil {
+		return customTypes
+	}
+
+	// Collect all custom types from all schemas
+	for _, schema := range doc.Types.Schemas {
+		// Collect simple types
+		for i := range schema.SimpleTypes {
+			simpleType := &schema.SimpleTypes[i]
+			if simpleType.Name != "" {
+				customTypes[simpleType.Name] = true
+			}
+		}
+
+		// Collect complex types
+		for i := range schema.ComplexTypes {
+			complexType := &schema.ComplexTypes[i]
+			if complexType.Name != "" {
+				customTypes[complexType.Name] = true
+			}
+		}
+	}
+
+	return customTypes
+}
+
 // normalizeDocumentation normalizes whitespace in documentation strings
 // by trimming leading/trailing whitespace and replacing any sequence of
 // whitespace characters (including newlines) with a single space
@@ -243,7 +290,7 @@ func normalizeDocumentation(doc string) string {
 }
 
 // generateServiceDoc generates documentation for a single service
-func (g *Generator) generateServiceDoc(service *wsdl.Service, schemaMap map[string]*xsd.Element) error {
+func (g *Generator) generateServiceDoc(service *wsdl.Service, schemaMap map[string]*xsd.Element, customTypesMap map[string]bool) error {
 	// Find the corresponding PortType for this service
 	portType := g.findPortTypeForService(service)
 
@@ -255,7 +302,7 @@ func (g *Generator) generateServiceDoc(service *wsdl.Service, schemaMap map[stri
 
 	// Generate documentation for each operation
 	for _, operation := range portType.Operations {
-		if err := g.generateOperationDoc(&operation, service, schemaMap); err != nil {
+		if err := g.generateOperationDoc(&operation, service, schemaMap, customTypesMap); err != nil {
 			return err
 		}
 	}
@@ -264,7 +311,7 @@ func (g *Generator) generateServiceDoc(service *wsdl.Service, schemaMap map[stri
 }
 
 // generateOperationDoc generates documentation for a single operation
-func (g *Generator) generateOperationDoc(operation *wsdl.Operation, service *wsdl.Service, schemaMap map[string]*xsd.Element) error {
+func (g *Generator) generateOperationDoc(operation *wsdl.Operation, service *wsdl.Service, schemaMap map[string]*xsd.Element, customTypesMap map[string]bool) error {
 	// Create GitHub-compatible anchor for the operation
 	g.output.P("### ", operation.Name)
 	g.output.P()
@@ -284,14 +331,14 @@ func (g *Generator) generateOperationDoc(operation *wsdl.Operation, service *wsd
 
 	// Generate request documentation
 	if operation.Input != nil {
-		if err := g.generateMessageDoc("Request", operation.Input.Message, schemaMap); err != nil {
+		if err := g.generateMessageDoc("Request", operation.Input.Message, schemaMap, customTypesMap); err != nil {
 			return err
 		}
 	}
 
 	// Generate response documentation
 	if operation.Output != nil {
-		if err := g.generateMessageDoc("Response", operation.Output.Message, schemaMap); err != nil {
+		if err := g.generateMessageDoc("Response", operation.Output.Message, schemaMap, customTypesMap); err != nil {
 			return err
 		}
 	}
@@ -337,7 +384,7 @@ func (g *Generator) getSOAPActionForOperation(operationName string, service *wsd
 }
 
 // generateMessageDoc generates documentation for a request or response message
-func (g *Generator) generateMessageDoc(messageType, messageName string, schemaMap map[string]*xsd.Element) error {
+func (g *Generator) generateMessageDoc(messageType, messageName string, schemaMap map[string]*xsd.Element, customTypesMap map[string]bool) error {
 	doc := g.definitions
 
 	g.output.P("#### ", messageType)
@@ -402,7 +449,7 @@ func (g *Generator) generateMessageDoc(messageType, messageName string, schemaMa
 
 	// Generate table if we have fields
 	if len(fields) > 0 {
-		g.generateHierarchicalFieldsTable(fields)
+		g.generateHierarchicalFieldsTable(fields, customTypesMap)
 	} else {
 		g.output.P("*No fields defined.*")
 	}
@@ -412,7 +459,7 @@ func (g *Generator) generateMessageDoc(messageType, messageName string, schemaMa
 }
 
 // generateHierarchicalFieldsTable generates a table with hierarchical field display
-func (g *Generator) generateHierarchicalFieldsTable(fields []fieldInfo) {
+func (g *Generator) generateHierarchicalFieldsTable(fields []fieldInfo, customTypesMap map[string]bool) {
 	g.output.P("| Field | Type | Required | Description |")
 	g.output.P("|-------|------|----------|-------------|")
 
@@ -420,11 +467,78 @@ func (g *Generator) generateHierarchicalFieldsTable(fields []fieldInfo) {
 	for _, field := range fields {
 		desc := field.Description
 		// Leave description empty if not available instead of showing "-"
-		
+
 		// Create indented name with XML-style tags
 		indentedName := g.getIndentedFieldName(field, field.Level)
-		g.output.P("| ", indentedName, " | ", field.Type, " | ", field.Required, " | ", desc, " |")
+
+		// Convert type to hyperlink if it's a custom type
+		typeDisplay := g.formatTypeWithHyperlink(field.Type, customTypesMap)
+
+		g.output.P("| ", indentedName, " | ", typeDisplay, " | ", field.Required, " | ", desc, " |")
 	}
+}
+
+// formatTypeWithHyperlink converts a type name to a hyperlink if it's a custom type
+func (g *Generator) formatTypeWithHyperlink(typeName string, customTypesMap map[string]bool) string {
+	// Handle empty type names or nil map (first pass)
+	if typeName == "" || customTypesMap == nil {
+		return typeName
+	}
+
+	// Check for attribute suffix and extract the base type
+	var attributeSuffix string
+	actualTypeName := typeName
+	if strings.HasSuffix(typeName, " (attribute)") {
+		attributeSuffix = " (attribute)"
+		actualTypeName = strings.TrimSuffix(typeName, attributeSuffix)
+	}
+
+	// Check if this is a namespaced type (e.g., "tp:sessionidType")
+	var baseTypeName string
+	var prefix string
+
+	if colonIndex := strings.Index(actualTypeName, ":"); colonIndex >= 0 {
+		prefix = actualTypeName[:colonIndex+1] // Include the colon
+		baseTypeName = actualTypeName[colonIndex+1:]
+	} else {
+		baseTypeName = actualTypeName
+	}
+
+	// Skip built-in XML Schema types
+	if prefix == "xs:" || prefix == "xsd:" {
+		return typeName
+	}
+
+	// Check if this is a custom type (named type or inline type)
+	isCustomType := customTypesMap[baseTypeName]
+
+	// Also check if this matches an inline type
+	if !isCustomType {
+		// Check if baseTypeName ends with " (inline)" and we have that inline type
+		if strings.HasSuffix(baseTypeName, " (inline)") {
+			elementName := strings.TrimSuffix(baseTypeName, " (inline)")
+			for _, inlineType := range g.inlineSimpleTypes {
+				if inlineType.ElementName == elementName {
+					isCustomType = true
+					break
+				}
+			}
+		}
+	}
+
+	if isCustomType {
+		// Generate GitHub-compatible anchor (lowercase, replace spaces with hyphens, remove parentheses)
+		anchor := strings.ToLower(baseTypeName)
+		anchor = strings.ReplaceAll(anchor, " ", "-")
+		anchor = strings.ReplaceAll(anchor, "(", "")
+		anchor = strings.ReplaceAll(anchor, ")", "")
+
+		// Create markdown link with original formatting, preserving attribute suffix
+		return fmt.Sprintf("[%s](#%s)%s", actualTypeName, anchor, attributeSuffix)
+	}
+
+	// Return original type name if not custom
+	return typeName
 }
 
 // buildFieldTree builds a hierarchical tree structure from flat field list
@@ -573,6 +687,34 @@ func (g *Generator) collectElementFieldsWithSchema(element *xsd.Element, prefix 
 		return
 	}
 
+	// Handle inline simple types
+	if element.SimpleType != nil {
+		fieldType := g.deriveTypeFromInlineSimpleType(element.SimpleType)
+
+		// Store inline simple type for later documentation
+		if g.shouldDocumentInlineType(element.SimpleType) {
+			typeKey := g.generateInlineTypeKey(fieldName, element.Name)
+			g.inlineSimpleTypes[typeKey] = &inlineSimpleTypeInfo{
+				ElementPath:   fieldName,
+				ElementName:   element.Name,
+				SimpleType:    element.SimpleType,
+				Documentation: g.extractElementDocumentation(element),
+			}
+			// Use the element name as the type so it can be hyperlinked
+			fieldType = element.Name + " (inline)"
+		}
+
+		*fields = append(*fields, fieldInfo{
+			Name:        fieldName,
+			Type:        fieldType,
+			Required:    required,
+			Description: "",
+			Level:       level,
+			IsAttribute: false,
+		})
+		return
+	}
+
 	// Handle type references
 	if element.Type != "" {
 		fieldType := element.Type
@@ -681,6 +823,96 @@ func (g *Generator) collectElementFieldsWithSchema(element *xsd.Element, prefix 
 		Level:       level,
 		IsAttribute: false,
 	})
+}
+
+// shouldDocumentInlineType determines if an inline simple type should be documented
+func (g *Generator) shouldDocumentInlineType(simpleType *xsd.SimpleType) bool {
+	// Document if it has enumerations, patterns, or other interesting constraints
+	if simpleType.Restriction != nil {
+		return len(simpleType.Restriction.Enumerations) > 0 ||
+			len(simpleType.Restriction.Patterns) > 0 ||
+			simpleType.Restriction.MinLength != nil ||
+			simpleType.Restriction.MaxLength != nil ||
+			simpleType.Restriction.MinInclusive != nil ||
+			simpleType.Restriction.MaxInclusive != nil
+	}
+	// Also document list and union types
+	return simpleType.List != nil || simpleType.Union != nil
+}
+
+// generateInlineTypeKey generates a unique key for an inline simple type
+func (g *Generator) generateInlineTypeKey(fieldName, elementName string) string {
+	return fmt.Sprintf("%s::%s", fieldName, elementName)
+}
+
+// extractElementDocumentation extracts documentation from an element
+func (g *Generator) extractElementDocumentation(element *xsd.Element) string {
+	if element.Annotation != nil && len(element.Annotation.Documentation) > 0 {
+		return normalizeDocumentation(element.Annotation.Documentation[0].Content)
+	}
+	return ""
+}
+
+// createInlineTypeDedupeKey creates a deduplication key for inline simple types
+func (g *Generator) createInlineTypeDedupeKey(inlineType *inlineSimpleTypeInfo) string {
+	// Create a key based on element name, base type, and restrictions
+	baseType := g.getSimpleTypeBase(inlineType.SimpleType)
+	restrictions := g.getSimpleTypeRestrictions(inlineType.SimpleType)
+
+	// Create a signature from restrictions
+	var restrictionSig strings.Builder
+	for _, restriction := range restrictions {
+		restrictionSig.WriteString(fmt.Sprintf("%s:%s;", restriction.Type, restriction.Value))
+	}
+
+	return fmt.Sprintf("%s::%s::%s", inlineType.ElementName, baseType, restrictionSig.String())
+}
+
+// deriveTypeFromInlineSimpleType derives a type description from an inline simple type
+func (g *Generator) deriveTypeFromInlineSimpleType(simpleType *xsd.SimpleType) string {
+	if simpleType.Restriction != nil {
+		// Start with the base type
+		baseType := simpleType.Restriction.Base
+		if baseType == "" {
+			baseType = "string" // Default fallback
+		}
+
+		// If there are enumerations, it's an enum type
+		if len(simpleType.Restriction.Enumerations) > 0 {
+			return baseType + " (enum)"
+		}
+
+		// If there are patterns, it's a constrained type
+		if len(simpleType.Restriction.Patterns) > 0 {
+			return baseType + " (pattern)"
+		}
+
+		// If there are other constraints, it's a restricted type
+		if simpleType.Restriction.MinInclusive != nil || simpleType.Restriction.MaxInclusive != nil ||
+			simpleType.Restriction.MinLength != nil || simpleType.Restriction.MaxLength != nil {
+			return baseType + " (restricted)"
+		}
+
+		// Otherwise, just use the base type
+		return baseType
+	}
+
+	// Handle list types
+	if simpleType.List != nil {
+		itemType := simpleType.List.ItemType
+		if itemType == "" {
+			itemType = "string"
+		}
+		return itemType + " (list)"
+	}
+
+	// Handle union types
+	if simpleType.Union != nil {
+		return "union"
+	}
+
+	// Fallback
+	return "string"
 }
 
 // findComplexTypeByName finds a complex type definition by name across all schemas
@@ -799,19 +1031,48 @@ func (g *Generator) generateCustomTypesSection() error {
 			}
 		}
 
-		// Collect complex types
+		// Collect complex types (only those with documentation)
 		for i := range schema.ComplexTypes {
 			complexType := &schema.ComplexTypes[i]
 			if complexType.Name != "" {
-				customType := customComplexType{
-					Name:          complexType.Name,
-					Documentation: g.getComplexTypeDocumentation(complexType),
-					Structure:     g.getComplexTypeStructure(complexType),
+				documentation := g.getComplexTypeDocumentation(complexType)
+				// Only include complex types that have actual documentation
+				if documentation != "" {
+					customType := customComplexType{
+						Name:          complexType.Name,
+						Documentation: documentation,
+					}
+					complexTypes = append(complexTypes, customType)
 				}
-				complexTypes = append(complexTypes, customType)
 			}
 		}
 	}
+
+	// Collect inline simple types (deduplicate and sort by element name)
+	inlineTypesSeen := make(map[string]bool)
+	var inlineTypes []customSimpleType
+	for _, inlineType := range g.inlineSimpleTypes {
+		// Create a deduplication key based on element name and restrictions
+		dedupeKey := g.createInlineTypeDedupeKey(inlineType)
+		if !inlineTypesSeen[dedupeKey] {
+			customType := customSimpleType{
+				Name:          inlineType.ElementName + " (inline)",
+				BaseType:      g.getSimpleTypeBase(inlineType.SimpleType),
+				Documentation: inlineType.Documentation,
+				Restrictions:  g.getSimpleTypeRestrictions(inlineType.SimpleType),
+			}
+			inlineTypes = append(inlineTypes, customType)
+			inlineTypesSeen[dedupeKey] = true
+		}
+	}
+
+	// Sort inline types by name for consistent output
+	sort.Slice(inlineTypes, func(i, j int) bool {
+		return inlineTypes[i].Name < inlineTypes[j].Name
+	})
+
+	// Add sorted inline types to simpleTypes
+	simpleTypes = append(simpleTypes, inlineTypes...)
 
 	// Only generate the section if we have custom types
 	if len(simpleTypes) == 0 && len(complexTypes) == 0 {
@@ -854,7 +1115,6 @@ type customSimpleType struct {
 type customComplexType struct {
 	Name          string
 	Documentation string
-	Structure     string
 }
 
 type typeRestriction struct {
@@ -933,39 +1193,9 @@ func (g *Generator) getComplexTypeDocumentation(complexType *xsd.ComplexType) st
 	return ""
 }
 
-// getComplexTypeStructure provides a brief description of the complex type structure
-func (g *Generator) getComplexTypeStructure(complexType *xsd.ComplexType) string {
-	var parts []string
-
-	if complexType.Sequence != nil {
-		elementCount := len(complexType.Sequence.Elements)
-		if elementCount > 0 {
-			parts = append(parts, fmt.Sprintf("%d elements", elementCount))
-		}
-	}
-
-	if complexType.Choice != nil {
-		elementCount := len(complexType.Choice.Elements)
-		if elementCount > 0 {
-			parts = append(parts, fmt.Sprintf("choice of %d elements", elementCount))
-		}
-	}
-
-	attributeCount := len(complexType.Attributes)
-	if attributeCount > 0 {
-		parts = append(parts, fmt.Sprintf("%d attributes", attributeCount))
-	}
-
-	if len(parts) == 0 {
-		return "Complex structure"
-	}
-
-	return strings.Join(parts, ", ")
-}
-
 // generateSimpleTypeDoc generates documentation for a single simple type
 func (g *Generator) generateSimpleTypeDoc(simpleType *customSimpleType) {
-	g.output.P("#### ", simpleType.Name)
+	g.output.P("#### `", simpleType.Name, "`")
 	g.output.P()
 
 	if simpleType.BaseType != "" {
@@ -1026,10 +1256,7 @@ func (g *Generator) generateSimpleTypeDoc(simpleType *customSimpleType) {
 
 // generateComplexTypeDoc generates documentation for a single complex type
 func (g *Generator) generateComplexTypeDoc(complexType *customComplexType) {
-	g.output.P("#### ", complexType.Name)
-	g.output.P()
-
-	g.output.P("**Structure:** ", complexType.Structure)
+	g.output.P("#### `", complexType.Name, "`")
 	g.output.P()
 
 	if complexType.Documentation != "" {

@@ -114,19 +114,3 @@ Service for managing person information with element references
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<phone>` | xs:string | No |  |
 
 
-## Custom Types
-
-This section documents the custom data types defined in the schema.
-
-### Complex Types
-
-#### AddressType
-
-**Structure:** 4 elements, 1 attributes
-
-
-#### PersonType
-
-**Structure:** 3 elements, 1 attributes
-
-

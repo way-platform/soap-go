@@ -12,7 +12,7 @@ This section documents the custom data types defined in the schema.
 
 ### Simple Types
 
-#### StatusType
+#### `StatusType`
 
 **Base Type:** `string`
 
@@ -22,7 +22,7 @@ This section documents the custom data types defined in the schema.
 - `PENDING`
 
 
-#### PriorityType
+#### `PriorityType`
 
 **Base Type:** `int`
 
@@ -32,23 +32,11 @@ This section documents the custom data types defined in the schema.
 - `3`
 
 
-#### UserIdType
+#### `UserIdType`
 
 **Base Type:** `long`
 
 **Pattern:**
 - `[0-9]+`
-
-
-### Complex Types
-
-#### AddressType
-
-**Structure:** 3 elements, 2 attributes
-
-
-#### UserInfoType
-
-**Structure:** 3 elements
 
 
