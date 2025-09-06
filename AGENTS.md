@@ -31,7 +31,7 @@ When developing this SDK, use the WSDL and SOAP specifications in [docs](./docs)
 
 - When fixing issues in the code generator, add tests in [internal/soapgen/golden_test.go](./internal/soapgen/golden_test.go).
 
-- When fixing issues in how the the generated code parses raw XML, add tests in [examples/examples_test.go](./examples/examples_test.go).
+- When fixing issues in how the generated code parses raw XML, add tests in [internal/soapgen/comprehensive_parsing_test.go](./internal/soapgen/comprehensive_parsing_test.go) or [internal/soapgen/integration_test.go](./internal/soapgen/integration_test.go).
 
 - Golden files are updated by running `go test` with the `-update` flag.
 

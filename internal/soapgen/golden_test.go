@@ -154,6 +154,11 @@ func runGoldenTest(t *testing.T, tc testCase) {
 	if err := compareWithGolden(t, tc.dir, generatedFiles); err != nil {
 		t.Error(err)
 	}
+
+	// Run additional validation on the generated code
+	if err := validateGeneratedCode(t, tc, generatedFiles); err != nil {
+		t.Error(err)
+	}
 }
 
 func updateGoldenFiles(dir string, generatedFiles map[string]string) error {
@@ -214,6 +219,128 @@ func compareWithGolden(t *testing.T, dir string, generatedFiles map[string]strin
 	// Compare the maps using cmp.Diff
 	if diff := cmp.Diff(goldenFiles, generatedFiles); diff != "" {
 		return fmt.Errorf("golden files mismatch (-golden +generated):\n%s", diff)
+	}
+
+	return nil
+}
+
+// validateGeneratedCode performs additional validation on the generated code
+func validateGeneratedCode(t *testing.T, tc testCase, generatedFiles map[string]string) error {
+	// Skip validation for error test cases
+	if tc.errorFile != "" {
+		return nil
+	}
+
+	// Validate that the generated code compiles and contains expected elements
+	for filename, content := range generatedFiles {
+		if err := validateGoFileContent(t, tc.name, filename, content); err != nil {
+			return fmt.Errorf("validation failed for %s: %w", filename, err)
+		}
+	}
+
+	return nil
+}
+
+// validateGoFileContent validates the content of a generated Go file
+func validateGoFileContent(t *testing.T, testCaseName, filename, content string) error {
+	// Basic syntax validation - check that the file has proper Go syntax
+	if !strings.HasPrefix(content, "package "+testCaseName) {
+		return fmt.Errorf("file %s does not start with correct package declaration", filename)
+	}
+
+	// Check for required imports
+	if strings.Contains(content, "xml.Name") && !strings.Contains(content, `"encoding/xml"`) {
+		return fmt.Errorf("file %s uses xml.Name but doesn't import encoding/xml", filename)
+	}
+
+	// Validate struct definitions have proper XML tags
+	if err := validateXMLTags(content); err != nil {
+		return fmt.Errorf("XML tag validation failed in %s: %w", filename, err)
+	}
+
+	// Validate enumeration types if present
+	if err := validateEnumerations(content); err != nil {
+		return fmt.Errorf("enumeration validation failed in %s: %w", filename, err)
+	}
+
+	// Test that XMLName fields are properly configured
+	if err := validateXMLNameFields(content); err != nil {
+		return fmt.Errorf("XMLName field validation failed in %s: %w", filename, err)
+	}
+
+	return nil
+}
+
+// validateXMLTags checks that XML tags are properly formatted
+func validateXMLTags(content string) error {
+	lines := strings.Split(content, "\n")
+
+	for i, line := range lines {
+		trimmed := strings.TrimSpace(line)
+
+		// Look for struct fields with xml tags
+		if strings.Contains(trimmed, "`xml:") {
+			// Basic validation - ensure tag is properly quoted
+			if !strings.Contains(trimmed, "`xml:\"") || !strings.HasSuffix(trimmed, "\"`") {
+				return fmt.Errorf("malformed XML tag at line %d: %s", i+1, trimmed)
+			}
+		}
+	}
+
+	return nil
+}
+
+// validateEnumerations checks that enumeration types have proper methods
+func validateEnumerations(content string) error {
+	// Look for enumeration type definitions
+	lines := strings.Split(content, "\n")
+	var enumTypes []string
+
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmed, "type ") && strings.HasSuffix(trimmed, " string") {
+			// Extract type name
+			parts := strings.Fields(trimmed)
+			if len(parts) >= 2 {
+				typeName := parts[1]
+				if strings.HasSuffix(typeName, "Type") {
+					enumTypes = append(enumTypes, typeName)
+				}
+			}
+		}
+	}
+
+	// For each enum type, check that String() and IsValid() methods exist
+	for _, enumType := range enumTypes {
+		stringMethod := fmt.Sprintf("func (e %s) String() string", enumType)
+		isValidMethod := fmt.Sprintf("func (e %s) IsValid() bool", enumType)
+
+		if !strings.Contains(content, stringMethod) {
+			return fmt.Errorf("enumeration type %s missing String() method", enumType)
+		}
+
+		if !strings.Contains(content, isValidMethod) {
+			return fmt.Errorf("enumeration type %s missing IsValid() method", enumType)
+		}
+	}
+
+	return nil
+}
+
+// validateXMLNameFields checks that XMLName fields are properly configured
+func validateXMLNameFields(content string) error {
+	lines := strings.Split(content, "\n")
+
+	for i, line := range lines {
+		trimmed := strings.TrimSpace(line)
+
+		// Look for XMLName field declarations
+		if strings.Contains(trimmed, "XMLName") && strings.Contains(trimmed, "xml.Name") {
+			// Ensure it has proper xml tag
+			if !strings.Contains(trimmed, "`xml:\"") {
+				return fmt.Errorf("XMLName field at line %d missing xml tag: %s", i+1, trimmed)
+			}
+		}
 	}
 
 	return nil
