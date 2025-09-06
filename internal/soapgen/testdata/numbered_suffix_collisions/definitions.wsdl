@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://example.com/numbered-suffix-collisions"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://example.com/numbered-suffix-collisions">
+
+    <types>
+        <xsd:schema targetNamespace="http://example.com/numbered-suffix-collisions">
+
+            <!-- Extreme collision scenario: same base name with different cases -->
+            <!-- This will create: Request, RequestElement, RequestWrapper, RequestOperation -->
+            <!-- And if those are taken: Request1, Request2, etc. -->
+            <xsd:element name="Request" type="tns:RequestType" />
+            <xsd:element name="request" type="tns:RequestType" />
+            <xsd:element name="REQUEST" type="tns:RequestType" />
+            <xsd:element name="requestElement" type="tns:RequestType" />
+            <xsd:element name="requestWrapper" type="tns:RequestType" />
+            <xsd:element name="requestOperation" type="tns:RequestType" />
+            <xsd:element name="Request1" type="tns:RequestType" />
+            <xsd:element name="Request2" type="tns:RequestType" />
+
+            <!-- Another extreme collision scenario -->
+            <xsd:element name="Data" type="tns:DataType" />
+            <xsd:element name="data" type="tns:DataType" />
+            <xsd:element name="DATA" type="tns:DataType" />
+            <xsd:element name="dataElement" type="tns:DataType" />
+            <xsd:element name="dataWrapper" type="tns:DataType" />
+            <xsd:element name="dataOperation" type="tns:DataType" />
+            <xsd:element name="Data1" type="tns:DataType" />
+            <xsd:element name="Data2" type="tns:DataType" />
+            <xsd:element name="Data3" type="tns:DataType" />
+
+            <!-- Field-level collision scenario within a complex type -->
+            <xsd:complexType name="ExtremeCaseType">
+                <xsd:sequence>
+                    <!-- These elements will cause field name collisions -->
+                    <xsd:element name="Value" type="xsd:string" />
+                    <xsd:element name="value" type="xsd:string" />
+                    <xsd:element name="VALUE" type="xsd:string" />
+                    <xsd:element name="valueElem" type="xsd:string" />
+                    <xsd:element name="ValueElem" type="xsd:string" />
+                    <xsd:element name="ValueElem1" type="xsd:string" />
+                    <xsd:element name="Status" type="xsd:string" />
+                    <xsd:element name="status" type="xsd:string" />
+                    <xsd:element name="statusElem" type="xsd:string" />
+                    <xsd:element name="StatusElem" type="xsd:string" />
+                </xsd:sequence>
+                <!-- These attributes will cause field name collisions with elements -->
+                <xsd:attribute name="value" type="xsd:string" />      <!-- Collision with Value element -->
+                <xsd:attribute name="valueAttr" type="xsd:string" />  <!-- Might collide with
+                generated names -->
+                <xsd:attribute name="ValueAttr" type="xsd:string" />
+                <xsd:attribute name="ValueAttr1" type="xsd:string" />
+                <xsd:attribute name="status" type="xsd:string" />     <!-- Collision with Status element -->
+                <xsd:attribute name="statusAttr" type="xsd:string" />
+                <xsd:attribute name="StatusAttr" type="xsd:string" />
+            </xsd:complexType>
+
+            <xsd:complexType name="RequestType">
+                <xsd:sequence>
+                    <xsd:element name="id" type="xsd:string" />
+                    <xsd:element name="type" type="xsd:string" />
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <xsd:complexType name="DataType">
+                <xsd:sequence>
+                    <xsd:element name="content" type="xsd:string" />
+                    <xsd:element name="format" type="xsd:string" />
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <xsd:element name="ExtremeCaseElement" type="tns:ExtremeCaseType" />
+
+        </xsd:schema>
+    </types>
+
+    <!-- Messages that will create SOAP wrapper collisions -->
+    <message name="RequestMessage">
+        <part name="request" element="tns:Request" />
+    </message>
+
+    <message name="RequestLowerMessage">
+        <part name="request" element="tns:request" />
+    </message>
+
+    <message name="RequestUpperMessage">
+        <part name="request" element="tns:REQUEST" />
+    </message>
+
+    <message name="DataMessage">
+        <part name="data" element="tns:Data" />
+    </message>
+
+    <message name="DataLowerMessage">
+        <part name="data" element="tns:data" />
+    </message>
+
+    <message name="DataUpperMessage">
+        <part name="data" element="tns:DATA" />
+    </message>
+
+    <message name="ExtremeCaseMessage">
+        <part name="extremeCase" element="tns:ExtremeCaseElement" />
+    </message>
+
+    <portType name="NumberedSuffixPortType">
+        <!-- Operations that will create operation wrapper collisions -->
+        <operation name="ProcessRequest">
+            <input message="tns:RequestMessage" />
+        </operation>
+        <operation name="ProcessRequestLower">
+            <input message="tns:RequestLowerMessage" />
+        </operation>
+        <operation name="ProcessRequestUpper">
+            <input message="tns:RequestUpperMessage" />
+        </operation>
+        <operation name="ProcessData">
+            <input message="tns:DataMessage" />
+        </operation>
+        <operation name="ProcessDataLower">
+            <input message="tns:DataLowerMessage" />
+        </operation>
+        <operation name="ProcessDataUpper">
+            <input message="tns:DataUpperMessage" />
+        </operation>
+        <operation name="ProcessExtremeCase">
+            <input message="tns:ExtremeCaseMessage" />
+        </operation>
+        <!-- Additional operations to force more numbered suffixes -->
+        <operation name="HandleRequest">
+            <input message="tns:RequestMessage" />
+        </operation>
+        <operation name="ValidateRequest">
+            <input message="tns:RequestMessage" />
+        </operation>
+        <operation name="SubmitRequest">
+            <input message="tns:RequestMessage" />
+        </operation>
+    </portType>
+
+    <binding name="NumberedSuffixBinding" type="tns:NumberedSuffixPortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+        <operation name="ProcessRequest">
+            <soap:operation soapAction="urn:ProcessRequest" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+        </operation>
+        <operation name="ProcessRequestLower">
+            <soap:operation soapAction="urn:ProcessRequestLower" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+        </operation>
+        <operation name="ProcessRequestUpper">
+            <soap:operation soapAction="urn:ProcessRequestUpper" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+        </operation>
+        <operation name="ProcessData">
+            <soap:operation soapAction="urn:ProcessData" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+        </operation>
+        <operation name="ProcessDataLower">
+            <soap:operation soapAction="urn:ProcessDataLower" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+        </operation>
+        <operation name="ProcessDataUpper">
+            <soap:operation soapAction="urn:ProcessDataUpper" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+        </operation>
+        <operation name="ProcessExtremeCase">
+            <soap:operation soapAction="urn:ProcessExtremeCase" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+        </operation>
+        <operation name="HandleRequest">
+            <soap:operation soapAction="urn:HandleRequest" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+        </operation>
+        <operation name="ValidateRequest">
+            <soap:operation soapAction="urn:ValidateRequest" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+        </operation>
+        <operation name="SubmitRequest">
+            <soap:operation soapAction="urn:SubmitRequest" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+        </operation>
+    </binding>
+
+    <service name="NumberedSuffixService">
+        <port name="NumberedSuffixPort" binding="tns:NumberedSuffixBinding">
+            <soap:address location="http://example.com/numbered-suffix-collisions" />
+        </port>
+    </service>
+
+</definitions>

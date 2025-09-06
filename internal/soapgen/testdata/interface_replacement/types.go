@@ -4,6 +4,9 @@ import (
 	"encoding/xml"
 )
 
+// RawXML captures raw XML content for untyped elements.
+type RawXML []byte
+
 // MixedContent represents the MixedContent element
 type MixedContent struct {
 	XMLName         xml.Name `xml:"MixedContent"`

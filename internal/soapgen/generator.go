@@ -119,25 +119,53 @@ func (g *Generator) generateTypesFile(schema *xsd.Schema, packageName, filename 
 
 	// Generate data types (for proper dependency ordering)
 	for _, element := range dataTypes {
-		if typeRegistry.shouldGenerate(element) {
-			generateStructFromElement(file, element, ctx)
+		if typeRegistry.shouldGenerateWithContext(element, DataElementContext) {
+			generateStructFromElement(file, element, ctx, typeRegistry)
 		}
 	}
 
-	// Generate message wrapper types with *Wrapper suffix to avoid conflicts
+	// Generate message wrapper types with context-aware collision detection
 	for _, element := range messageTypes {
-		wrapperTypeName := toGoName(element.Name) + "Wrapper"
-		if typeRegistry.shouldGenerateWithName(element, wrapperTypeName) {
-			generateStructFromElementWithWrapper(file, element, ctx)
+		if typeRegistry.shouldGenerateWithContext(element, SOAPWrapperContext) {
+			generateStructFromElementWithWrapper(file, element, ctx, typeRegistry)
 		}
 	}
 
 	return file, nil
 }
 
-// needsRawXML checks if the schema contains any inline complex types that would require RawXML
+// needsRawXML checks if the schema contains any constructs that would require RawXML
 func needsRawXML(schema *xsd.Schema) bool {
-	return hasInlineComplexTypes(schema.Elements)
+	// Check for inline complex types in elements
+	if hasInlineComplexTypes(schema.Elements) {
+		return true
+	}
+
+	// Check for xs:any elements in schema elements
+	if hasAnyElements(schema.Elements) {
+		return true
+	}
+
+	// Check for xs:any elements in named complex types
+	for _, complexType := range schema.ComplexTypes {
+		if hasAnyElementsInComplexType(&complexType) {
+			return true
+		}
+	}
+
+	// Check for untyped/unknown elements that will fallback to RawXML
+	if hasUntypedElements(schema.Elements) {
+		return true
+	}
+
+	// Check for untyped elements in named complex types
+	for _, complexType := range schema.ComplexTypes {
+		if hasUntypedElementsInComplexType(&complexType) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // hasInlineComplexTypes recursively checks if any elements have inline complex types
@@ -178,5 +206,95 @@ func hasInlineComplexType(element *xsd.Element) bool {
 			}
 		}
 	}
+	return false
+}
+
+// hasAnyElements checks if any elements contain xs:any elements
+func hasAnyElements(elements []xsd.Element) bool {
+	for _, element := range elements {
+		if hasAnyElementInElement(&element) {
+			return true
+		}
+	}
+	return false
+}
+
+// hasAnyElementInElement checks if an element contains xs:any elements
+func hasAnyElementInElement(element *xsd.Element) bool {
+	if element.ComplexType != nil {
+		return hasAnyElementsInComplexType(element.ComplexType)
+	}
+	return false
+}
+
+// hasAnyElementsInComplexType checks if a complex type contains xs:any elements
+func hasAnyElementsInComplexType(complexType *xsd.ComplexType) bool {
+	// Check sequence for xs:any elements
+	if complexType.Sequence != nil && len(complexType.Sequence.Any) > 0 {
+		return true
+	}
+
+	// Check extension sequences for xs:any elements
+	if complexType.ComplexContent != nil && complexType.ComplexContent.Extension != nil {
+		ext := complexType.ComplexContent.Extension
+		if ext.Sequence != nil && len(ext.Sequence.Any) > 0 {
+			return true
+		}
+	}
+
+	return false
+}
+
+// hasUntypedElements checks if any elements will fallback to RawXML due to unknown types
+func hasUntypedElements(elements []xsd.Element) bool {
+	for _, element := range elements {
+		if hasUntypedElementInElement(&element) {
+			return true
+		}
+	}
+	return false
+}
+
+// hasUntypedElementInElement checks if an element contains untyped elements
+func hasUntypedElementInElement(element *xsd.Element) bool {
+	if element.ComplexType != nil {
+		return hasUntypedElementsInComplexType(element.ComplexType)
+	}
+	return false
+}
+
+// hasUntypedElementsInComplexType checks if a complex type contains elements that will use RawXML
+func hasUntypedElementsInComplexType(complexType *xsd.ComplexType) bool {
+	// Check sequence elements
+	if complexType.Sequence != nil {
+		for _, field := range complexType.Sequence.Elements {
+			// Elements with inline complex types but no proper type mapping will use RawXML
+			if field.Type == "" && field.ComplexType != nil {
+				return true
+			}
+			// Elements with empty/unknown types will fallback to RawXML
+			if field.Type == "" && field.ComplexType == nil && field.Ref == "" {
+				return true
+			}
+		}
+	}
+
+	// Check extension sequence elements
+	if complexType.ComplexContent != nil && complexType.ComplexContent.Extension != nil {
+		ext := complexType.ComplexContent.Extension
+		if ext.Sequence != nil {
+			for _, field := range ext.Sequence.Elements {
+				// Elements with inline complex types but no proper type mapping will use RawXML
+				if field.Type == "" && field.ComplexType != nil {
+					return true
+				}
+				// Elements with empty/unknown types will fallback to RawXML
+				if field.Type == "" && field.ComplexType == nil && field.Ref == "" {
+					return true
+				}
+			}
+		}
+	}
+
 	return false
 }

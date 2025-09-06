@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://example.com/rawxml-scenarios"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://example.com/rawxml-scenarios">
+
+    <types>
+        <xsd:schema targetNamespace="http://example.com/rawxml-scenarios">
+
+            <!-- Scenario 1: xs:any elements in schema elements -->
+            <xsd:element name="FlexibleDocument" type="tns:FlexibleDocumentType" />
+
+            <!-- Scenario 2: Inline complex types with xs:any -->
+            <xsd:element name="DynamicContent">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="header" type="xsd:string" />
+                        <xsd:any namespace="##any" processContents="lax" minOccurs="0"
+                            maxOccurs="unbounded" />
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <!-- Scenario 3: Mixed inline complex types with known and unknown elements -->
+            <xsd:element name="MixedDocument">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="knownElement" type="xsd:string" />
+                        <xsd:element name="unknownTypeElement" type="tns:UndefinedType"
+                            minOccurs="0" />
+                        <xsd:any namespace="##any" processContents="skip" minOccurs="0" />
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <!-- Scenario 4: Named complex type with xs:any -->
+            <xsd:complexType name="FlexibleDocumentType">
+                <xsd:sequence>
+                    <xsd:element name="documentID" type="xsd:string" />
+                    <xsd:element name="version" type="xsd:string" />
+                    <xsd:any namespace="##other" processContents="lax" minOccurs="0"
+                        maxOccurs="unbounded" />
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <!-- Scenario 5: Complex type with untyped/unknown elements -->
+            <xsd:complexType name="PerformanceDataType">
+                <xsd:sequence>
+                    <xsd:element name="timestamp" type="xsd:dateTime" />
+                    <xsd:element name="metrics" type="tns:UnknownMetricsType" minOccurs="0" />
+                    <xsd:element name="customData" type="tns:NonExistentType" minOccurs="0" />
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <!-- Scenario 6: Element with untyped/unknown type reference -->
+            <xsd:element name="PerformanceReport" type="tns:PerformanceDataType" />
+            <xsd:element name="UntypedElement" type="tns:CompletelyUnknownType" />
+
+            <!-- Scenario 7: Complex type with multiple xs:any elements -->
+            <xsd:complexType name="MultiAnyType">
+                <xsd:sequence>
+                    <xsd:element name="section1" type="xsd:string" />
+                    <xsd:any namespace="##local" processContents="lax" minOccurs="0" maxOccurs="5" />
+                    <xsd:element name="section2" type="xsd:string" />
+                    <xsd:any namespace="##targetNamespace" processContents="strict" minOccurs="0"
+                        maxOccurs="unbounded" />
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <!-- Scenario 8: Nested inline complex types with xs:any -->
+            <xsd:element name="NestedDynamicDocument">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="outerElement" type="xsd:string" />
+                        <xsd:element name="nestedDocument">
+                            <xsd:complexType>
+                                <xsd:sequence>
+                                    <xsd:element name="innerElement" type="xsd:string" />
+                                    <xsd:any namespace="##any" processContents="lax" minOccurs="0" />
+                                </xsd:sequence>
+                            </xsd:complexType>
+                        </xsd:element>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <!-- Some valid types to ensure the schema is not entirely broken -->
+            <xsd:complexType name="ValidType">
+                <xsd:sequence>
+                    <xsd:element name="validElement" type="xsd:string" />
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <xsd:element name="ValidElement" type="tns:ValidType" />
+
+        </xsd:schema>
+    </types>
+
+    <message name="FlexibleDocumentMsg">
+        <part name="parameters" element="tns:FlexibleDocument" />
+    </message>
+
+    <message name="DynamicContentMsg">
+        <part name="parameters" element="tns:DynamicContent" />
+    </message>
+
+    <message name="MixedDocumentMsg">
+        <part name="parameters" element="tns:MixedDocument" />
+    </message>
+
+    <message name="PerformanceReportMsg">
+        <part name="parameters" element="tns:PerformanceReport" />
+    </message>
+
+    <message name="UntypedElementMsg">
+        <part name="parameters" element="tns:UntypedElement" />
+    </message>
+
+    <portType name="RawXMLScenarioPortType">
+        <operation name="ProcessFlexibleDocument">
+            <input message="tns:FlexibleDocumentMsg" />
+        </operation>
+        <operation name="ProcessDynamicContent">
+            <input message="tns:DynamicContentMsg" />
+        </operation>
+        <operation name="ProcessMixedDocument">
+            <input message="tns:MixedDocumentMsg" />
+        </operation>
+        <operation name="ProcessPerformanceReport">
+            <input message="tns:PerformanceReportMsg" />
+        </operation>
+        <operation name="ProcessUntypedElement">
+            <input message="tns:UntypedElementMsg" />
+        </operation>
+    </portType>
+
+    <binding name="RawXMLScenarioBinding" type="tns:RawXMLScenarioPortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+        <operation name="ProcessFlexibleDocument">
+            <soap:operation soapAction="urn:ProcessFlexibleDocument" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+        </operation>
+        <operation name="ProcessDynamicContent">
+            <soap:operation soapAction="urn:ProcessDynamicContent" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+        </operation>
+        <operation name="ProcessMixedDocument">
+            <soap:operation soapAction="urn:ProcessMixedDocument" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+        </operation>
+        <operation name="ProcessPerformanceReport">
+            <soap:operation soapAction="urn:ProcessPerformanceReport" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+        </operation>
+        <operation name="ProcessUntypedElement">
+            <soap:operation soapAction="urn:ProcessUntypedElement" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+        </operation>
+    </binding>
+
+    <service name="RawXMLScenarioService">
+        <port name="RawXMLScenarioPort" binding="tns:RawXMLScenarioBinding">
+            <soap:address location="http://example.com/rawxml-scenarios" />
+        </port>
+    </service>
+
+</definitions>
