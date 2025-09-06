@@ -35,6 +35,8 @@ When developing this SDK, use the WSDL and SOAP specifications in [docs](./docs)
 
 - Golden files are updated by running `go test` with the `-update` flag.
 
+- Golden file tests prefixed with `proprietary_` may contain proprietary data and are not checked into git. When an issue is detected in proprietary test data, create test cases using non-proprietary data to isolate the issue.
+
 ## Principles
 
 - The generated code should be as idiomatic as possible and leverage the latest available Go features.

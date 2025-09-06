@@ -41,8 +41,8 @@ type LoginStats struct {
 	SuccessfulLogins int32    `xml:"successfulLogins"`
 }
 
-// LoginWrapper represents the login element
-type LoginWrapper struct {
+// Login represents the login element
+type Login struct {
 	XMLName      xml.Name     `xml:"login"`
 	LoginRequest LoginRequest `xml:"LoginRequest"`
 }
@@ -53,8 +53,8 @@ type LoginResponseWrapper struct {
 	LoginResponse LoginResponse `xml:"LoginResponse"`
 }
 
-// GetUserInfoWrapper represents the getUserInfo element
-type GetUserInfoWrapper struct {
+// GetUserInfo represents the getUserInfo element
+type GetUserInfo struct {
 	XMLName  xml.Name `xml:"getUserInfo"`
 	UserInfo UserInfo `xml:"UserInfo"`
 }

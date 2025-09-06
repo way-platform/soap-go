@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://example.com/collisions"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://example.com/collisions">
+
+    <types>
+        <xsd:schema targetNamespace="http://example.com/collisions">
+
+            <!-- Case-insensitive collisions: UserRequest vs userRequest -->
+            <xsd:element name="UserRequest" type="tns:UserRequestType" />
+            <xsd:element name="userRequest" type="tns:UserRequestType" />
+
+            <!-- Case-insensitive collisions: GetFleetResponse vs getFleetResponse -->
+            <xsd:element name="GetFleetResponse" type="tns:FleetDataType" />
+            <xsd:element name="getFleetResponse" type="tns:FleetDataType" />
+
+            <!-- Case-insensitive collisions: DataRecord vs dataRecord -->
+            <xsd:element name="DataRecord" type="tns:RecordType" />
+            <xsd:element name="dataRecord" type="tns:RecordType" />
+
+            <xsd:complexType name="UserRequestType">
+                <xsd:sequence>
+                    <xsd:element name="userID" type="xsd:string" />
+                    <xsd:element name="requestType" type="xsd:string" />
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <xsd:complexType name="FleetDataType">
+                <xsd:sequence>
+                    <xsd:element name="vehicleCount" type="xsd:int" />
+                    <xsd:element name="status" type="xsd:string" />
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <xsd:complexType name="RecordType">
+                <xsd:sequence>
+                    <xsd:element name="id" type="xsd:string" />
+                    <xsd:element name="timestamp" type="xsd:dateTime" />
+                </xsd:sequence>
+            </xsd:complexType>
+
+        </xsd:schema>
+    </types>
+
+    <message name="UserRequestMsg">
+        <part name="parameters" element="tns:UserRequest" />
+    </message>
+
+    <message name="UserRequestLowerMsg">
+        <part name="parameters" element="tns:userRequest" />
+    </message>
+
+    <message name="GetFleetResponseMsg">
+        <part name="parameters" element="tns:GetFleetResponse" />
+    </message>
+
+    <message name="GetFleetResponseLowerMsg">
+        <part name="parameters" element="tns:getFleetResponse" />
+    </message>
+
+    <portType name="CollisionTestPortType">
+        <operation name="TestUserRequest">
+            <input message="tns:UserRequestMsg" />
+        </operation>
+        <operation name="TestUserRequestLower">
+            <input message="tns:UserRequestLowerMsg" />
+        </operation>
+        <operation name="TestGetFleetResponse">
+            <input message="tns:GetFleetResponseMsg" />
+        </operation>
+        <operation name="TestGetFleetResponseLower">
+            <input message="tns:GetFleetResponseLowerMsg" />
+        </operation>
+    </portType>
+
+    <binding name="CollisionTestBinding" type="tns:CollisionTestPortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+        <operation name="TestUserRequest">
+            <soap:operation soapAction="urn:TestUserRequest" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+        </operation>
+        <operation name="TestUserRequestLower">
+            <soap:operation soapAction="urn:TestUserRequestLower" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+        </operation>
+        <operation name="TestGetFleetResponse">
+            <soap:operation soapAction="urn:TestGetFleetResponse" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+        </operation>
+        <operation name="TestGetFleetResponseLower">
+            <soap:operation soapAction="urn:TestGetFleetResponseLower" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+        </operation>
+    </binding>
+
+    <service name="CollisionTestService">
+        <port name="CollisionTestPort" binding="tns:CollisionTestBinding">
+            <soap:address location="http://example.com/collisions" />
+        </port>
+    </service>
+
+</definitions>

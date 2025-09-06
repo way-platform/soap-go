@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://example.com/context-naming"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://example.com/context-naming">
+
+    <types>
+        <xsd:schema targetNamespace="http://example.com/context-naming">
+
+            <!-- Schema elements (DataElementContext) -->
+            <xsd:element name="UserData" type="tns:UserDataType" />
+            <xsd:element name="ProcessRequest" type="tns:ProcessRequestType" />
+            <xsd:element name="SystemInfo" type="tns:SystemInfoType" />
+
+            <!-- Same names will be used in SOAP message wrappers (SOAPWrapperContext) -->
+            <!-- Same names will be used in operation wrappers (OperationWrapperContext) -->
+
+            <xsd:complexType name="UserDataType">
+                <xsd:sequence>
+                    <xsd:element name="userID" type="xsd:string" />
+                    <xsd:element name="userName" type="xsd:string" />
+                    <xsd:element name="email" type="xsd:string" />
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <xsd:complexType name="ProcessRequestType">
+                <xsd:sequence>
+                    <xsd:element name="processID" type="xsd:string" />
+                    <xsd:element name="priority" type="xsd:int" />
+                    <xsd:element name="timeout" type="xsd:int" />
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <xsd:complexType name="SystemInfoType">
+                <xsd:sequence>
+                    <xsd:element name="systemID" type="xsd:string" />
+                    <xsd:element name="version" type="xsd:string" />
+                    <xsd:element name="status" type="xsd:string" />
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <!-- Response types that will also cause collisions -->
+            <xsd:complexType name="UserDataResponseType">
+                <xsd:sequence>
+                    <xsd:element name="result" type="xsd:string" />
+                    <xsd:element name="userData" type="tns:UserDataType" />
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <xsd:complexType name="ProcessRequestResponseType">
+                <xsd:sequence>
+                    <xsd:element name="processResult" type="xsd:string" />
+                    <xsd:element name="processData" type="tns:ProcessRequestType" />
+                </xsd:sequence>
+            </xsd:complexType>
+
+        </xsd:schema>
+    </types>
+
+    <!-- Messages that will create SOAP wrapper types with same names -->
+    <message name="UserDataMessage">
+        <part name="userData" element="tns:UserData" />
+    </message>
+
+    <message name="UserDataResponseMessage">
+        <part name="userDataResponse" element="tns:UserData" />  <!-- Same element, different context -->
+    </message>
+
+    <message name="ProcessRequestMessage">
+        <part name="processRequest" element="tns:ProcessRequest" />
+    </message>
+
+    <message name="ProcessRequestResponseMessage">
+        <part name="processRequestResponse" element="tns:ProcessRequest" />  <!-- Same element,
+        different context -->
+    </message>
+
+    <message name="SystemInfoMessage">
+        <part name="systemInfo" element="tns:SystemInfo" />
+    </message>
+
+    <portType name="ContextNamingPortType">
+        <!-- Operations that will create operation wrapper types with same names -->
+        <operation name="ProcessUserData">
+            <input message="tns:UserDataMessage" />
+            <output message="tns:UserDataResponseMessage" />
+        </operation>
+        <operation name="ProcessRequest">
+            <input message="tns:ProcessRequestMessage" />
+            <output message="tns:ProcessRequestResponseMessage" />
+        </operation>
+        <operation name="GetSystemInfo">
+            <input message="tns:SystemInfoMessage" />
+        </operation>
+        <!-- Additional operations that might create more collisions -->
+        <operation name="UpdateUserData">
+            <input message="tns:UserDataMessage" />  <!-- Same message, different operation -->
+        </operation>
+        <operation name="ValidateProcessRequest">
+            <input message="tns:ProcessRequestMessage" />  <!-- Same message, different operation -->
+        </operation>
+    </portType>
+
+    <binding name="ContextNamingBinding" type="tns:ContextNamingPortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+        <operation name="ProcessUserData">
+            <soap:operation soapAction="urn:ProcessUserData" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+        </operation>
+        <operation name="ProcessRequest">
+            <soap:operation soapAction="urn:ProcessRequest" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+        </operation>
+        <operation name="GetSystemInfo">
+            <soap:operation soapAction="urn:GetSystemInfo" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+        </operation>
+        <operation name="UpdateUserData">
+            <soap:operation soapAction="urn:UpdateUserData" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+        </operation>
+        <operation name="ValidateProcessRequest">
+            <soap:operation soapAction="urn:ValidateProcessRequest" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+        </operation>
+    </binding>
+
+    <service name="ContextNamingService">
+        <port name="ContextNamingPort" binding="tns:ContextNamingBinding">
+            <soap:address location="http://example.com/context-naming" />
+        </port>
+    </service>
+
+</definitions>

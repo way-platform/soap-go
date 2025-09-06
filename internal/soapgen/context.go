@@ -21,14 +21,116 @@ type AnonymousTypeRegistry struct {
 	types map[string]bool
 }
 
-// TypeRegistry tracks generated types to prevent duplicates
+// FieldRegistry tracks field names within a struct to prevent duplicates
+type FieldRegistry struct {
+	fields map[string]FieldInfo // field name -> field info
+}
+
+// FieldInfo holds information about a generated field
+type FieldInfo struct {
+	xmlName     string
+	isAttribute bool
+	goFieldName string
+}
+
+// TypeContext represents the context in which a type is being generated
+type TypeContext int
+
+const (
+	DataElementContext TypeContext = iota
+	SOAPWrapperContext
+	OperationWrapperContext
+)
+
+// TypeInfo holds information about a generated type
+type TypeInfo struct {
+	element    *xsd.Element
+	xmlName    string
+	goTypeName string
+	context    TypeContext
+}
+
+// TypeRegistry tracks generated types to prevent duplicates and handle collisions
 type TypeRegistry struct {
-	types map[string]*xsd.Element
+	types    map[string]*TypeInfo   // Go type name -> TypeInfo
+	xmlNames map[string][]*TypeInfo // XML name -> list of TypeInfo (for collision detection)
 }
 
 func newAnonymousTypeRegistry() *AnonymousTypeRegistry {
 	return &AnonymousTypeRegistry{
 		types: make(map[string]bool),
+	}
+}
+
+func newFieldRegistry() *FieldRegistry {
+	return &FieldRegistry{
+		fields: make(map[string]FieldInfo),
+	}
+}
+
+// generateUniqueFieldName generates a unique field name avoiding collisions
+func (r *FieldRegistry) generateUniqueFieldName(xmlName string, isAttribute bool) string {
+	baseName := toGoName(xmlName)
+	if baseName == "" {
+		return ""
+	}
+
+	// Check if this exact combination already exists
+	if existing, exists := r.fields[baseName]; exists {
+		// If it's the same XML name and attribute type, reuse the same field name
+		if existing.xmlName == xmlName && existing.isAttribute == isAttribute {
+			return existing.goFieldName
+		}
+
+		// Collision detected - generate unique name
+		var candidateName string
+		if isAttribute {
+			candidateName = baseName + "Attr"
+		} else {
+			candidateName = baseName + "Elem"
+		}
+
+		// If that's still taken, use numbered suffix
+		if r.hasFieldName(candidateName) {
+			candidateName = r.generateNumberedFieldName(baseName, isAttribute)
+		}
+
+		// Register the new field
+		r.fields[candidateName] = FieldInfo{
+			xmlName:     xmlName,
+			isAttribute: isAttribute,
+			goFieldName: candidateName,
+		}
+		return candidateName
+	}
+
+	// No collision, use base name
+	r.fields[baseName] = FieldInfo{
+		xmlName:     xmlName,
+		isAttribute: isAttribute,
+		goFieldName: baseName,
+	}
+	return baseName
+}
+
+// hasFieldName checks if a field name is already used
+func (r *FieldRegistry) hasFieldName(fieldName string) bool {
+	_, exists := r.fields[fieldName]
+	return exists
+}
+
+// generateNumberedFieldName generates a unique field name with numbered suffix
+func (r *FieldRegistry) generateNumberedFieldName(baseName string, isAttribute bool) string {
+	suffix := "Elem"
+	if isAttribute {
+		suffix = "Attr"
+	}
+
+	for i := 1; ; i++ {
+		candidateName := fmt.Sprintf("%s%s%d", baseName, suffix, i)
+		if !r.hasFieldName(candidateName) {
+			return candidateName
+		}
 	}
 }
 
@@ -104,36 +206,115 @@ func (ctx *SchemaContext) resolveComplexType(typeName string) *xsd.ComplexType {
 
 func newTypeRegistry() *TypeRegistry {
 	return &TypeRegistry{
-		types: make(map[string]*xsd.Element),
+		types:    make(map[string]*TypeInfo),
+		xmlNames: make(map[string][]*TypeInfo),
 	}
 }
 
-func (r *TypeRegistry) shouldGenerate(element *xsd.Element) bool {
-	name := toGoName(element.Name)
-	if name == "" {
+// shouldGenerateWithContext checks if a type should be generated with the given context
+func (r *TypeRegistry) shouldGenerateWithContext(element *xsd.Element, context TypeContext) bool {
+	baseName := toGoName(element.Name)
+	if baseName == "" {
 		return false // Skip elements without valid names
 	}
 
-	if existing, exists := r.types[name]; exists {
-		// Compare structures to see if they're equivalent
-		return !areEquivalentElements(existing, element)
-	}
-	r.types[name] = element
-	return true
-}
-
-// shouldGenerateWithName checks if a type with the given name should be generated
-func (r *TypeRegistry) shouldGenerateWithName(element *xsd.Element, typeName string) bool {
-	if typeName == "" {
-		return false // Skip elements without valid names
-	}
+	// Generate unique type name considering context and collisions
+	typeName := r.generateUniqueTypeName(baseName, element.Name, context)
 
 	if existing, exists := r.types[typeName]; exists {
 		// Compare structures to see if they're equivalent
-		return !areEquivalentElements(existing, element)
+		return !areEquivalentElements(existing.element, element)
 	}
-	r.types[typeName] = element
+
+	// Register the new type
+	typeInfo := &TypeInfo{
+		element:    element,
+		xmlName:    element.Name,
+		goTypeName: typeName,
+		context:    context,
+	}
+	r.types[typeName] = typeInfo
+	r.xmlNames[element.Name] = append(r.xmlNames[element.Name], typeInfo)
 	return true
+}
+
+// generateUniqueTypeName generates a unique Go type name considering context and collisions
+func (r *TypeRegistry) generateUniqueTypeName(baseName, xmlName string, context TypeContext) string {
+	// Check if there are existing types with the same XML name but different case
+	if existingTypes := r.xmlNames[xmlName]; len(existingTypes) > 0 {
+		// If we already have a type for this exact XML name, use the existing Go type name
+		for _, existing := range existingTypes {
+			if existing.xmlName == xmlName && existing.context == context {
+				return existing.goTypeName
+			}
+		}
+	}
+
+	// Check for case-insensitive collisions with different XML names
+	hasCollision := r.hasCaseInsensitiveCollision(baseName, xmlName)
+
+	if !hasCollision {
+		// No collision, use the base name
+		return baseName
+	}
+
+	// Handle collision with context-specific suffixes
+	switch context {
+	case DataElementContext:
+		candidateName := baseName + "Element"
+		if !r.hasGoTypeName(candidateName) {
+			return candidateName
+		}
+		// If that's taken, try with XML name hint
+		return r.generateNumberedName(baseName + "Element")
+	case SOAPWrapperContext:
+		candidateName := baseName + "Wrapper"
+		if !r.hasGoTypeName(candidateName) {
+			return candidateName
+		}
+		return r.generateNumberedName(baseName + "Wrapper")
+	case OperationWrapperContext:
+		candidateName := baseName + "Operation"
+		if !r.hasGoTypeName(candidateName) {
+			return candidateName
+		}
+		return r.generateNumberedName(baseName + "Operation")
+	default:
+		return r.generateNumberedName(baseName)
+	}
+}
+
+// hasCaseInsensitiveCollision checks if there's a collision with different XML names that map to the same Go name
+func (r *TypeRegistry) hasCaseInsensitiveCollision(goName, xmlName string) bool {
+	for existingXMLName, typeInfos := range r.xmlNames {
+		if existingXMLName != xmlName && toGoName(existingXMLName) == goName {
+			// Found different XML name that maps to same Go name
+			if len(typeInfos) > 0 {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// hasGoTypeName checks if a Go type name is already used
+func (r *TypeRegistry) hasGoTypeName(goName string) bool {
+	_, exists := r.types[goName]
+	return exists
+}
+
+// generateNumberedName generates a unique name with numbered suffix
+func (r *TypeRegistry) generateNumberedName(baseName string) string {
+	if !r.hasGoTypeName(baseName) {
+		return baseName
+	}
+
+	for i := 2; ; i++ {
+		candidateName := fmt.Sprintf("%s%d", baseName, i)
+		if !r.hasGoTypeName(candidateName) {
+			return candidateName
+		}
+	}
 }
 
 // areEquivalentElements checks if two elements have the same structure

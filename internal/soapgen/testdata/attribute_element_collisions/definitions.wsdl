@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://example.com/field-collisions"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://example.com/field-collisions">
+
+    <types>
+        <xsd:schema targetNamespace="http://example.com/field-collisions">
+
+            <xsd:element name="DownloadRequest" type="tns:DownloadRequestType" />
+            <xsd:element name="ConfigData" type="tns:ConfigDataType" />
+            <xsd:element name="MetadataInfo" type="tns:MetadataInfoType" />
+
+            <!-- Complex type with Version element AND version attribute collision -->
+            <xsd:complexType name="DownloadRequestType">
+                <xsd:sequence>
+                    <xsd:element name="DriverID" type="xsd:string" />
+                    <xsd:element name="VehicleID" type="xsd:string" />
+                    <xsd:element name="Version" type="xsd:int" />  <!-- Element -->
+                    <xsd:element name="TimeRange" type="tns:TimeRangeType" />
+                </xsd:sequence>
+                <xsd:attribute name="sessionid" type="xsd:string" />
+                <xsd:attribute name="version" type="xsd:int" />   <!-- Attribute - collision with
+                Version element -->
+                <xsd:attribute name="limit" type="xsd:int" />
+                <xsd:attribute name="offset" type="xsd:int" />
+            </xsd:complexType>
+
+            <!-- Complex type with Status element AND status attribute collision -->
+            <xsd:complexType name="ConfigDataType">
+                <xsd:sequence>
+                    <xsd:element name="ConfigID" type="xsd:string" />
+                    <xsd:element name="Status" type="xsd:string" />  <!-- Element -->
+                    <xsd:element name="Data" type="xsd:string" />
+                    <xsd:element name="Priority" type="xsd:int" />   <!-- Element -->
+                </xsd:sequence>
+                <xsd:attribute name="status" type="xsd:string" />   <!-- Attribute - collision with
+                Status element -->
+                <xsd:attribute name="priority" type="xsd:int" />    <!-- Attribute - collision with
+                Priority element -->
+                <xsd:attribute name="enabled" type="xsd:boolean" />
+            </xsd:complexType>
+
+            <!-- Complex type with multiple collisions: Name, Type, ID -->
+            <xsd:complexType name="MetadataInfoType">
+                <xsd:sequence>
+                    <xsd:element name="Name" type="xsd:string" />    <!-- Element -->
+                    <xsd:element name="Type" type="xsd:string" />    <!-- Element -->
+                    <xsd:element name="ID" type="xsd:string" />      <!-- Element -->
+                    <xsd:element name="Description" type="xsd:string" />
+                </xsd:sequence>
+                <xsd:attribute name="name" type="xsd:string" />     <!-- Attribute - collision with Name
+                element -->
+                <xsd:attribute name="type" type="xsd:string" />     <!-- Attribute - collision with Type
+                element -->
+                <xsd:attribute name="id" type="xsd:string" />       <!-- Attribute - collision with ID
+                element -->
+                <xsd:attribute name="category" type="xsd:string" />
+            </xsd:complexType>
+
+            <xsd:complexType name="TimeRangeType">
+                <xsd:sequence>
+                    <xsd:element name="Begin" type="xsd:dateTime" />
+                    <xsd:element name="End" type="xsd:dateTime" />
+                </xsd:sequence>
+            </xsd:complexType>
+
+        </xsd:schema>
+    </types>
+
+    <message name="DownloadRequestMsg">
+        <part name="parameters" element="tns:DownloadRequest" />
+    </message>
+
+    <message name="ConfigDataMsg">
+        <part name="parameters" element="tns:ConfigData" />
+    </message>
+
+    <portType name="FieldCollisionPortType">
+        <operation name="ProcessDownloadRequest">
+            <input message="tns:DownloadRequestMsg" />
+        </operation>
+        <operation name="ProcessConfigData">
+            <input message="tns:ConfigDataMsg" />
+        </operation>
+    </portType>
+
+    <binding name="FieldCollisionBinding" type="tns:FieldCollisionPortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+        <operation name="ProcessDownloadRequest">
+            <soap:operation soapAction="urn:ProcessDownloadRequest" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+        </operation>
+        <operation name="ProcessConfigData">
+            <soap:operation soapAction="urn:ProcessConfigData" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+        </operation>
+    </binding>
+
+    <service name="FieldCollisionService">
+        <port name="FieldCollisionPort" binding="tns:FieldCollisionBinding">
+            <soap:address location="http://example.com/field-collisions" />
+        </port>
+    </service>
+
+</definitions>

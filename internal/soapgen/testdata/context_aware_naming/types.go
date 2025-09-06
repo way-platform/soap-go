@@ -1,0 +1,58 @@
+package context_aware_naming
+
+import (
+	"encoding/xml"
+)
+
+// Complex types
+
+// ProcessRequestResponseType represents the ProcessRequestResponseType complex type
+type ProcessRequestResponseType struct {
+	ProcessResult string             `xml:"processResult"`
+	ProcessData   ProcessRequestType `xml:"processData"`
+}
+
+// ProcessRequestType represents the ProcessRequestType complex type
+type ProcessRequestType struct {
+	ProcessID string `xml:"processID"`
+	Priority  int32  `xml:"priority"`
+	Timeout   int32  `xml:"timeout"`
+}
+
+// SystemInfoType represents the SystemInfoType complex type
+type SystemInfoType struct {
+	SystemID string `xml:"systemID"`
+	Version  string `xml:"version"`
+	Status   string `xml:"status"`
+}
+
+// UserDataResponseType represents the UserDataResponseType complex type
+type UserDataResponseType struct {
+	Result   string       `xml:"result"`
+	UserData UserDataType `xml:"userData"`
+}
+
+// UserDataType represents the UserDataType complex type
+type UserDataType struct {
+	UserID   string `xml:"userID"`
+	UserName string `xml:"userName"`
+	Email    string `xml:"email"`
+}
+
+// UserData represents the UserData element
+type UserData struct {
+	XMLName xml.Name     `xml:"UserData"`
+	Value   UserDataType `xml:",chardata"`
+}
+
+// ProcessRequest represents the ProcessRequest element
+type ProcessRequest struct {
+	XMLName xml.Name           `xml:"ProcessRequest"`
+	Value   ProcessRequestType `xml:",chardata"`
+}
+
+// SystemInfo represents the SystemInfo element
+type SystemInfo struct {
+	XMLName xml.Name       `xml:"SystemInfo"`
+	Value   SystemInfoType `xml:",chardata"`
+}

@@ -25,8 +25,8 @@ type UserData struct {
 	UserData string   `xml:"userData"`
 }
 
-// LoginWrapper represents the login element
-type LoginWrapper struct {
+// Login represents the login element
+type Login struct {
 	XMLName      xml.Name     `xml:"login"`
 	LoginRequest LoginRequest `xml:"LoginRequest"`
 }
@@ -37,8 +37,8 @@ type LoginResponseWrapper struct {
 	LoginResponse LoginResponse `xml:"LoginResponse"`
 }
 
-// GetUserDataWrapper represents the getUserData element
-type GetUserDataWrapper struct {
+// GetUserData represents the getUserData element
+type GetUserData struct {
 	XMLName  xml.Name `xml:"getUserData"`
 	UserData UserData `xml:"UserData"`
 }

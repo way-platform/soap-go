@@ -40,12 +40,15 @@ func generateInlineComplexTypeStruct(g *codegen.File, typeName string, complexTy
 	// Start struct declaration
 	g.P("type ", typeName, " struct {")
 
+	// Create field registry to track field name collisions
+	fieldRegistry := newFieldRegistry()
+
 	hasFields := false
 
 	// Generate fields from the sequence
 	if complexType.Sequence != nil {
 		for _, field := range complexType.Sequence.Elements {
-			if generateStructFieldWithInlineTypes(g, &field, ctx) {
+			if generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(g, &field, ctx, 0, typeName, fieldRegistry) {
 				hasFields = true
 			}
 		}
@@ -53,7 +56,7 @@ func generateInlineComplexTypeStruct(g *codegen.File, typeName string, complexTy
 
 	// Handle attributes
 	for _, attr := range complexType.Attributes {
-		if generateAttributeField(g, &attr, ctx) {
+		if generateAttributeFieldWithFieldRegistry(g, &attr, ctx, fieldRegistry) {
 			hasFields = true
 		}
 	}
@@ -69,12 +72,21 @@ func generateInlineComplexTypeStruct(g *codegen.File, typeName string, complexTy
 }
 
 // generateAnyField generates a RawXML field for xs:any elements (escape hatch for untyped content)
-func generateAnyField(g *codegen.File, anyElement *xsd.Any, ctx *SchemaContext, singleRawXMLCount int) bool {
+// generateAnyFieldWithFieldRegistry generates a RawXML field for xs:any elements with collision detection
+func generateAnyFieldWithFieldRegistry(g *codegen.File, anyElement *xsd.Any, ctx *SchemaContext, singleRawXMLCount int, fieldRegistry *FieldRegistry) bool {
 	// Generate a field name based on namespace or use a generic name
-	fieldName := "Content"
+	baseFieldName := "Content"
 	if anyElement.Namespace != "" && anyElement.Namespace != "##any" {
 		// Use namespace to create a meaningful field name
-		fieldName = "AnyContent"
+		baseFieldName = "AnyContent"
+	}
+
+	// Use field registry for collision detection if available
+	var fieldName string
+	if fieldRegistry != nil {
+		fieldName = fieldRegistry.generateUniqueFieldName(baseFieldName, false) // false = not an attribute
+	} else {
+		fieldName = baseFieldName
 	}
 
 	// xs:any elements are the perfect use case for RawXML escape hatch
@@ -108,37 +120,36 @@ func generateAnyField(g *codegen.File, anyElement *xsd.Any, ctx *SchemaContext, 
 }
 
 // generateStructFromElement generates a Go struct from an XSD element
-func generateStructFromElement(g *codegen.File, element *xsd.Element, ctx *SchemaContext) {
-	structName := toGoName(element.Name)
-	if structName == "" {
+func generateStructFromElement(g *codegen.File, element *xsd.Element, ctx *SchemaContext, registry *TypeRegistry) {
+	// Get the type name from the registry (which handles collisions)
+	baseName := toGoName(element.Name)
+	if baseName == "" {
 		return // Skip elements without valid names
 	}
+
+	// Get the actual type name that was registered
+	structName := registry.generateUniqueTypeName(baseName, element.Name, DataElementContext)
 
 	// Always use standard struct generation
 	// The hybrid approach handles single vs multiple RawXML fields automatically
 
 	// Standard struct generation for simple cases
-	generateStandardStruct(g, element, ctx)
+	generateStandardStructWithName(g, element, ctx, structName)
 }
 
 // generateStructFromElementWithWrapper generates a Go struct from an XSD element with wrapper naming
-func generateStructFromElementWithWrapper(g *codegen.File, element *xsd.Element, ctx *SchemaContext) {
-	structName := toGoName(element.Name)
-	if structName == "" {
+func generateStructFromElementWithWrapper(g *codegen.File, element *xsd.Element, ctx *SchemaContext, registry *TypeRegistry) {
+	// Get the type name from the registry (which handles collisions)
+	baseName := toGoName(element.Name)
+	if baseName == "" {
 		return // Skip elements without valid names
 	}
 
-	// Apply wrapper naming convention
-	wrapperStructName := structName + "Wrapper"
+	// Get the actual wrapper type name that was registered
+	wrapperStructName := registry.generateUniqueTypeName(baseName, element.Name, SOAPWrapperContext)
 
-	// Generate wrapper struct with modified name
+	// Generate wrapper struct with collision-aware name
 	generateStandardStructWithName(g, element, ctx, wrapperStructName)
-}
-
-// generateStandardStruct generates a standard struct without custom parsing
-func generateStandardStruct(g *codegen.File, element *xsd.Element, ctx *SchemaContext) {
-	structName := toGoName(element.Name)
-	generateStandardStructWithName(g, element, ctx, structName)
 }
 
 // generateStandardStructWithName generates a standard struct with a custom struct name
@@ -148,6 +159,9 @@ func generateStandardStructWithName(g *codegen.File, element *xsd.Element, ctx *
 
 	// Start struct declaration
 	g.P("type ", structName, " struct {")
+
+	// Create field registry to track field name collisions
+	fieldRegistry := newFieldRegistry()
 
 	// Add XMLName field for namespace handling
 	generateXMLNameField(g, element, ctx)
@@ -221,14 +235,14 @@ func generateStandardStructWithName(g *codegen.File, element *xsd.Element, ctx *
 		// Handle sequence elements
 		if element.ComplexType.Sequence != nil {
 			for _, field := range element.ComplexType.Sequence.Elements {
-				if generateStructFieldWithInlineTypesAndContextAndParent(g, &field, ctx, singleRawXMLCount, element.Name) {
+				if generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(g, &field, ctx, singleRawXMLCount, element.Name, fieldRegistry) {
 					hasFields = true
 				}
 			}
 
 			// Handle xs:any elements - these become RawXML fields for escape hatch scenarios
 			for _, anyField := range element.ComplexType.Sequence.Any {
-				if generateAnyField(g, &anyField, ctx, singleRawXMLCount) {
+				if generateAnyFieldWithFieldRegistry(g, &anyField, ctx, singleRawXMLCount, fieldRegistry) {
 					hasFields = true
 				}
 			}
@@ -236,7 +250,7 @@ func generateStandardStructWithName(g *codegen.File, element *xsd.Element, ctx *
 
 		// Handle attributes
 		for _, attr := range element.ComplexType.Attributes {
-			if generateAttributeField(g, &attr, ctx) {
+			if generateAttributeFieldWithFieldRegistry(g, &attr, ctx, fieldRegistry) {
 				hasFields = true
 			}
 		}
@@ -246,21 +260,21 @@ func generateStandardStructWithName(g *codegen.File, element *xsd.Element, ctx *
 			ext := element.ComplexType.ComplexContent.Extension
 			if ext.Sequence != nil {
 				for _, field := range ext.Sequence.Elements {
-					if generateStructFieldWithInlineTypesAndContextAndParent(g, &field, ctx, singleRawXMLCount, element.Name) {
+					if generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(g, &field, ctx, singleRawXMLCount, element.Name, fieldRegistry) {
 						hasFields = true
 					}
 				}
 
 				// Handle xs:any elements in extensions
 				for _, anyField := range ext.Sequence.Any {
-					if generateAnyField(g, &anyField, ctx, singleRawXMLCount) {
+					if generateAnyFieldWithFieldRegistry(g, &anyField, ctx, singleRawXMLCount, fieldRegistry) {
 						hasFields = true
 					}
 				}
 			}
 			// Handle extension attributes
 			for _, attr := range ext.Attributes {
-				if generateAttributeField(g, &attr, ctx) {
+				if generateAttributeFieldWithFieldRegistry(g, &attr, ctx, fieldRegistry) {
 					hasFields = true
 				}
 			}
@@ -282,20 +296,25 @@ func generateStandardStructWithName(g *codegen.File, element *xsd.Element, ctx *
 	g.P()
 }
 
-// generateStructFieldWithInlineTypesAndContext generates a Go struct field with support for inline complex types
-func generateStructFieldWithInlineTypesAndContext(g *codegen.File, element *xsd.Element, ctx *SchemaContext, singleRawXMLCount int) bool {
-	return generateStructFieldWithInlineTypesAndContextAndParent(g, element, ctx, singleRawXMLCount, "")
+// generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry generates a Go struct field with support for inline complex types and field collision detection
+func generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(g *codegen.File, element *xsd.Element, ctx *SchemaContext, singleRawXMLCount int, parentElementName string, fieldRegistry *FieldRegistry) bool {
+	return generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistryInternal(g, element, ctx, singleRawXMLCount, parentElementName, fieldRegistry, false)
 }
 
-// generateStructFieldWithInlineTypesAndContextAndParent generates a Go struct field with support for inline complex types
-func generateStructFieldWithInlineTypesAndContextAndParent(g *codegen.File, element *xsd.Element, ctx *SchemaContext, singleRawXMLCount int, parentElementName string) bool {
+// generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistryInternal is the internal implementation
+func generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistryInternal(g *codegen.File, element *xsd.Element, ctx *SchemaContext, singleRawXMLCount int, parentElementName string, fieldRegistry *FieldRegistry, isAttribute bool) bool {
 	// Handle element references
 	if element.Ref != "" {
 		// Resolve the reference
 		referencedElement := ctx.resolveElementRef(element.Ref)
 		if referencedElement != nil {
 			// Use the referenced element's name for the field
-			fieldName := toGoName(referencedElement.Name)
+			var fieldName string
+			if fieldRegistry != nil {
+				fieldName = fieldRegistry.generateUniqueFieldName(referencedElement.Name, isAttribute)
+			} else {
+				fieldName = toGoName(referencedElement.Name)
+			}
 			goType := toGoName(referencedElement.Name) // Reference the generated type
 			xmlName := referencedElement.Name
 
@@ -327,7 +346,12 @@ func generateStructFieldWithInlineTypesAndContextAndParent(g *codegen.File, elem
 		return false
 	}
 
-	fieldName := toGoName(element.Name)
+	var fieldName string
+	if fieldRegistry != nil {
+		fieldName = fieldRegistry.generateUniqueFieldName(element.Name, isAttribute)
+	} else {
+		fieldName = toGoName(element.Name)
+	}
 	if fieldName == "" {
 		return false
 	}
@@ -390,19 +414,18 @@ func generateStructFieldWithInlineTypesAndContextAndParent(g *codegen.File, elem
 	return true
 }
 
-// generateStructFieldWithInlineTypes generates a Go struct field with support for inline complex types
-func generateStructFieldWithInlineTypes(g *codegen.File, element *xsd.Element, ctx *SchemaContext) bool {
-	// Default to rawXMLCount = 0 (use element names) for backwards compatibility
-	return generateStructFieldWithInlineTypesAndContext(g, element, ctx, 0)
-}
-
-// generateAttributeField generates a Go struct field from an XSD attribute
-func generateAttributeField(g *codegen.File, attr *xsd.Attribute, ctx *SchemaContext) bool {
+// generateAttributeFieldWithFieldRegistry generates a Go struct field from an XSD attribute with collision detection
+func generateAttributeFieldWithFieldRegistry(g *codegen.File, attr *xsd.Attribute, ctx *SchemaContext, fieldRegistry *FieldRegistry) bool {
 	if attr.Name == "" {
 		return false
 	}
 
-	fieldName := toGoName(attr.Name)
+	var fieldName string
+	if fieldRegistry != nil {
+		fieldName = fieldRegistry.generateUniqueFieldName(attr.Name, true) // true = is attribute
+	} else {
+		fieldName = toGoName(attr.Name)
+	}
 	if fieldName == "" {
 		return false
 	}
@@ -535,12 +558,15 @@ func generateStructFromComplexType(g *codegen.File, complexType *xsd.ComplexType
 	// Start struct declaration
 	g.P("type ", structName, " struct {")
 
+	// Create field registry to track field name collisions
+	fieldRegistry := newFieldRegistry()
+
 	hasFields := false
 
 	// Generate fields from the sequence
 	if complexType.Sequence != nil {
 		for _, field := range complexType.Sequence.Elements {
-			if generateStructFieldWithInlineTypes(g, &field, ctx) {
+			if generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(g, &field, ctx, 0, complexType.Name, fieldRegistry) {
 				hasFields = true
 			}
 		}
@@ -548,7 +574,7 @@ func generateStructFromComplexType(g *codegen.File, complexType *xsd.ComplexType
 
 	// Handle attributes
 	for _, attr := range complexType.Attributes {
-		if generateAttributeField(g, &attr, ctx) {
+		if generateAttributeFieldWithFieldRegistry(g, &attr, ctx, fieldRegistry) {
 			hasFields = true
 		}
 	}
@@ -558,14 +584,14 @@ func generateStructFromComplexType(g *codegen.File, complexType *xsd.ComplexType
 		ext := complexType.ComplexContent.Extension
 		if ext.Sequence != nil {
 			for _, field := range ext.Sequence.Elements {
-				if generateStructFieldWithInlineTypes(g, &field, ctx) {
+				if generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(g, &field, ctx, 0, complexType.Name, fieldRegistry) {
 					hasFields = true
 				}
 			}
 		}
 		// Handle extension attributes
 		for _, attr := range ext.Attributes {
-			if generateAttributeField(g, &attr, ctx) {
+			if generateAttributeFieldWithFieldRegistry(g, &attr, ctx, fieldRegistry) {
 				hasFields = true
 			}
 		}
