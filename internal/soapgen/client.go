@@ -187,16 +187,27 @@ func (g *Generator) generateOperationMethods(file *codegen.File) error {
 	return nil
 }
 
-// getSOAPBindings returns all SOAP bindings from the WSDL
+// getSOAPBindings returns SOAP bindings from the WSDL, preferring SOAP 1.1 over SOAP 1.2
 func (g *Generator) getSOAPBindings() []*wsdl.Binding {
-	var soapBindings []*wsdl.Binding
+	var soap11Bindings []*wsdl.Binding
+	var soap12Bindings []*wsdl.Binding
+
 	for i := range g.definitions.Binding {
 		binding := &g.definitions.Binding[i]
-		if binding.SOAP11Binding != nil || binding.SOAP12Binding != nil {
-			soapBindings = append(soapBindings, binding)
+		if binding.SOAP11Binding != nil {
+			soap11Bindings = append(soap11Bindings, binding)
+		} else if binding.SOAP12Binding != nil {
+			soap12Bindings = append(soap12Bindings, binding)
 		}
 	}
-	return soapBindings
+
+	// Prefer SOAP 1.1 bindings as per README.md specification
+	if len(soap11Bindings) > 0 {
+		return soap11Bindings
+	}
+
+	// Fall back to SOAP 1.2 if no SOAP 1.1 bindings are available
+	return soap12Bindings
 }
 
 // getPortTypeForBinding finds the port type that matches the given binding
