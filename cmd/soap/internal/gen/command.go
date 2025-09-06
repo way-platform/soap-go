@@ -22,20 +22,23 @@ func NewCommand() *cobra.Command {
 	outputDir := cmd.Flags().StringP("dir", "d", "", "output directory (required)")
 	_ = cmd.MarkFlagRequired("dir")
 	packageName := cmd.Flags().StringP("package", "p", "", "Go package name (required)")
+	generateClient := cmd.Flags().Bool("client", false, "generate SOAP client code")
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		return run(config{
-			inputFile:   *inputFile,
-			outputDir:   *outputDir,
-			packageName: *packageName,
+			inputFile:      *inputFile,
+			outputDir:      *outputDir,
+			packageName:    *packageName,
+			generateClient: *generateClient,
 		})
 	}
 	return cmd
 }
 
 type config struct {
-	inputFile   string
-	outputDir   string
-	packageName string
+	inputFile      string
+	outputDir      string
+	packageName    string
+	generateClient bool
 }
 
 func run(cfg config) error {
@@ -55,7 +58,8 @@ func run(cfg config) error {
 
 	// Create generator with configuration
 	generator := soapgen.NewGenerator(defs, soapgen.Config{
-		PackageName: cfg.packageName,
+		PackageName:    cfg.packageName,
+		GenerateClient: cfg.generateClient,
 	})
 
 	// Generate the code
