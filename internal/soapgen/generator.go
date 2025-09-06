@@ -11,7 +11,8 @@ import (
 
 // Config holds configuration for code generation
 type Config struct {
-	PackageName string
+	PackageName    string
+	GenerateClient bool // Whether to generate SOAP client code
 }
 
 // Generator generates Go code from WSDL definitions
@@ -50,6 +51,17 @@ func (g *Generator) Generate() error {
 		}
 
 		g.files = append(g.files, file)
+	}
+
+	// Generate client file if requested
+	if g.config.GenerateClient {
+		clientFile, err := g.generateClientFile(g.config.PackageName, "client.go")
+		if err != nil {
+			return fmt.Errorf("failed to generate client file: %w", err)
+		}
+		if clientFile != nil {
+			g.files = append(g.files, clientFile)
+		}
 	}
 
 	return nil

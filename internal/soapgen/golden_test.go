@@ -104,7 +104,8 @@ func runGoldenTest(t *testing.T, tc testCase) {
 
 	// Create generator with the test case directory as package name
 	generator := NewGenerator(defs, Config{
-		PackageName: tc.name,
+		PackageName:    tc.name,
+		GenerateClient: true, // Enable client generation for golden tests
 	})
 
 	// Generate code
