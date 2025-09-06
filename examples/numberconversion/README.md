@@ -1,6 +1,8 @@
 # NumberConversion API Documentation
 
-**Namespace:** `http://www.dataaccess.com/webservicesserver/`
+| | |
+|---|---|
+| **Namespace** | `http://www.dataaccess.com/webservicesserver/` |
 
 ## Overview
 
@@ -13,7 +15,7 @@ The Number Conversion Web Service, implemented with Visual DataFlex, provides fu
 
 ## Operations
 
-### NumberToWords {#numbertowords}
+### NumberToWords
 
 > Returns the word corresponding to the positive number passed as parameter. Limited to quadrillions.
 
@@ -23,8 +25,8 @@ The Number Conversion Web Service, implemented with Visual DataFlex, provides fu
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| NumberToWords | object | Yes | - |
-| NumberToWords.ubiNum | xs:unsignedLong | Yes | - |
+| `<NumberToWords>` | object | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;`<ubiNum>` | xs:unsignedLong | Yes |  |
 
 #### Response
 
@@ -32,11 +34,11 @@ The Number Conversion Web Service, implemented with Visual DataFlex, provides fu
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| NumberToWordsResponse | object | Yes | - |
-| NumberToWordsResponse.NumberToWordsResult | xs:string | Yes | - |
+| `<NumberToWordsResponse>` | object | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;`<NumberToWordsResult>` | xs:string | Yes |  |
 
 
-### NumberToDollars {#numbertodollars}
+### NumberToDollars
 
 > Returns the non-zero dollar amount of the passed number.
 
@@ -46,8 +48,8 @@ The Number Conversion Web Service, implemented with Visual DataFlex, provides fu
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| NumberToDollars | object | Yes | - |
-| NumberToDollars.dNum | xs:decimal | Yes | - |
+| `<NumberToDollars>` | object | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;`<dNum>` | xs:decimal | Yes |  |
 
 #### Response
 
@@ -55,7 +57,7 @@ The Number Conversion Web Service, implemented with Visual DataFlex, provides fu
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| NumberToDollarsResponse | object | Yes | - |
-| NumberToDollarsResponse.NumberToDollarsResult | xs:string | Yes | - |
+| `<NumberToDollarsResponse>` | object | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;`<NumberToDollarsResult>` | xs:string | Yes |  |
 
 
