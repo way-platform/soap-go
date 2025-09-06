@@ -1,7 +1,9 @@
 # TestService API Documentation
 
-**Namespace:** `http://example.com/custom`
-**Endpoint:** `http://example.com/test`
+| | |
+|---|---|
+| **Namespace** | `http://example.com/custom` |
+| **Endpoint** | `http://example.com/test` |
 
 ## Overview
 
@@ -13,7 +15,7 @@ Test service with custom namespace prefix binding
 
 ## Operations
 
-### testOperation {#testoperation}
+### testOperation
 
 > Test operation with custom namespace prefix.
 
@@ -25,7 +27,7 @@ Test service with custom namespace prefix binding
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| parameters | element: custom:TestRequest | Unknown | - |
+| `<parameters>` | element: custom:TestRequest | Unknown |  |
 
 #### Response
 
@@ -33,6 +35,6 @@ Test service with custom namespace prefix binding
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| parameters | element: custom:TestResponse | Unknown | - |
+| `<parameters>` | element: custom:TestResponse | Unknown |  |
 
 

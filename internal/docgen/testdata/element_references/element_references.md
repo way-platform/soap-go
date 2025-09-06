@@ -1,7 +1,9 @@
 # PersonService API Documentation
 
-**Namespace:** `http://example.com/elementrefs`
-**Endpoint:** `http://example.com/personservice`
+| | |
+|---|---|
+| **Namespace** | `http://example.com/elementrefs` |
+| **Endpoint** | `http://example.com/personservice` |
 
 ## Overview
 
@@ -14,7 +16,7 @@ Service for managing person information with element references
 
 ## Operations
 
-### processPerson {#processperson}
+### processPerson
 
 > Process a person with addresses and contact information using element references
 
@@ -26,25 +28,25 @@ Service for managing person information with element references
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| ProcessPersonRequest | object | Yes | - |
-| ProcessPersonRequest.Person | object | Yes | - |
-| ProcessPersonRequest.Person.firstName | xs:string | Yes | - |
-| ProcessPersonRequest.Person.lastName | xs:string | Yes | - |
-| ProcessPersonRequest.Person.age | xs:int | No | - |
-| ProcessPersonRequest.Person.@id | xs:long (attribute) | Yes | - |
-| ProcessPersonRequest.Address | object | Yes | - |
-| ProcessPersonRequest.Address.street | xs:string | Yes | - |
-| ProcessPersonRequest.Address.city | xs:string | Yes | - |
-| ProcessPersonRequest.Address.zipCode | xs:string | No | - |
-| ProcessPersonRequest.Address.country | xs:string | Yes | - |
-| ProcessPersonRequest.Address.@verified | xs:boolean (attribute) | No | - |
-| ProcessPersonRequest.ContactInfo | object | Yes | - |
-| ProcessPersonRequest.ContactInfo.email | xs:string | Yes | - |
-| ProcessPersonRequest.ContactInfo.phone | xs:string | No | - |
-| ProcessPersonRequest.preferences | object | Yes | - |
-| ProcessPersonRequest.preferences.newsletter | xs:boolean | Yes | - |
-| ProcessPersonRequest.preferences.notifications | xs:boolean | Yes | - |
-| ProcessPersonRequest.@requestId | xs:string (attribute) | Yes | - |
+| `<ProcessPersonRequest>` | object | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;requestId | xs:string (attribute) | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;`<Person>` | object | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id | xs:long (attribute) | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<firstName>` | xs:string | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<lastName>` | xs:string | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<age>` | xs:int | No |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;`<Address>` | object | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;verified | xs:boolean (attribute) | No |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<street>` | xs:string | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<city>` | xs:string | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<zipCode>` | xs:string | No |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<country>` | xs:string | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;`<ContactInfo>` | object | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<email>` | xs:string | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<phone>` | xs:string | No |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;`<preferences>` | object | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<newsletter>` | xs:boolean | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<notifications>` | xs:boolean | Yes |  |
 
 #### Response
 
@@ -52,27 +54,27 @@ Service for managing person information with element references
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| ProcessPersonResponse | object | Yes | - |
-| ProcessPersonResponse.success | xs:boolean | Yes | - |
-| ProcessPersonResponse.message | xs:string | No | - |
-| ProcessPersonResponse.updatedPerson | object | Yes | - |
-| ProcessPersonResponse.updatedPerson.Person | object | Yes | - |
-| ProcessPersonResponse.updatedPerson.Person.firstName | xs:string | Yes | - |
-| ProcessPersonResponse.updatedPerson.Person.lastName | xs:string | Yes | - |
-| ProcessPersonResponse.updatedPerson.Person.age | xs:int | No | - |
-| ProcessPersonResponse.updatedPerson.Person.@id | xs:long (attribute) | Yes | - |
-| ProcessPersonResponse.updatedPerson.lastUpdated | xs:dateTime | Yes | - |
-| ProcessPersonResponse.validatedAddresses | object | Yes | - |
-| ProcessPersonResponse.validatedAddresses.Address | object | Yes | - |
-| ProcessPersonResponse.validatedAddresses.Address.street | xs:string | Yes | - |
-| ProcessPersonResponse.validatedAddresses.Address.city | xs:string | Yes | - |
-| ProcessPersonResponse.validatedAddresses.Address.zipCode | xs:string | No | - |
-| ProcessPersonResponse.validatedAddresses.Address.country | xs:string | Yes | - |
-| ProcessPersonResponse.validatedAddresses.Address.@verified | xs:boolean (attribute) | No | - |
-| ProcessPersonResponse.@responseId | xs:string (attribute) | No | - |
+| `<ProcessPersonResponse>` | object | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;responseId | xs:string (attribute) | No |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;`<success>` | xs:boolean | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;`<message>` | xs:string | No |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;`<updatedPerson>` | object | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<Person>` | object | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id | xs:long (attribute) | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<firstName>` | xs:string | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<lastName>` | xs:string | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<age>` | xs:int | No |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<lastUpdated>` | xs:dateTime | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;`<validatedAddresses>` | object | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<Address>` | object | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;verified | xs:boolean (attribute) | No |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<street>` | xs:string | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<city>` | xs:string | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<zipCode>` | xs:string | No |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<country>` | xs:string | Yes |  |
 
 
-### getPersonInfo {#getpersoninfo}
+### getPersonInfo
 
 > Get person information by ID with optional address details
 
@@ -84,9 +86,9 @@ Service for managing person information with element references
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| GetPersonInfoRequest | object | Yes | - |
-| GetPersonInfoRequest.personId | xs:long | Yes | - |
-| GetPersonInfoRequest.includeAddresses | xs:boolean | Yes | - |
+| `<GetPersonInfoRequest>` | object | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;`<personId>` | xs:long | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;`<includeAddresses>` | xs:boolean | Yes |  |
 
 #### Response
 
@@ -94,21 +96,21 @@ Service for managing person information with element references
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| GetPersonInfoResponse | object | Yes | - |
-| GetPersonInfoResponse.Person | object | Yes | - |
-| GetPersonInfoResponse.Person.firstName | xs:string | Yes | - |
-| GetPersonInfoResponse.Person.lastName | xs:string | Yes | - |
-| GetPersonInfoResponse.Person.age | xs:int | No | - |
-| GetPersonInfoResponse.Person.@id | xs:long (attribute) | Yes | - |
-| GetPersonInfoResponse.addresses | object | Yes | - |
-| GetPersonInfoResponse.addresses.Address | object | Yes | - |
-| GetPersonInfoResponse.addresses.Address.street | xs:string | Yes | - |
-| GetPersonInfoResponse.addresses.Address.city | xs:string | Yes | - |
-| GetPersonInfoResponse.addresses.Address.zipCode | xs:string | No | - |
-| GetPersonInfoResponse.addresses.Address.country | xs:string | Yes | - |
-| GetPersonInfoResponse.addresses.Address.@verified | xs:boolean (attribute) | No | - |
-| GetPersonInfoResponse.ContactInfo | object | Yes | - |
-| GetPersonInfoResponse.ContactInfo.email | xs:string | Yes | - |
-| GetPersonInfoResponse.ContactInfo.phone | xs:string | No | - |
+| `<GetPersonInfoResponse>` | object | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;`<Person>` | object | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id | xs:long (attribute) | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<firstName>` | xs:string | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<lastName>` | xs:string | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<age>` | xs:int | No |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;`<addresses>` | object | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<Address>` | object | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;verified | xs:boolean (attribute) | No |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<street>` | xs:string | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<city>` | xs:string | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<zipCode>` | xs:string | No |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<country>` | xs:string | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;`<ContactInfo>` | object | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<email>` | xs:string | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<phone>` | xs:string | No |  |
 
 

@@ -1,7 +1,9 @@
 # TestService API Documentation
 
-**Namespace:** `http://example.com/test`
-**Endpoint:** `http://example.com/test`
+| | |
+|---|---|
+| **Namespace** | `http://example.com/test` |
+| **Endpoint** | `http://example.com/test` |
 
 ## Overview
 
@@ -13,7 +15,7 @@ Test service with namespace prefixed binding reference
 
 ## Operations
 
-### testOperation {#testoperation}
+### testOperation
 
 > Test operation for binding resolution.
 
@@ -25,7 +27,7 @@ Test service with namespace prefixed binding reference
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| parameters | element: tns:TestRequest | Unknown | - |
+| `<parameters>` | element: tns:TestRequest | Unknown |  |
 
 #### Response
 
@@ -33,6 +35,6 @@ Test service with namespace prefixed binding reference
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| parameters | element: tns:TestResponse | Unknown | - |
+| `<parameters>` | element: tns:TestResponse | Unknown |  |
 
 

@@ -1,7 +1,9 @@
 # GlobalWeather API Documentation
 
-**Namespace:** `http://www.webserviceX.NET`
-**Endpoint:** `http://www.webservicex.com/globalweather.asmx`
+| | |
+|---|---|
+| **Namespace** | `http://www.webserviceX.NET` |
+| **Endpoint** | `http://www.webservicex.com/globalweather.asmx` |
 
 ## Available Operations
 
@@ -10,7 +12,7 @@
 
 ## Operations
 
-### GetWeather {#getweather}
+### GetWeather
 
 > Get weather report for all major cities around the world.
 
@@ -22,9 +24,9 @@
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| GetWeather | object | Yes | - |
-| GetWeather.CityName | s:string | No | - |
-| GetWeather.CountryName | s:string | No | - |
+| `<GetWeather>` | object | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;`<CityName>` | s:string | No |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;`<CountryName>` | s:string | No |  |
 
 #### Response
 
@@ -32,11 +34,11 @@
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| GetWeatherResponse | object | Yes | - |
-| GetWeatherResponse.GetWeatherResult | s:string | No | - |
+| `<GetWeatherResponse>` | object | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;`<GetWeatherResult>` | s:string | No |  |
 
 
-### GetCitiesByCountry {#getcitiesbycountry}
+### GetCitiesByCountry
 
 > Get all major cities by country name(full / part).
 
@@ -48,8 +50,8 @@
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| GetCitiesByCountry | object | Yes | - |
-| GetCitiesByCountry.CountryName | s:string | No | - |
+| `<GetCitiesByCountry>` | object | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;`<CountryName>` | s:string | No |  |
 
 #### Response
 
@@ -57,7 +59,7 @@
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| GetCitiesByCountryResponse | object | Yes | - |
-| GetCitiesByCountryResponse.GetCitiesByCountryResult | s:string | No | - |
+| `<GetCitiesByCountryResponse>` | object | Yes |  |
+| &nbsp;&nbsp;&nbsp;&nbsp;`<GetCitiesByCountryResult>` | s:string | No |  |
 
 

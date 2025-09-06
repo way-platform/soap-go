@@ -1,6 +1,8 @@
 # Kitchensink API Documentation
 
-**Namespace:** `http://example.com/typetest`
+| | |
+|---|---|
+| **Namespace** | `http://example.com/typetest` |
 
 ## Operations
 

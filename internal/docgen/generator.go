@@ -44,16 +44,19 @@ func (g *Generator) generateMarkdown() error {
 	title := g.getDocumentTitle()
 	g.output.P("# ", title)
 
-	if doc.TargetNamespace != "" {
+	// Add namespace and endpoint as table
+	if doc.TargetNamespace != "" || g.getServiceEndpoint() != "" {
 		g.output.P()
-		g.output.P("**Namespace:** `", doc.TargetNamespace, "`")
+		g.output.P("| | |")
+		g.output.P("|---|---|")
+		if doc.TargetNamespace != "" {
+			g.output.P("| **Namespace** | `", doc.TargetNamespace, "` |")
+		}
+		if endpoint := g.getServiceEndpoint(); endpoint != "" {
+			g.output.P("| **Endpoint** | `", endpoint, "` |")
+		}
+		g.output.P()
 	}
-
-	// Add endpoint information if available
-	if endpoint := g.getServiceEndpoint(); endpoint != "" {
-		g.output.P("**Endpoint:** `", endpoint, "`")
-	}
-	g.output.P()
 
 	// Add overview section with operations summary
 	if err := g.generateOverview(); err != nil {
@@ -165,12 +168,14 @@ func (g *Generator) generateOverview() error {
 
 	for _, op := range allOperations {
 		desc := op.Description
-		if desc == "" {
-			desc = "No description available"
-		}
-		// Create anchor link to the operation section
+		// Create GitHub-compatible anchor link to the operation section
 		anchor := strings.ToLower(strings.ReplaceAll(op.Name, " ", "-"))
-		g.output.P("- **[", op.Name, "](#", anchor, ")** - ", desc)
+		if desc == "" {
+			// Just show the operation name without description if none available
+			g.output.P("- **[", op.Name, "](#", anchor, ")**")
+		} else {
+			g.output.P("- **[", op.Name, "](#", anchor, ")** - ", desc)
+		}
 	}
 	g.output.P()
 
@@ -255,9 +260,8 @@ func (g *Generator) generateServiceDoc(service *wsdl.Service, schemaMap map[stri
 
 // generateOperationDoc generates documentation for a single operation
 func (g *Generator) generateOperationDoc(operation *wsdl.Operation, service *wsdl.Service, schemaMap map[string]*xsd.Element) error {
-	// Create anchor-friendly ID for the operation
-	anchor := strings.ToLower(strings.ReplaceAll(operation.Name, " ", "-"))
-	g.output.P("### ", operation.Name, " {#", anchor, "}")
+	// Create GitHub-compatible anchor for the operation
+	g.output.P("### ", operation.Name)
 	g.output.P()
 
 	// Add operation description if available
@@ -375,6 +379,8 @@ func (g *Generator) generateMessageDoc(messageType, messageName string, schemaMa
 					Type:        "element: " + part.Element,
 					Required:    "Unknown",
 					Description: "",
+					Level:       0,
+					IsAttribute: false,
 				})
 			}
 		} else if part.Type != "" {
@@ -383,22 +389,15 @@ func (g *Generator) generateMessageDoc(messageType, messageName string, schemaMa
 				Type:        part.Type,
 				Required:    "Unknown",
 				Description: "",
+				Level:       0,
+				IsAttribute: false,
 			})
 		}
 	}
 
 	// Generate table if we have fields
 	if len(fields) > 0 {
-		g.output.P("| Field | Type | Required | Description |")
-		g.output.P("|-------|------|----------|-------------|")
-
-		for _, field := range fields {
-			desc := field.Description
-			if desc == "" {
-				desc = "-"
-			}
-			g.output.P("| ", field.Name, " | ", field.Type, " | ", field.Required, " | ", desc, " |")
-		}
+		g.generateHierarchicalFieldsTable(fields)
 	} else {
 		g.output.P("*No fields defined.*")
 	}
@@ -407,11 +406,54 @@ func (g *Generator) generateMessageDoc(messageType, messageName string, schemaMa
 	return nil
 }
 
+// generateHierarchicalFieldsTable generates a table with hierarchical field display
+func (g *Generator) generateHierarchicalFieldsTable(fields []fieldInfo) {
+	g.output.P("| Field | Type | Required | Description |")
+	g.output.P("|-------|------|----------|-------------|")
+
+	// Render fields with proper grouping (attributes first within each parent)
+	for _, field := range fields {
+		desc := field.Description
+		// Leave description empty if not available instead of showing "-"
+		
+		// Create indented name with XML-style tags
+		indentedName := g.getIndentedFieldName(field, field.Level)
+		g.output.P("| ", indentedName, " | ", field.Type, " | ", field.Required, " | ", desc, " |")
+	}
+}
+
+// buildFieldTree builds a hierarchical tree structure from flat field list
+
+// getIndentedFieldName creates an indented field name with XML-style tags
+func (g *Generator) getIndentedFieldName(field fieldInfo, level int) string {
+	// Extract the last part of the field name
+	parts := strings.Split(field.Name, ".")
+	lastPart := parts[len(parts)-1]
+
+	// Add indentation based on level (doubled spacing)
+	indent := ""
+	if level > 0 {
+		indent = strings.Repeat("&nbsp;&nbsp;&nbsp;&nbsp;", level)
+	}
+
+	// Format based on whether it's an attribute or element
+	if strings.HasPrefix(lastPart, "@") {
+		// Attributes are plain text without the @ prefix
+		attributeName := lastPart[1:] // Remove the @ prefix
+		return indent + attributeName
+	} else {
+		// Elements get XML-style tags wrapped in backticks to prevent HTML interpretation
+		return indent + "`<" + lastPart + ">`"
+	}
+}
+
 type fieldInfo struct {
 	Name        string
 	Type        string
 	Required    string
 	Description string
+	Level       int  // Hierarchy level for indentation
+	IsAttribute bool // Whether this is an attribute
 }
 
 // collectElementFields recursively collects field information from an element
@@ -419,11 +461,11 @@ func (g *Generator) collectElementFields(element *xsd.Element, prefix string, fi
 	// Build schema map for element lookups if not already done
 	schemaMap := g.buildSchemaMap()
 	visited := make(map[string]bool)
-	g.collectElementFieldsWithSchema(element, prefix, fields, schemaMap, visited)
+	g.collectElementFieldsWithSchema(element, prefix, fields, schemaMap, visited, 0)
 }
 
 // collectElementFieldsWithSchema recursively collects field information from an element with schema context
-func (g *Generator) collectElementFieldsWithSchema(element *xsd.Element, prefix string, fields *[]fieldInfo, schemaMap map[string]*xsd.Element, visited map[string]bool) {
+func (g *Generator) collectElementFieldsWithSchema(element *xsd.Element, prefix string, fields *[]fieldInfo, schemaMap map[string]*xsd.Element, visited map[string]bool, level int) {
 	// Handle element references first
 	if element.Ref != "" {
 		// This is an element reference, resolve it
@@ -441,6 +483,8 @@ func (g *Generator) collectElementFieldsWithSchema(element *xsd.Element, prefix 
 				Type:        "ref: " + element.Ref + " (circular reference)",
 				Required:    "Unknown",
 				Description: "",
+				Level:       level,
+				IsAttribute: false,
 			})
 			return
 		}
@@ -449,7 +493,7 @@ func (g *Generator) collectElementFieldsWithSchema(element *xsd.Element, prefix 
 			// Mark as visited
 			visited[cycleKey] = true
 			// Recursively process the referenced element
-			g.collectElementFieldsWithSchema(refElement, prefix, fields, schemaMap, visited)
+			g.collectElementFieldsWithSchema(refElement, prefix, fields, schemaMap, visited, level)
 			// Unmark after processing
 			delete(visited, cycleKey)
 		} else {
@@ -459,6 +503,8 @@ func (g *Generator) collectElementFieldsWithSchema(element *xsd.Element, prefix 
 				Type:        "ref: " + element.Ref,
 				Required:    "Unknown",
 				Description: "",
+				Level:       level,
+				IsAttribute: false,
 			})
 		}
 		return
@@ -497,6 +543,8 @@ func (g *Generator) collectElementFieldsWithSchema(element *xsd.Element, prefix 
 				Type:        "object (circular reference)",
 				Required:    required,
 				Description: "",
+				Level:       level,
+				IsAttribute: false,
 			})
 			return
 		}
@@ -509,10 +557,12 @@ func (g *Generator) collectElementFieldsWithSchema(element *xsd.Element, prefix 
 			Type:        "object",
 			Required:    required,
 			Description: "",
+			Level:       level,
+			IsAttribute: false,
 		})
 
 		// Recursively collect fields from the complex type
-		g.collectComplexTypeFieldsWithSchema(element.ComplexType, fieldName, fields, schemaMap, visited)
+		g.collectComplexTypeFieldsWithSchema(element.ComplexType, fieldName, fields, schemaMap, visited, level+1)
 		// Unmark after processing
 		delete(visited, cycleKey)
 		return
@@ -538,6 +588,8 @@ func (g *Generator) collectElementFieldsWithSchema(element *xsd.Element, prefix 
 					Type:        fieldType,
 					Required:    required,
 					Description: "",
+					Level:       level,
+					IsAttribute: false,
 				})
 				return
 			}
@@ -551,6 +603,8 @@ func (g *Generator) collectElementFieldsWithSchema(element *xsd.Element, prefix 
 					Type:        fieldType + " (circular reference)",
 					Required:    required,
 					Description: "",
+					Level:       level,
+					IsAttribute: false,
 				})
 				return
 			}
@@ -558,7 +612,7 @@ func (g *Generator) collectElementFieldsWithSchema(element *xsd.Element, prefix 
 			// Mark as visited
 			visited[cycleKey] = true
 			// This type references an element, recursively process it
-			g.collectElementFieldsWithSchema(referencedElement, fieldName, fields, schemaMap, visited)
+			g.collectElementFieldsWithSchema(referencedElement, fieldName, fields, schemaMap, visited, level)
 			// Unmark after processing
 			delete(visited, cycleKey)
 			return
@@ -576,6 +630,8 @@ func (g *Generator) collectElementFieldsWithSchema(element *xsd.Element, prefix 
 					Type:        "object (circular reference)",
 					Required:    required,
 					Description: "",
+					Level:       level,
+					IsAttribute: false,
 				})
 				return
 			}
@@ -588,10 +644,12 @@ func (g *Generator) collectElementFieldsWithSchema(element *xsd.Element, prefix 
 				Type:        "object",
 				Required:    required,
 				Description: "",
+				Level:       level,
+				IsAttribute: false,
 			})
 
 			// Recursively collect fields from the complex type
-			g.collectComplexTypeFieldsWithSchema(complexType, fieldName, fields, schemaMap, visited)
+			g.collectComplexTypeFieldsWithSchema(complexType, fieldName, fields, schemaMap, visited, level+1)
 			// Unmark after processing
 			delete(visited, cycleKey)
 			return
@@ -603,6 +661,8 @@ func (g *Generator) collectElementFieldsWithSchema(element *xsd.Element, prefix 
 			Type:        fieldType,
 			Required:    required,
 			Description: "",
+			Level:       level,
+			IsAttribute: false,
 		})
 		return
 	}
@@ -613,6 +673,8 @@ func (g *Generator) collectElementFieldsWithSchema(element *xsd.Element, prefix 
 		Type:        "",
 		Required:    required,
 		Description: "",
+		Level:       level,
+		IsAttribute: false,
 	})
 }
 
@@ -632,18 +694,8 @@ func (g *Generator) findComplexTypeByName(typeName string) *xsd.ComplexType {
 }
 
 // collectComplexTypeFieldsWithSchema collects fields from a complex type with schema context
-func (g *Generator) collectComplexTypeFieldsWithSchema(complexType *xsd.ComplexType, prefix string, fields *[]fieldInfo, schemaMap map[string]*xsd.Element, visited map[string]bool) {
-	if complexType.Sequence != nil {
-		g.collectSequenceFieldsWithSchema(complexType.Sequence, prefix, fields, schemaMap, visited)
-	}
-	if complexType.Choice != nil {
-		g.collectChoiceFieldsWithSchema(complexType.Choice, prefix, fields, schemaMap, visited)
-	}
-	if complexType.All != nil {
-		g.collectAllFieldsWithSchema(complexType.All, prefix, fields, schemaMap, visited)
-	}
-
-	// Collect attributes
+func (g *Generator) collectComplexTypeFieldsWithSchema(complexType *xsd.ComplexType, prefix string, fields *[]fieldInfo, schemaMap map[string]*xsd.Element, visited map[string]bool, level int) {
+	// Collect attributes first
 	for _, attr := range complexType.Attributes {
 		required := "No"
 		if attr.Use == "required" {
@@ -655,47 +707,62 @@ func (g *Generator) collectComplexTypeFieldsWithSchema(complexType *xsd.ComplexT
 			Type:        attr.Type + " (attribute)",
 			Required:    required,
 			Description: "",
+			Level:       level,
+			IsAttribute: true,
 		})
+	}
+
+	// Then collect elements
+	if complexType.Sequence != nil {
+		g.collectSequenceFieldsWithSchema(complexType.Sequence, prefix, fields, schemaMap, visited, level)
+	}
+	if complexType.Choice != nil {
+		g.collectChoiceFieldsWithSchema(complexType.Choice, prefix, fields, schemaMap, visited, level)
+	}
+	if complexType.All != nil {
+		g.collectAllFieldsWithSchema(complexType.All, prefix, fields, schemaMap, visited, level)
 	}
 }
 
 // collectSequenceFieldsWithSchema collects fields from a sequence with schema context
-func (g *Generator) collectSequenceFieldsWithSchema(sequence *xsd.Sequence, prefix string, fields *[]fieldInfo, schemaMap map[string]*xsd.Element, visited map[string]bool) {
+func (g *Generator) collectSequenceFieldsWithSchema(sequence *xsd.Sequence, prefix string, fields *[]fieldInfo, schemaMap map[string]*xsd.Element, visited map[string]bool, level int) {
 	for i := range sequence.Elements {
-		g.collectElementFieldsWithSchema(&sequence.Elements[i], prefix, fields, schemaMap, visited)
+		g.collectElementFieldsWithSchema(&sequence.Elements[i], prefix, fields, schemaMap, visited, level)
 	}
 	for i := range sequence.Sequences {
-		g.collectSequenceFieldsWithSchema(&sequence.Sequences[i], prefix, fields, schemaMap, visited)
+		g.collectSequenceFieldsWithSchema(&sequence.Sequences[i], prefix, fields, schemaMap, visited, level)
 	}
 	for i := range sequence.Choices {
-		g.collectChoiceFieldsWithSchema(&sequence.Choices[i], prefix, fields, schemaMap, visited)
+		g.collectChoiceFieldsWithSchema(&sequence.Choices[i], prefix, fields, schemaMap, visited, level)
 	}
 }
 
 // collectChoiceFieldsWithSchema collects fields from a choice with schema context
-func (g *Generator) collectChoiceFieldsWithSchema(choice *xsd.Choice, prefix string, fields *[]fieldInfo, schemaMap map[string]*xsd.Element, visited map[string]bool) {
+func (g *Generator) collectChoiceFieldsWithSchema(choice *xsd.Choice, prefix string, fields *[]fieldInfo, schemaMap map[string]*xsd.Element, visited map[string]bool, level int) {
 	// Add a note about choice
 	*fields = append(*fields, fieldInfo{
 		Name:        prefix + " (choice)",
 		Type:        "one of the following",
 		Required:    "Yes",
 		Description: "Choose one of the following options",
+		Level:       level,
+		IsAttribute: false,
 	})
 
 	for i := range choice.Elements {
-		g.collectElementFieldsWithSchema(&choice.Elements[i], prefix, fields, schemaMap, visited)
+		g.collectElementFieldsWithSchema(&choice.Elements[i], prefix, fields, schemaMap, visited, level)
 	}
 	for i := range choice.Sequences {
-		g.collectSequenceFieldsWithSchema(&choice.Sequences[i], prefix, fields, schemaMap, visited)
+		g.collectSequenceFieldsWithSchema(&choice.Sequences[i], prefix, fields, schemaMap, visited, level)
 	}
 	for i := range choice.Choices {
-		g.collectChoiceFieldsWithSchema(&choice.Choices[i], prefix, fields, schemaMap, visited)
+		g.collectChoiceFieldsWithSchema(&choice.Choices[i], prefix, fields, schemaMap, visited, level)
 	}
 }
 
 // collectAllFieldsWithSchema collects fields from an all group with schema context
-func (g *Generator) collectAllFieldsWithSchema(all *xsd.All, prefix string, fields *[]fieldInfo, schemaMap map[string]*xsd.Element, visited map[string]bool) {
+func (g *Generator) collectAllFieldsWithSchema(all *xsd.All, prefix string, fields *[]fieldInfo, schemaMap map[string]*xsd.Element, visited map[string]bool, level int) {
 	for i := range all.Elements {
-		g.collectElementFieldsWithSchema(&all.Elements[i], prefix, fields, schemaMap, visited)
+		g.collectElementFieldsWithSchema(&all.Elements[i], prefix, fields, schemaMap, visited, level)
 	}
 }
