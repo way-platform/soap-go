@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:tns="http://example.com/elementrefs"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://example.com/elementrefs">
+
+    <types>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://example.com/elementrefs"
+            elementFormDefault="qualified">
+
+            <!-- Define some reusable complex types -->
+            <xs:complexType name="AddressType">
+                <xs:sequence>
+                    <xs:element name="street" type="xs:string" />
+                    <xs:element name="city" type="xs:string" />
+                    <xs:element name="zipCode" type="xs:string" minOccurs="0" />
+                    <xs:element name="country" type="xs:string" />
+                </xs:sequence>
+                <xs:attribute name="verified" type="xs:boolean" />
+            </xs:complexType>
+
+            <xs:complexType name="PersonType">
+                <xs:sequence>
+                    <xs:element name="firstName" type="xs:string" />
+                    <xs:element name="lastName" type="xs:string" />
+                    <xs:element name="age" type="xs:int" minOccurs="0" />
+                </xs:sequence>
+                <xs:attribute name="id" type="xs:long" use="required" />
+            </xs:complexType>
+
+            <!-- Define standalone elements for referencing -->
+            <xs:element name="Address" type="tns:AddressType" />
+            <xs:element name="Person" type="tns:PersonType" />
+            <xs:element name="ContactInfo">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="email" type="xs:string" />
+                        <xs:element name="phone" type="xs:string" minOccurs="0" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- Request element that uses element references -->
+            <xs:element name="ProcessPersonRequest">
+                <xs:complexType>
+                    <xs:sequence>
+                        <!-- Direct element reference -->
+                        <xs:element ref="tns:Person" />
+                        <!-- Element reference with different cardinality -->
+                        <xs:element ref="tns:Address" maxOccurs="unbounded" />
+                        <!-- Optional element reference -->
+                        <xs:element ref="tns:ContactInfo" minOccurs="0" />
+                        <!-- Inline element with nested structure -->
+                        <xs:element name="preferences">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="newsletter" type="xs:boolean" />
+                                    <xs:element name="notifications" type="xs:boolean" />
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                    <xs:attribute name="requestId" type="xs:string" use="required" />
+                </xs:complexType>
+            </xs:element>
+
+            <!-- Response element with mixed references and inline types -->
+            <xs:element name="ProcessPersonResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="success" type="xs:boolean" />
+                        <xs:element name="message" type="xs:string" minOccurs="0" />
+                        <!-- Nested element reference -->
+                        <xs:element name="updatedPerson">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element ref="tns:Person" />
+                                    <xs:element name="lastUpdated" type="xs:dateTime" />
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                        <!-- Array of element references -->
+                        <xs:element name="validatedAddresses">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element ref="tns:Address" minOccurs="0"
+                                        maxOccurs="unbounded" />
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                    <xs:attribute name="responseId" type="xs:string" />
+                </xs:complexType>
+            </xs:element>
+
+            <!-- Another operation to test different patterns -->
+            <xs:element name="GetPersonInfoRequest">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="personId" type="xs:long" />
+                        <xs:element name="includeAddresses" type="xs:boolean" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="GetPersonInfoResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="tns:Person" minOccurs="0" />
+                        <xs:element name="addresses">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element ref="tns:Address" minOccurs="0"
+                                        maxOccurs="unbounded" />
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                        <xs:element ref="tns:ContactInfo" minOccurs="0" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+        </xs:schema>
+    </types>
+
+    <!-- Message definitions -->
+    <message name="ProcessPersonRequestMessage">
+        <part name="body" element="tns:ProcessPersonRequest" />
+    </message>
+
+    <message name="ProcessPersonResponseMessage">
+        <part name="body" element="tns:ProcessPersonResponse" />
+    </message>
+
+    <message name="GetPersonInfoRequestMessage">
+        <part name="body" element="tns:GetPersonInfoRequest" />
+    </message>
+
+    <message name="GetPersonInfoResponseMessage">
+        <part name="body" element="tns:GetPersonInfoResponse" />
+    </message>
+
+    <!-- Port type -->
+    <portType name="PersonService">
+        <operation name="processPerson">
+            <documentation>Process a person with addresses and contact information using element
+                references</documentation>
+            <input message="tns:ProcessPersonRequestMessage" />
+            <output message="tns:ProcessPersonResponseMessage" />
+        </operation>
+        <operation name="getPersonInfo">
+            <documentation>Get person information by ID with optional address details</documentation>
+            <input message="tns:GetPersonInfoRequestMessage" />
+            <output message="tns:GetPersonInfoResponseMessage" />
+        </operation>
+    </portType>
+
+    <!-- Binding -->
+    <binding name="PersonServiceBinding" type="tns:PersonService">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+        <operation name="processPerson">
+            <soap:operation soapAction="processPerson" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+        </operation>
+        <operation name="getPersonInfo">
+            <soap:operation soapAction="getPersonInfo" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+        </operation>
+    </binding>
+
+    <!-- Service -->
+    <service name="PersonService">
+        <documentation>Service for managing person information with element references</documentation>
+        <port name="PersonServicePort" binding="tns:PersonServiceBinding">
+            <soap:address location="http://example.com/personservice" />
+        </port>
+    </service>
+
+</definitions>
