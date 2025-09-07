@@ -2,12 +2,12 @@ package call
 
 import (
 	"context"
+	"encoding/xml"
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/way-platform/soap-go/internal/soapcall"
+	"github.com/way-platform/soap-go"
 )
 
 // NewCommand creates a new [cobra.Command] for the call command.
@@ -31,11 +31,7 @@ to include the full SOAP envelope in the response.`,
   soap call -e "http://example.com/service" -a "" -p envelope.xml --full-envelope
 
   # Include response envelope
-  soap call -e "http://example.com/service" -a "urn:GetWeather" -p request.xml --output-envelope
-
-  # With custom headers and timeout
-  soap call -e "http://example.com/service" -a "urn:GetWeather" -p request.xml \
-    --timeout 60s --headers "Authorization:Bearer token123"`,
+  soap call -e "http://example.com/service" -a "urn:GetWeather" -p request.xml --output-envelope`,
 	}
 
 	// Required flags
@@ -52,22 +48,18 @@ to include the full SOAP envelope in the response.`,
 	// Optional flags
 	fullEnvelope := cmd.Flags().Bool("full-envelope", false, "treat payload file as complete SOAP envelope")
 	outputEnvelope := cmd.Flags().Bool("output-envelope", false, "include SOAP envelope in response output")
-	timeout := cmd.Flags().Duration("timeout", 30*time.Second, "HTTP request timeout")
-	headers := cmd.Flags().StringSlice("headers", nil, "additional HTTP headers in key:value format")
-	insecure := cmd.Flags().Bool("insecure", false, "skip TLS certificate verification")
 	output := cmd.Flags().StringP("output", "o", "-", "output file path (default: stdout)")
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		debug, _ := cmd.Root().PersistentFlags().GetBool("debug")
 		return run(config{
 			endpoint:       *endpoint,
 			action:         *action,
 			payloadFile:    *payload,
 			fullEnvelope:   *fullEnvelope,
 			outputEnvelope: *outputEnvelope,
-			timeout:        *timeout,
-			headers:        *headers,
-			insecure:       *insecure,
 			outputFile:     *output,
+			debug:          debug,
 		})
 	}
 
@@ -80,10 +72,8 @@ type config struct {
 	payloadFile    string
 	fullEnvelope   bool
 	outputEnvelope bool
-	timeout        time.Duration
-	headers        []string
-	insecure       bool
 	outputFile     string
+	debug          bool
 }
 
 func run(cfg config) error {
@@ -95,42 +85,32 @@ func run(cfg config) error {
 		return fmt.Errorf("failed to read payload file %s: %w", cfg.payloadFile, err)
 	}
 
-	// Parse custom headers
-	customHeaders, err := soapcall.ParseHeaders(cfg.headers)
-	if err != nil {
-		return fmt.Errorf("failed to parse headers: %w", err)
-	}
-
-	// Prepare XML for sending
-	var xmlToSend []byte
-	if cfg.fullEnvelope {
-		// Use payload as-is if it's already a full envelope
-		if !soapcall.IsFullEnvelope(payloadData) {
-			return fmt.Errorf("payload file does not contain a valid SOAP envelope (use --full-envelope=false for raw payloads)")
-		}
-		xmlToSend = payloadData
-	} else {
-		// Wrap payload in SOAP envelope
-		xmlToSend, err = soapcall.WrapInEnvelope(payloadData)
-		if err != nil {
-			return fmt.Errorf("failed to wrap payload in SOAP envelope: %w", err)
-		}
-	}
-
-	// Add XML declaration
-	xmlToSend = soapcall.AddXMLDeclaration(xmlToSend)
+	// No custom headers parsing needed - action will be handled by the Call method
 
 	// Create SOAP client
-	client := soapcall.NewClient(soapcall.Config{
-		Endpoint:   cfg.endpoint,
-		Timeout:    cfg.timeout,
-		Headers:    customHeaders,
-		Insecure:   cfg.insecure,
-		SOAPAction: cfg.action,
-	})
+	client, err := soap.NewClient(
+		soap.WithEndpoint(cfg.endpoint),
+		soap.WithDebug(cfg.debug),
+	)
+	if err != nil {
+		return fmt.Errorf("failed to create SOAP client: %w", err)
+	}
+
+	// Prepare request envelope
+	var requestEnvelope *soap.Envelope
+	if cfg.fullEnvelope {
+		// Parse the full envelope from the payload
+		requestEnvelope = &soap.Envelope{}
+		if err := xml.Unmarshal(payloadData, requestEnvelope); err != nil {
+			return fmt.Errorf("failed to parse SOAP envelope: %w", err)
+		}
+	} else {
+		// Wrap payload in SOAP envelope
+		requestEnvelope = soap.NewEnvelopeWithBody(payloadData)
+	}
 
 	// Make the SOAP call
-	responseData, err := client.Call(ctx, xmlToSend)
+	responseEnvelope, err := client.Call(ctx, cfg.action, requestEnvelope, soap.WithCallEndpoint(cfg.endpoint))
 	if err != nil {
 		return fmt.Errorf("SOAP call failed: %w", err)
 	}
@@ -138,25 +118,22 @@ func run(cfg config) error {
 	// Process response
 	var outputData []byte
 	if cfg.outputEnvelope {
-		// Output the full response as-is
-		outputData = responseData
+		// Output the full response envelope as XML
+		var err error
+		outputData, err = xml.Marshal(responseEnvelope)
+		if err != nil {
+			return fmt.Errorf("failed to marshal response envelope: %w", err)
+		}
 	} else {
 		// Extract body content from SOAP envelope
-		outputData, err = soapcall.ExtractFromEnvelope(responseData)
-		if err != nil {
-			return fmt.Errorf("failed to process SOAP response: %w", err)
-		}
+		outputData = responseEnvelope.Body.Content
 	}
 
-	// Format XML for better readability
-	formattedOutput, err := soapcall.FormatXML(outputData)
-	if err != nil {
-		// If formatting fails, use original data
-		formattedOutput = outputData
-	}
+	// Use the original data - it's already properly formatted
+	formattedOutput := outputData
 
 	// Add XML declaration to output
-	formattedOutput = soapcall.AddXMLDeclaration(formattedOutput)
+	formattedOutput = soap.AddXMLDeclaration(formattedOutput)
 
 	// Write output
 	if cfg.outputFile == "-" {

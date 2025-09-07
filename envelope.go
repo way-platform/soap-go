@@ -7,23 +7,20 @@ import (
 // Namespace is the standard SOAP 1.1 envelope namespace
 const Namespace = "http://schemas.xmlsoap.org/soap/envelope/"
 
-// Envelope represents a SOAP 1.1 envelope according to the specification.
-// It provides a complete implementation supporting headers, body, faults, and extensibility.
-// Generates soap: prefixed XML for maximum compatibility with real-world SOAP services.
+// Envelope represents a SOAP envelope with flexible namespace support.
+// It can handle any namespace prefix and URI, making it compatible with various SOAP implementations.
+// The XMLName field determines the actual element name and namespace used in marshaling/unmarshaling.
 type Envelope struct {
-	XMLName xml.Name `xml:"soap:Envelope"`
-
-	// SOAP namespace declaration - this gets marshaled as xmlns:soap
-	XMLNS string `xml:"xmlns:soap,attr"`
+	XMLName xml.Name `xml:"Envelope"`
 
 	// Optional encoding style as per SOAP 1.1 spec section 4.1.1
-	EncodingStyle string `xml:"soap:encodingStyle,attr,omitempty"`
+	EncodingStyle string `xml:"encodingStyle,attr,omitempty"`
 
 	// Optional header as per SOAP 1.1 spec section 4.2
-	Header *Header `xml:"soap:Header,omitempty"`
+	Header *Header `xml:"Header,omitempty"`
 
 	// Mandatory body as per SOAP 1.1 spec section 4.3
-	Body Body `xml:"soap:Body"`
+	Body Body `xml:"Body"`
 
 	// Additional attributes for extensibility as per SOAP 1.1 spec section 4.1
 	Attrs []xml.Attr `xml:",any,attr"`
@@ -73,7 +70,7 @@ type Body struct {
 // Fault represents a SOAP fault element as per SOAP 1.1 spec section 4.4.
 // Used for error reporting within SOAP messages.
 type Fault struct {
-	XMLName xml.Name `xml:"soap:Fault"`
+	XMLName xml.Name `xml:"Fault"`
 
 	// FaultCode is mandatory and provides algorithmic fault identification
 	FaultCode string `xml:"faultcode"`
@@ -96,4 +93,46 @@ type Detail struct {
 
 	// Additional attributes for extensibility
 	Attrs []xml.Attr `xml:",any,attr"`
+}
+
+// NewEnvelope creates a new SOAP envelope with the standard SOAP 1.1 namespace.
+// This is a convenience function for the most common use case.
+func NewEnvelope() *Envelope {
+	return &Envelope{
+		XMLName: xml.Name{
+			Space: Namespace,
+			Local: "Envelope",
+		},
+	}
+}
+
+// NewEnvelopeWithNamespace creates a new SOAP envelope with a custom namespace URI and prefix.
+// This allows for maximum flexibility when working with different SOAP implementations.
+func NewEnvelopeWithNamespace(namespaceURI, prefix string) *Envelope {
+	return &Envelope{
+		XMLName: xml.Name{
+			Space: namespaceURI,
+			Local: "Envelope",
+		},
+		Attrs: []xml.Attr{
+			{
+				Name:  xml.Name{Local: "xmlns:" + prefix},
+				Value: namespaceURI,
+			},
+		},
+	}
+}
+
+// NewEnvelopeWithBody creates a new SOAP envelope with the specified body content.
+func NewEnvelopeWithBody(bodyContent []byte) *Envelope {
+	env := NewEnvelope()
+	env.Body = Body{Content: bodyContent}
+	return env
+}
+
+// NewEnvelopeWithBodyAndNamespace creates a new SOAP envelope with custom namespace and body content.
+func NewEnvelopeWithBodyAndNamespace(namespaceURI, prefix string, bodyContent []byte) *Envelope {
+	env := NewEnvelopeWithNamespace(namespaceURI, prefix)
+	env.Body = Body{Content: bodyContent}
+	return env
 }

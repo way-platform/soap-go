@@ -50,3 +50,7 @@ When developing this SDK, use the WSDL and SOAP specifications in [docs](./docs)
 - For extreme cases of complex data structures that cannot be modelled through standard Unmarshalling, use the `RawXML` type.
 
 - Avoid configuration options. Pick sane defaults that "just work". The SDK, generated code and tools should be as simple to use as possible.
+
+- Public API surfaces should be small, simple and orthogonal. Less is more.
+
+- Be permissive with XML namespaces. The generated code should be able to handle any namespace prefix and URI, even when the data returned from the server differs from the WSDL file.

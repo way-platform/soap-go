@@ -64,33 +64,10 @@ func (g *Generator) generateClientFile(packageName, filename string) (*codegen.F
 	return file, nil
 }
 
-// generateClientOptions generates the ClientOption types and implementations
+// generateClientOptions generates type aliases for SOAP client options
 func (g *Generator) generateClientOptions(file *codegen.File) {
 	file.P("// ClientOption configures a Client.")
-	file.P("type ClientOption func(*clientConfig)")
-	file.P()
-
-	file.P("// clientConfig holds the configuration for a Client.")
-	file.P("type clientConfig struct {")
-	file.P("\thttpClient *", file.QualifiedGoIdent(codegen.HTTPClientIdent))
-	file.P("\tendpoint   ", file.QualifiedGoIdent(codegen.StringIdent))
-	file.P("}")
-	file.P()
-
-	file.P("// WithHTTPClient sets a custom HTTP client for the SOAP client.")
-	file.P("func WithHTTPClient(client *", file.QualifiedGoIdent(codegen.HTTPClientIdent), ") ClientOption {")
-	file.P("\treturn func(c *clientConfig) {")
-	file.P("\t\tc.httpClient = client")
-	file.P("\t}")
-	file.P("}")
-	file.P()
-
-	file.P("// WithEndpoint sets the SOAP endpoint URL.")
-	file.P("func WithEndpoint(endpoint ", file.QualifiedGoIdent(codegen.StringIdent), ") ClientOption {")
-	file.P("\treturn func(c *clientConfig) {")
-	file.P("\t\tc.endpoint = endpoint")
-	file.P("\t}")
-	file.P("}")
+	file.P("type ClientOption = ", file.QualifiedGoIdent(codegen.SOAPClientOptionIdent))
 	file.P()
 }
 
@@ -98,8 +75,7 @@ func (g *Generator) generateClientOptions(file *codegen.File) {
 func (g *Generator) generateClientStruct(file *codegen.File) {
 	file.P("// Client is a SOAP client for this service.")
 	file.P("type Client struct {")
-	file.P("\thttpClient *", file.QualifiedGoIdent(codegen.HTTPClientIdent))
-	file.P("\tendpoint   ", file.QualifiedGoIdent(codegen.StringIdent))
+	file.P("\t*", file.QualifiedGoIdent(codegen.SOAPClientIdent))
 	file.P("}")
 	file.P()
 }
@@ -111,31 +87,27 @@ func (g *Generator) generateNewClientFunction(file *codegen.File) {
 
 	file.P("// NewClient creates a new SOAP client.")
 	file.P("func NewClient(opts ...ClientOption) (*Client, error) {")
-	file.P("\tconfig := &clientConfig{")
-	file.P("\t\thttpClient: ", file.QualifiedGoIdent(codegen.GoIdent{GoImportPath: "net/http", GoName: "DefaultClient"}), ",")
+	
 	if endpoint != "" {
-		file.P("\t\tendpoint:   \"", endpoint, "\",")
+		file.P("\t// Prepend default endpoint from WSDL to user options")
+		file.P("\tsoapOpts := append([]", file.QualifiedGoIdent(codegen.SOAPClientOptionIdent), "{")
+		file.P("\t\t", file.QualifiedGoIdent(codegen.SOAPWithEndpointIdent), "(\"", endpoint, "\"),")
+		file.P("\t}, opts...)")
+		file.P()
+		file.P("\t// Create underlying SOAP client")
+		file.P("\tsoapClient, err := ", file.QualifiedGoIdent(codegen.SOAPNewClientIdent), "(soapOpts...)")
 	} else {
-		file.P("\t\tendpoint:   \"\", // Set endpoint using WithEndpoint option")
+		file.P("\t// Create underlying SOAP client")
+		file.P("\tsoapClient, err := ", file.QualifiedGoIdent(codegen.SOAPNewClientIdent), "(opts...)")
 	}
+	
+	file.P("\tif err != nil {")
+	file.P("\t\treturn nil, ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"failed to create SOAP client: %w\", err)")
 	file.P("\t}")
 	file.P()
-	file.P("\tfor _, opt := range opts {")
-	file.P("\t\topt(config)")
-	file.P("\t}")
-	file.P()
-	file.P("\t// Validate that we have an endpoint")
-	file.P("\tif config.endpoint == \"\" {")
-	if endpoint == "" {
-		file.P("\t\treturn nil, ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"SOAP endpoint must be provided using WithEndpoint() - no default endpoint found in WSDL\")")
-	} else {
-		file.P("\t\treturn nil, ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"SOAP endpoint is required\")")
-	}
-	file.P("\t}")
-	file.P()
+	
 	file.P("\treturn &Client{")
-	file.P("\t\thttpClient: config.httpClient,")
-	file.P("\t\tendpoint:   config.endpoint,")
+	file.P("\t\tClient: soapClient,")
 	file.P("\t}, nil")
 	file.P("}")
 	file.P()
@@ -250,56 +222,18 @@ func (g *Generator) generateOperationMethod(file *codegen.File, operation *wsdl.
 	file.P("\t}")
 	file.P()
 
-	file.P("\t// Create SOAP envelope")
-	file.P("\treqEnvelope := &", file.QualifiedGoIdent(codegen.SOAPEnvelopeIdent), "{")
-	file.P("\t\tXMLNS: ", file.QualifiedGoIdent(codegen.SOAPNamespaceIdent), ",")
-	file.P("\t\tBody:  ", file.QualifiedGoIdent(codegen.SOAPBodyIdent), "{Content: reqXML},")
-	file.P("\t}")
-	file.P("\txmlData, err := ", file.QualifiedGoIdent(codegen.XMLMarshalIdent), "(&reqEnvelope)")
-	file.P("\tif err != nil {")
-	file.P("\t\treturn nil, ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"failed to marshal SOAP envelope: %w\", err)")
-	file.P("\t}")
+	file.P("\t// Create SOAP envelope with request body")
+	file.P("\treqEnvelope := ", file.QualifiedGoIdent(codegen.SOAPNewEnvelopeWithBodyIdent), "(reqXML)")
 	file.P()
 
-	file.P("\t// Create HTTP request")
-	file.P("\thttpReq, err := ", file.QualifiedGoIdent(codegen.HTTPNewRequestWithContextIdent), "(ctx, \"POST\", c.endpoint, ", file.QualifiedGoIdent(codegen.BytesNewReaderIdent), "(xmlData))")
-	file.P("\tif err != nil {")
-	file.P("\t\treturn nil, ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"failed to create HTTP request: %w\", err)")
-	file.P("\t}")
-	file.P()
-
-	file.P("\t// Set headers")
-	file.P("\thttpReq.Header.Set(\"Content-Type\", \"text/xml; charset=utf-8\")")
+	file.P("\t// Make SOAP call")
 	if soapAction != "" {
-		file.P("\thttpReq.Header.Set(\"SOAPAction\", \"", soapAction, "\")")
+		file.P("\trespEnvelope, err := c.Call(ctx, \"", soapAction, "\", reqEnvelope)")
+	} else {
+		file.P("\trespEnvelope, err := c.Call(ctx, \"\", reqEnvelope)")
 	}
-	file.P()
-
-	file.P("\t// Execute request")
-	file.P("\tresp, err := c.httpClient.Do(httpReq)")
 	file.P("\tif err != nil {")
-	file.P("\t\treturn nil, ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"failed to execute HTTP request: %w\", err)")
-	file.P("\t}")
-	file.P("\tdefer resp.Body.Close()")
-	file.P()
-
-	file.P("\t// Read response")
-	file.P("\trespBody, err := ", file.QualifiedGoIdent(codegen.IOReadAllIdent), "(resp.Body)")
-	file.P("\tif err != nil {")
-	file.P("\t\treturn nil, ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"failed to read response body: %w\", err)")
-	file.P("\t}")
-	file.P()
-
-	file.P("\t// Check for HTTP errors")
-	file.P("\tif resp.StatusCode != ", file.QualifiedGoIdent(codegen.HTTPStatusOKIdent), " {")
-	file.P("\t\treturn nil, ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"HTTP error %d: %s\", resp.StatusCode, string(respBody))")
-	file.P("\t}")
-	file.P()
-
-	file.P("\t// Unmarshal SOAP envelope")
-	file.P("\tvar respEnvelope ", file.QualifiedGoIdent(codegen.SOAPEnvelopeIdent))
-	file.P("\tif err := ", file.QualifiedGoIdent(codegen.XMLUnmarshalIdent), "(respBody, &respEnvelope); err != nil {")
-	file.P("\t\treturn nil, ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"failed to unmarshal SOAP envelope: %w\", err)")
+	file.P("\t\treturn nil, ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"SOAP call failed: %w\", err)")
 	file.P("\t}")
 	file.P()
 

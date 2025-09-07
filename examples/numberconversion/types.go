@@ -4,26 +4,26 @@ import (
 	"encoding/xml"
 )
 
-// NumberToWords represents the NumberToWords element
-type NumberToWords struct {
+// NumberToWordsWrapper represents the NumberToWords element
+type NumberToWordsWrapper struct {
 	XMLName xml.Name `xml:"NumberToWords"`
 	UbiNum  uint64   `xml:"ubiNum"`
 }
 
-// NumberToWordsResponse represents the NumberToWordsResponse element
-type NumberToWordsResponse struct {
+// NumberToWordsResponseWrapper represents the NumberToWordsResponse element
+type NumberToWordsResponseWrapper struct {
 	XMLName             xml.Name `xml:"NumberToWordsResponse"`
 	NumberToWordsResult string   `xml:"NumberToWordsResult"`
 }
 
-// NumberToDollars represents the NumberToDollars element
-type NumberToDollars struct {
+// NumberToDollarsWrapper represents the NumberToDollars element
+type NumberToDollarsWrapper struct {
 	XMLName xml.Name `xml:"NumberToDollars"`
 	DNum    float64  `xml:"dNum"`
 }
 
-// NumberToDollarsResponse represents the NumberToDollarsResponse element
-type NumberToDollarsResponse struct {
+// NumberToDollarsResponseWrapper represents the NumberToDollarsResponse element
+type NumberToDollarsResponseWrapper struct {
 	XMLName               xml.Name `xml:"NumberToDollarsResponse"`
 	NumberToDollarsResult string   `xml:"NumberToDollarsResult"`
 }

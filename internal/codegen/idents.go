@@ -5,6 +5,7 @@ package codegen
 var (
 	// Standard library types
 	XMLNameIdent      = GoIdent{GoImportPath: "encoding/xml", GoName: "Name"}
+	XMLAttrIdent      = GoIdent{GoImportPath: "encoding/xml", GoName: "Attr"}
 	ContextIdent      = GoIdent{GoImportPath: "context", GoName: "Context"}
 	TimeIdent         = GoIdent{GoImportPath: "time", GoName: "Time"}
 	BytesBufferIdent  = GoIdent{GoImportPath: "bytes", GoName: "Buffer"}
@@ -25,9 +26,15 @@ var (
 	IOReadAllIdent                 = GoIdent{GoImportPath: "io", GoName: "ReadAll"}
 
 	// SOAP library types
-	SOAPEnvelopeIdent  = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "Envelope"}
-	SOAPBodyIdent      = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "Body"}
-	SOAPNamespaceIdent = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "Namespace"}
+	SOAPClientIdent              = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "Client"}
+	SOAPClientOptionIdent        = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "ClientOption"}
+	SOAPNewClientIdent           = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "NewClient"}
+	SOAPWithEndpointIdent        = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "WithEndpoint"}
+	SOAPEnvelopeIdent            = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "Envelope"}
+	SOAPBodyIdent                = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "Body"}
+	SOAPNamespaceIdent           = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "Namespace"}
+	SOAPNewEnvelopeWithBodyIdent = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "NewEnvelopeWithBody"}
+	SOAPWithCallEndpointIdent    = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "WithCallEndpoint"}
 
 	// Built-in types (no import path needed)
 	StringIdent = GoIdent{GoImportPath: "", GoName: "string"}

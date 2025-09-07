@@ -81,7 +81,7 @@ type UserInfoType struct {
 // InlineTypesTest_Customer represents an inline complex type
 type InlineTypesTest_Customer struct {
 	Name    string `xml:"name"`
-	Address RawXML `xml:"address"`
+	Address RawXML `xml:",innerxml"`
 }
 
 // InlinetypestestCustomer_Address represents an inline complex type
@@ -119,8 +119,8 @@ type Tag struct {
 	Value   string   `xml:",chardata"`
 }
 
-// KitchenSinkRequest represents the KitchenSinkRequest element
-type KitchenSinkRequest struct {
+// KitchenSinkRequestWrapper represents the KitchenSinkRequest element
+type KitchenSinkRequestWrapper struct {
 	XMLName                 xml.Name      `xml:"KitchenSinkRequest"`
 	StringField             string        `xml:"stringField"`
 	BooleanField            bool          `xml:"booleanField"`
@@ -178,8 +178,8 @@ type KitchenSinkRequest struct {
 	Timestamp               *time.Time    `xml:"timestamp,attr,omitempty"`
 }
 
-// KitchenSinkResponse represents the KitchenSinkResponse element
-type KitchenSinkResponse struct {
+// KitchenSinkResponseWrapper represents the KitchenSinkResponse element
+type KitchenSinkResponseWrapper struct {
 	XMLName xml.Name `xml:"KitchenSinkResponse"`
 	Result  string   `xml:"result"`
 }

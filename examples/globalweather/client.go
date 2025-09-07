@@ -1,121 +1,57 @@
 package globalweather
 
 import (
-	"bytes"
 	"context"
 	"encoding/xml"
 	"fmt"
-	"io"
-	"net/http"
+	soap "github.com/way-platform/soap-go"
 )
 
 // ClientOption configures a Client.
-type ClientOption func(*clientConfig)
-
-// clientConfig holds the configuration for a Client.
-type clientConfig struct {
-	httpClient *http.Client
-	endpoint   string
-}
-
-// WithHTTPClient sets a custom HTTP client for the SOAP client.
-func WithHTTPClient(client *http.Client) ClientOption {
-	return func(c *clientConfig) {
-		c.httpClient = client
-	}
-}
-
-// WithEndpoint sets the SOAP endpoint URL.
-func WithEndpoint(endpoint string) ClientOption {
-	return func(c *clientConfig) {
-		c.endpoint = endpoint
-	}
-}
+type ClientOption = soap.ClientOption
 
 // Client is a SOAP client for this service.
 type Client struct {
-	httpClient *http.Client
-	endpoint   string
+	*soap.Client
 }
 
 // NewClient creates a new SOAP client.
 func NewClient(opts ...ClientOption) (*Client, error) {
-	config := &clientConfig{
-		httpClient: http.DefaultClient,
-		endpoint:   "http://www.webservicex.com/globalweather.asmx",
-	}
+	// Prepend default endpoint from WSDL to user options
+	soapOpts := append([]soap.ClientOption{
+		soap.WithEndpoint("http://www.webservicex.com/globalweather.asmx"),
+	}, opts...)
 
-	for _, opt := range opts {
-		opt(config)
-	}
-
-	// Validate that we have an endpoint
-	if config.endpoint == "" {
-		return nil, fmt.Errorf("SOAP endpoint is required")
+	// Create underlying SOAP client
+	soapClient, err := soap.NewClient(soapOpts...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create SOAP client: %w", err)
 	}
 
 	return &Client{
-		httpClient: config.httpClient,
-		endpoint:   config.endpoint,
+		Client: soapClient,
 	}, nil
 }
 
 // GetWeather Get weather report for all major cities around the world.
-func (c *Client) GetWeather(ctx context.Context, req *GetWeather) (*GetWeatherResponse, error) {
+func (c *Client) GetWeather(ctx context.Context, req *GetWeatherWrapper) (*GetWeatherResponseWrapper, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	// Create SOAP envelope
-	envelope := &soapEnvelope{
-		XMLNS: "http://schemas.xmlsoap.org/soap/envelope/",
-		Body:  soapBody{Content: reqXML},
-	}
+	// Create SOAP envelope with request body
+	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
 
-	// Marshal envelope to XML
-	xmlData, err := xml.Marshal(envelope)
+	// Make SOAP call
+	respEnvelope, err := c.Call(ctx, "http://www.webserviceX.NET/GetWeather", reqEnvelope)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal SOAP envelope: %w", err)
+		return nil, fmt.Errorf("SOAP call failed: %w", err)
 	}
 
-	// Create HTTP request
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", c.endpoint, bytes.NewReader(xmlData))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
-	}
-
-	// Set headers
-	httpReq.Header.Set("Content-Type", "text/xml; charset=utf-8")
-	httpReq.Header.Set("SOAPAction", "http://www.webserviceX.NET/GetWeather")
-
-	// Execute request
-	resp, err := c.httpClient.Do(httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("failed to execute HTTP request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	// Read response
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	// Check for HTTP errors
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP error %d: %s", resp.StatusCode, string(respBody))
-	}
-
-	// Parse SOAP response
-	var respEnvelope soapEnvelope
-	if err := xml.Unmarshal(respBody, &respEnvelope); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal SOAP response: %w", err)
-	}
-
-	// Extract response from SOAP body
-	var result GetWeatherResponse
+	// Unmarshal response body
+	var result GetWeatherResponseWrapper
 	if err := xml.Unmarshal(respEnvelope.Body.Content, &result); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal response body: %w", err)
 	}
@@ -124,76 +60,27 @@ func (c *Client) GetWeather(ctx context.Context, req *GetWeather) (*GetWeatherRe
 }
 
 // GetCitiesByCountry Get all major                 cities by country name(full / part).
-func (c *Client) GetCitiesByCountry(ctx context.Context, req *GetCitiesByCountry) (*GetCitiesByCountryResponse, error) {
+func (c *Client) GetCitiesByCountry(ctx context.Context, req *GetCitiesByCountryWrapper) (*GetCitiesByCountryResponseWrapper, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	// Create SOAP envelope
-	envelope := &soapEnvelope{
-		XMLNS: "http://schemas.xmlsoap.org/soap/envelope/",
-		Body:  soapBody{Content: reqXML},
-	}
+	// Create SOAP envelope with request body
+	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
 
-	// Marshal envelope to XML
-	xmlData, err := xml.Marshal(envelope)
+	// Make SOAP call
+	respEnvelope, err := c.Call(ctx, "http://www.webserviceX.NET/GetCitiesByCountry", reqEnvelope)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal SOAP envelope: %w", err)
+		return nil, fmt.Errorf("SOAP call failed: %w", err)
 	}
 
-	// Create HTTP request
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", c.endpoint, bytes.NewReader(xmlData))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
-	}
-
-	// Set headers
-	httpReq.Header.Set("Content-Type", "text/xml; charset=utf-8")
-	httpReq.Header.Set("SOAPAction", "http://www.webserviceX.NET/GetCitiesByCountry")
-
-	// Execute request
-	resp, err := c.httpClient.Do(httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("failed to execute HTTP request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	// Read response
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	// Check for HTTP errors
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP error %d: %s", resp.StatusCode, string(respBody))
-	}
-
-	// Parse SOAP response
-	var respEnvelope soapEnvelope
-	if err := xml.Unmarshal(respBody, &respEnvelope); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal SOAP response: %w", err)
-	}
-
-	// Extract response from SOAP body
-	var result GetCitiesByCountryResponse
+	// Unmarshal response body
+	var result GetCitiesByCountryResponseWrapper
 	if err := xml.Unmarshal(respEnvelope.Body.Content, &result); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal response body: %w", err)
 	}
 
 	return &result, nil
-}
-
-// soapEnvelope represents a SOAP envelope.
-type soapEnvelope struct {
-	XMLName xml.Name `xml:"soap:Envelope"`
-	XMLNS   string   `xml:"xmlns:soap,attr"`
-	Body    soapBody `xml:"soap:Body"`
-}
-
-// soapBody represents a SOAP body.
-type soapBody struct {
-	Content []byte `xml:",innerxml"`
 }

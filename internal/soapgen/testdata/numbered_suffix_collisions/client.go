@@ -1,63 +1,35 @@
 package numbered_suffix_collisions
 
 import (
-	"bytes"
 	"context"
 	"encoding/xml"
 	"fmt"
 	soap "github.com/way-platform/soap-go"
-	"io"
-	"net/http"
 )
 
 // ClientOption configures a Client.
-type ClientOption func(*clientConfig)
-
-// clientConfig holds the configuration for a Client.
-type clientConfig struct {
-	httpClient *http.Client
-	endpoint   string
-}
-
-// WithHTTPClient sets a custom HTTP client for the SOAP client.
-func WithHTTPClient(client *http.Client) ClientOption {
-	return func(c *clientConfig) {
-		c.httpClient = client
-	}
-}
-
-// WithEndpoint sets the SOAP endpoint URL.
-func WithEndpoint(endpoint string) ClientOption {
-	return func(c *clientConfig) {
-		c.endpoint = endpoint
-	}
-}
+type ClientOption = soap.ClientOption
 
 // Client is a SOAP client for this service.
 type Client struct {
-	httpClient *http.Client
-	endpoint   string
+	*soap.Client
 }
 
 // NewClient creates a new SOAP client.
 func NewClient(opts ...ClientOption) (*Client, error) {
-	config := &clientConfig{
-		httpClient: http.DefaultClient,
-		endpoint:   "http://example.com/numbered-suffix-collisions",
-	}
+	// Prepend default endpoint from WSDL to user options
+	soapOpts := append([]soap.ClientOption{
+		soap.WithEndpoint("http://example.com/numbered-suffix-collisions"),
+	}, opts...)
 
-	for _, opt := range opts {
-		opt(config)
-	}
-
-	// Validate that we have an endpoint
-	if config.endpoint == "" {
-		return nil, fmt.Errorf("SOAP endpoint is required")
+	// Create underlying SOAP client
+	soapClient, err := soap.NewClient(soapOpts...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create SOAP client: %w", err)
 	}
 
 	return &Client{
-		httpClient: config.httpClient,
-		endpoint:   config.endpoint,
+		Client: soapClient,
 	}, nil
 }
 
@@ -69,48 +41,13 @@ func (c *Client) ProcessRequest(ctx context.Context, req *RequestWrapper) (*inte
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	// Create SOAP envelope
-	reqEnvelope := &soap.Envelope{
-		XMLNS: soap.Namespace,
-		Body:  soap.Body{Content: reqXML},
-	}
-	xmlData, err := xml.Marshal(&reqEnvelope)
+	// Create SOAP envelope with request body
+	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
+
+	// Make SOAP call
+	respEnvelope, err := c.Call(ctx, "urn:ProcessRequest", reqEnvelope)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal SOAP envelope: %w", err)
-	}
-
-	// Create HTTP request
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", c.endpoint, bytes.NewReader(xmlData))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
-	}
-
-	// Set headers
-	httpReq.Header.Set("Content-Type", "text/xml; charset=utf-8")
-	httpReq.Header.Set("SOAPAction", "urn:ProcessRequest")
-
-	// Execute request
-	resp, err := c.httpClient.Do(httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("failed to execute HTTP request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	// Read response
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	// Check for HTTP errors
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP error %d: %s", resp.StatusCode, string(respBody))
-	}
-
-	// Unmarshal SOAP envelope
-	var respEnvelope soap.Envelope
-	if err := xml.Unmarshal(respBody, &respEnvelope); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal SOAP envelope: %w", err)
+		return nil, fmt.Errorf("SOAP call failed: %w", err)
 	}
 
 	// Unmarshal response body
@@ -130,48 +67,13 @@ func (c *Client) ProcessRequestLower(ctx context.Context, req *RequestWrapper) (
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	// Create SOAP envelope
-	reqEnvelope := &soap.Envelope{
-		XMLNS: soap.Namespace,
-		Body:  soap.Body{Content: reqXML},
-	}
-	xmlData, err := xml.Marshal(&reqEnvelope)
+	// Create SOAP envelope with request body
+	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
+
+	// Make SOAP call
+	respEnvelope, err := c.Call(ctx, "urn:ProcessRequestLower", reqEnvelope)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal SOAP envelope: %w", err)
-	}
-
-	// Create HTTP request
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", c.endpoint, bytes.NewReader(xmlData))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
-	}
-
-	// Set headers
-	httpReq.Header.Set("Content-Type", "text/xml; charset=utf-8")
-	httpReq.Header.Set("SOAPAction", "urn:ProcessRequestLower")
-
-	// Execute request
-	resp, err := c.httpClient.Do(httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("failed to execute HTTP request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	// Read response
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	// Check for HTTP errors
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP error %d: %s", resp.StatusCode, string(respBody))
-	}
-
-	// Unmarshal SOAP envelope
-	var respEnvelope soap.Envelope
-	if err := xml.Unmarshal(respBody, &respEnvelope); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal SOAP envelope: %w", err)
+		return nil, fmt.Errorf("SOAP call failed: %w", err)
 	}
 
 	// Unmarshal response body
@@ -191,48 +93,13 @@ func (c *Client) ProcessRequestUpper(ctx context.Context, req *REQUESTWrapper) (
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	// Create SOAP envelope
-	reqEnvelope := &soap.Envelope{
-		XMLNS: soap.Namespace,
-		Body:  soap.Body{Content: reqXML},
-	}
-	xmlData, err := xml.Marshal(&reqEnvelope)
+	// Create SOAP envelope with request body
+	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
+
+	// Make SOAP call
+	respEnvelope, err := c.Call(ctx, "urn:ProcessRequestUpper", reqEnvelope)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal SOAP envelope: %w", err)
-	}
-
-	// Create HTTP request
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", c.endpoint, bytes.NewReader(xmlData))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
-	}
-
-	// Set headers
-	httpReq.Header.Set("Content-Type", "text/xml; charset=utf-8")
-	httpReq.Header.Set("SOAPAction", "urn:ProcessRequestUpper")
-
-	// Execute request
-	resp, err := c.httpClient.Do(httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("failed to execute HTTP request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	// Read response
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	// Check for HTTP errors
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP error %d: %s", resp.StatusCode, string(respBody))
-	}
-
-	// Unmarshal SOAP envelope
-	var respEnvelope soap.Envelope
-	if err := xml.Unmarshal(respBody, &respEnvelope); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal SOAP envelope: %w", err)
+		return nil, fmt.Errorf("SOAP call failed: %w", err)
 	}
 
 	// Unmarshal response body
@@ -252,48 +119,13 @@ func (c *Client) ProcessData(ctx context.Context, req *DataWrapper) (*interface{
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	// Create SOAP envelope
-	reqEnvelope := &soap.Envelope{
-		XMLNS: soap.Namespace,
-		Body:  soap.Body{Content: reqXML},
-	}
-	xmlData, err := xml.Marshal(&reqEnvelope)
+	// Create SOAP envelope with request body
+	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
+
+	// Make SOAP call
+	respEnvelope, err := c.Call(ctx, "urn:ProcessData", reqEnvelope)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal SOAP envelope: %w", err)
-	}
-
-	// Create HTTP request
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", c.endpoint, bytes.NewReader(xmlData))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
-	}
-
-	// Set headers
-	httpReq.Header.Set("Content-Type", "text/xml; charset=utf-8")
-	httpReq.Header.Set("SOAPAction", "urn:ProcessData")
-
-	// Execute request
-	resp, err := c.httpClient.Do(httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("failed to execute HTTP request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	// Read response
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	// Check for HTTP errors
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP error %d: %s", resp.StatusCode, string(respBody))
-	}
-
-	// Unmarshal SOAP envelope
-	var respEnvelope soap.Envelope
-	if err := xml.Unmarshal(respBody, &respEnvelope); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal SOAP envelope: %w", err)
+		return nil, fmt.Errorf("SOAP call failed: %w", err)
 	}
 
 	// Unmarshal response body
@@ -313,48 +145,13 @@ func (c *Client) ProcessDataLower(ctx context.Context, req *DataWrapper) (*inter
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	// Create SOAP envelope
-	reqEnvelope := &soap.Envelope{
-		XMLNS: soap.Namespace,
-		Body:  soap.Body{Content: reqXML},
-	}
-	xmlData, err := xml.Marshal(&reqEnvelope)
+	// Create SOAP envelope with request body
+	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
+
+	// Make SOAP call
+	respEnvelope, err := c.Call(ctx, "urn:ProcessDataLower", reqEnvelope)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal SOAP envelope: %w", err)
-	}
-
-	// Create HTTP request
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", c.endpoint, bytes.NewReader(xmlData))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
-	}
-
-	// Set headers
-	httpReq.Header.Set("Content-Type", "text/xml; charset=utf-8")
-	httpReq.Header.Set("SOAPAction", "urn:ProcessDataLower")
-
-	// Execute request
-	resp, err := c.httpClient.Do(httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("failed to execute HTTP request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	// Read response
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	// Check for HTTP errors
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP error %d: %s", resp.StatusCode, string(respBody))
-	}
-
-	// Unmarshal SOAP envelope
-	var respEnvelope soap.Envelope
-	if err := xml.Unmarshal(respBody, &respEnvelope); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal SOAP envelope: %w", err)
+		return nil, fmt.Errorf("SOAP call failed: %w", err)
 	}
 
 	// Unmarshal response body
@@ -374,48 +171,13 @@ func (c *Client) ProcessDataUpper(ctx context.Context, req *DATAWrapper) (*inter
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	// Create SOAP envelope
-	reqEnvelope := &soap.Envelope{
-		XMLNS: soap.Namespace,
-		Body:  soap.Body{Content: reqXML},
-	}
-	xmlData, err := xml.Marshal(&reqEnvelope)
+	// Create SOAP envelope with request body
+	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
+
+	// Make SOAP call
+	respEnvelope, err := c.Call(ctx, "urn:ProcessDataUpper", reqEnvelope)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal SOAP envelope: %w", err)
-	}
-
-	// Create HTTP request
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", c.endpoint, bytes.NewReader(xmlData))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
-	}
-
-	// Set headers
-	httpReq.Header.Set("Content-Type", "text/xml; charset=utf-8")
-	httpReq.Header.Set("SOAPAction", "urn:ProcessDataUpper")
-
-	// Execute request
-	resp, err := c.httpClient.Do(httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("failed to execute HTTP request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	// Read response
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	// Check for HTTP errors
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP error %d: %s", resp.StatusCode, string(respBody))
-	}
-
-	// Unmarshal SOAP envelope
-	var respEnvelope soap.Envelope
-	if err := xml.Unmarshal(respBody, &respEnvelope); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal SOAP envelope: %w", err)
+		return nil, fmt.Errorf("SOAP call failed: %w", err)
 	}
 
 	// Unmarshal response body
@@ -435,48 +197,13 @@ func (c *Client) ProcessExtremeCase(ctx context.Context, req *ExtremeCaseElement
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	// Create SOAP envelope
-	reqEnvelope := &soap.Envelope{
-		XMLNS: soap.Namespace,
-		Body:  soap.Body{Content: reqXML},
-	}
-	xmlData, err := xml.Marshal(&reqEnvelope)
+	// Create SOAP envelope with request body
+	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
+
+	// Make SOAP call
+	respEnvelope, err := c.Call(ctx, "urn:ProcessExtremeCase", reqEnvelope)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal SOAP envelope: %w", err)
-	}
-
-	// Create HTTP request
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", c.endpoint, bytes.NewReader(xmlData))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
-	}
-
-	// Set headers
-	httpReq.Header.Set("Content-Type", "text/xml; charset=utf-8")
-	httpReq.Header.Set("SOAPAction", "urn:ProcessExtremeCase")
-
-	// Execute request
-	resp, err := c.httpClient.Do(httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("failed to execute HTTP request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	// Read response
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	// Check for HTTP errors
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP error %d: %s", resp.StatusCode, string(respBody))
-	}
-
-	// Unmarshal SOAP envelope
-	var respEnvelope soap.Envelope
-	if err := xml.Unmarshal(respBody, &respEnvelope); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal SOAP envelope: %w", err)
+		return nil, fmt.Errorf("SOAP call failed: %w", err)
 	}
 
 	// Unmarshal response body
@@ -496,48 +223,13 @@ func (c *Client) HandleRequest(ctx context.Context, req *RequestWrapper) (*inter
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	// Create SOAP envelope
-	reqEnvelope := &soap.Envelope{
-		XMLNS: soap.Namespace,
-		Body:  soap.Body{Content: reqXML},
-	}
-	xmlData, err := xml.Marshal(&reqEnvelope)
+	// Create SOAP envelope with request body
+	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
+
+	// Make SOAP call
+	respEnvelope, err := c.Call(ctx, "urn:HandleRequest", reqEnvelope)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal SOAP envelope: %w", err)
-	}
-
-	// Create HTTP request
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", c.endpoint, bytes.NewReader(xmlData))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
-	}
-
-	// Set headers
-	httpReq.Header.Set("Content-Type", "text/xml; charset=utf-8")
-	httpReq.Header.Set("SOAPAction", "urn:HandleRequest")
-
-	// Execute request
-	resp, err := c.httpClient.Do(httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("failed to execute HTTP request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	// Read response
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	// Check for HTTP errors
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP error %d: %s", resp.StatusCode, string(respBody))
-	}
-
-	// Unmarshal SOAP envelope
-	var respEnvelope soap.Envelope
-	if err := xml.Unmarshal(respBody, &respEnvelope); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal SOAP envelope: %w", err)
+		return nil, fmt.Errorf("SOAP call failed: %w", err)
 	}
 
 	// Unmarshal response body
@@ -557,48 +249,13 @@ func (c *Client) ValidateRequest(ctx context.Context, req *RequestWrapper) (*int
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	// Create SOAP envelope
-	reqEnvelope := &soap.Envelope{
-		XMLNS: soap.Namespace,
-		Body:  soap.Body{Content: reqXML},
-	}
-	xmlData, err := xml.Marshal(&reqEnvelope)
+	// Create SOAP envelope with request body
+	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
+
+	// Make SOAP call
+	respEnvelope, err := c.Call(ctx, "urn:ValidateRequest", reqEnvelope)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal SOAP envelope: %w", err)
-	}
-
-	// Create HTTP request
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", c.endpoint, bytes.NewReader(xmlData))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
-	}
-
-	// Set headers
-	httpReq.Header.Set("Content-Type", "text/xml; charset=utf-8")
-	httpReq.Header.Set("SOAPAction", "urn:ValidateRequest")
-
-	// Execute request
-	resp, err := c.httpClient.Do(httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("failed to execute HTTP request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	// Read response
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	// Check for HTTP errors
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP error %d: %s", resp.StatusCode, string(respBody))
-	}
-
-	// Unmarshal SOAP envelope
-	var respEnvelope soap.Envelope
-	if err := xml.Unmarshal(respBody, &respEnvelope); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal SOAP envelope: %w", err)
+		return nil, fmt.Errorf("SOAP call failed: %w", err)
 	}
 
 	// Unmarshal response body
@@ -618,48 +275,13 @@ func (c *Client) SubmitRequest(ctx context.Context, req *RequestWrapper) (*inter
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	// Create SOAP envelope
-	reqEnvelope := &soap.Envelope{
-		XMLNS: soap.Namespace,
-		Body:  soap.Body{Content: reqXML},
-	}
-	xmlData, err := xml.Marshal(&reqEnvelope)
+	// Create SOAP envelope with request body
+	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
+
+	// Make SOAP call
+	respEnvelope, err := c.Call(ctx, "urn:SubmitRequest", reqEnvelope)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal SOAP envelope: %w", err)
-	}
-
-	// Create HTTP request
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", c.endpoint, bytes.NewReader(xmlData))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
-	}
-
-	// Set headers
-	httpReq.Header.Set("Content-Type", "text/xml; charset=utf-8")
-	httpReq.Header.Set("SOAPAction", "urn:SubmitRequest")
-
-	// Execute request
-	resp, err := c.httpClient.Do(httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("failed to execute HTTP request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	// Read response
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	// Check for HTTP errors
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("HTTP error %d: %s", resp.StatusCode, string(respBody))
-	}
-
-	// Unmarshal SOAP envelope
-	var respEnvelope soap.Envelope
-	if err := xml.Unmarshal(respBody, &respEnvelope); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal SOAP envelope: %w", err)
+		return nil, fmt.Errorf("SOAP call failed: %w", err)
 	}
 
 	// Unmarshal response body

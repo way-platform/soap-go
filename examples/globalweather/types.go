@@ -4,33 +4,33 @@ import (
 	"encoding/xml"
 )
 
-// GetWeather represents the GetWeather element
-type GetWeather struct {
+// GetWeatherWrapper represents the GetWeather element
+type GetWeatherWrapper struct {
 	XMLName     xml.Name `xml:"GetWeather"`
 	CityName    *string  `xml:"CityName,omitempty"`
 	CountryName *string  `xml:"CountryName,omitempty"`
 }
 
-// GetWeatherResponse represents the GetWeatherResponse element
-type GetWeatherResponse struct {
+// GetWeatherResponseWrapper represents the GetWeatherResponse element
+type GetWeatherResponseWrapper struct {
 	XMLName          xml.Name `xml:"GetWeatherResponse"`
 	GetWeatherResult *string  `xml:"GetWeatherResult,omitempty"`
 }
 
-// GetCitiesByCountry represents the GetCitiesByCountry element
-type GetCitiesByCountry struct {
+// GetCitiesByCountryWrapper represents the GetCitiesByCountry element
+type GetCitiesByCountryWrapper struct {
 	XMLName     xml.Name `xml:"GetCitiesByCountry"`
 	CountryName *string  `xml:"CountryName,omitempty"`
 }
 
-// GetCitiesByCountryResponse represents the GetCitiesByCountryResponse element
-type GetCitiesByCountryResponse struct {
+// GetCitiesByCountryResponseWrapper represents the GetCitiesByCountryResponse element
+type GetCitiesByCountryResponseWrapper struct {
 	XMLName                  xml.Name `xml:"GetCitiesByCountryResponse"`
 	GetCitiesByCountryResult *string  `xml:"GetCitiesByCountryResult,omitempty"`
 }
 
-// String represents the string element
-type String struct {
+// StringWrapper represents the string element
+type StringWrapper struct {
 	XMLName xml.Name `xml:"string"`
 	Value   string   `xml:",chardata"`
 }
