@@ -8,12 +8,15 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/http/httputil"
+	"os"
 	"strings"
 	"time"
 )
 
 // Client represents a SOAP HTTP client.
 type Client struct {
+	config     Config
 	httpClient *http.Client
 	endpoint   string
 	headers    map[string]string
@@ -26,6 +29,7 @@ type Config struct {
 	Headers    map[string]string
 	Insecure   bool
 	SOAPAction string
+	Debug      bool
 }
 
 // NewClient creates a new SOAP client with the given configuration.
@@ -62,6 +66,7 @@ func NewClient(config Config) *Client {
 	}
 
 	return &Client{
+		config:     config,
 		httpClient: httpClient,
 		endpoint:   config.Endpoint,
 		headers:    headers,
@@ -82,9 +87,23 @@ func (c *Client) Call(ctx context.Context, xmlPayload []byte) ([]byte, error) {
 	}
 
 	// Execute request
+	if c.config.Debug {
+		dump, err := httputil.DumpRequestOut(req, true)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Fprintf(os.Stderr, "%s", dump)
+	}
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute HTTP request: %w", err)
+	}
+	if c.config.Debug {
+		dump, err := httputil.DumpResponse(resp, true)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Fprintf(os.Stderr, "%s", dump)
 	}
 	defer resp.Body.Close()
 
