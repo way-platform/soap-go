@@ -30,17 +30,17 @@ func NewFile(filename, goImportPath string) *File {
 		goImportPath:     goImportPath,
 		packageNames:     make(map[string]GoPackageName),
 		usedPackageNames: make(map[GoPackageName]bool),
-		imports:         make(map[string]bool),
+		imports:          make(map[string]bool),
 	}
 }
 
 // File represents a generated Go file.
 type File struct {
 	filename         string
-	goImportPath     string                    // Import path of the generated file
-	packageNames     map[string]GoPackageName  // Import path -> package name
-	usedPackageNames map[GoPackageName]bool    // Track used package names
-	imports          map[string]bool           // Import paths to include
+	goImportPath     string                   // Import path of the generated file
+	packageNames     map[string]GoPackageName // Import path -> package name
+	usedPackageNames map[GoPackageName]bool   // Track used package names
+	imports          map[string]bool          // Import paths to include
 	buf              bytes.Buffer
 }
 
@@ -61,6 +61,7 @@ func (f *File) QualifiedGoIdent(ident GoIdent) string {
 	}
 
 	if packageName, ok := f.packageNames[ident.GoImportPath]; ok {
+		f.imports[ident.GoImportPath] = true
 		return string(packageName) + "." + ident.GoName
 	}
 
@@ -82,6 +83,13 @@ func (f *File) Import(importPath string) {
 	f.imports[importPath] = true
 }
 
+// SetPackageName sets a custom package name for the given import path.
+// This allows overriding the default package name derivation.
+func (f *File) SetPackageName(importPath string, packageName string) {
+	f.packageNames[importPath] = GoPackageName(packageName)
+	f.usedPackageNames[GoPackageName(packageName)] = true
+}
+
 // cleanPackageName returns a valid Go package name from an import path.
 func cleanPackageName(name string) string {
 	// Remove common suffixes and invalid characters
@@ -89,12 +97,12 @@ func cleanPackageName(name string) string {
 	name = strings.ReplaceAll(name, "-", "")
 	name = strings.ReplaceAll(name, "_", "")
 	name = strings.ReplaceAll(name, ".", "")
-	
+
 	// Ensure it starts with a letter
 	if len(name) == 0 || !((name[0] >= 'a' && name[0] <= 'z') || (name[0] >= 'A' && name[0] <= 'Z')) {
 		name = "pkg" + name
 	}
-	
+
 	return name
 }
 
@@ -155,14 +163,25 @@ func (g *File) Content() ([]byte, error) {
 			Rparen: pos,
 		}
 		for _, importPath := range importPaths {
-			impDecl.Specs = append(impDecl.Specs, &ast.ImportSpec{
+			spec := &ast.ImportSpec{
 				Path: &ast.BasicLit{
 					Kind:     token.STRING,
 					Value:    strconv.Quote(importPath),
 					ValuePos: pos,
 				},
 				EndPos: pos,
-			})
+			}
+			// Add alias if we have a custom package name for this import
+			if packageName, ok := g.packageNames[importPath]; ok {
+				expectedName := cleanPackageName(path.Base(importPath))
+				if string(packageName) != expectedName {
+					spec.Name = &ast.Ident{
+						Name:    string(packageName),
+						NamePos: pos,
+					}
+				}
+			}
+			impDecl.Specs = append(impDecl.Specs, spec)
 		}
 		file.Decls = append([]ast.Decl{impDecl}, file.Decls...)
 	}

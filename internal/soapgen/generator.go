@@ -75,6 +75,9 @@ func (g *Generator) Files() []*codegen.File {
 func (g *Generator) generateTypesFile(schema *xsd.Schema, packageName, filename string) (*codegen.File, error) {
 	file := codegen.NewFile(filename, packageName)
 
+	// Set custom package name for soap-go to use "soap" instead of "soapgo"
+	file.SetPackageName("github.com/way-platform/soap-go", "soap")
+
 	// Create schema context for reference resolution
 	ctx := newSchemaContext(schema)
 

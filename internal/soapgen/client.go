@@ -34,6 +34,9 @@ func (g *Generator) generateClientFile(packageName, filename string) (*codegen.F
 
 	file := codegen.NewFile(filename, packageName)
 
+	// Set custom package name for soap-go to use "soap" instead of "soapgo"
+	file.SetPackageName("github.com/way-platform/soap-go", "soap")
+
 	// Add package declaration
 	file.P("package ", packageName)
 	file.P()
@@ -248,14 +251,11 @@ func (g *Generator) generateOperationMethod(file *codegen.File, operation *wsdl.
 	file.P()
 
 	file.P("\t// Create SOAP envelope")
-	file.P("\tenvelope := &soapEnvelope{")
-	file.P("\t\tXMLNS: \"http://schemas.xmlsoap.org/soap/envelope/\",")
-	file.P("\t\tBody: soapBody{Content: reqXML},")
+	file.P("\treqEnvelope := &", file.QualifiedGoIdent(codegen.SOAPEnvelopeIdent), "{")
+	file.P("\t\tXMLNS: ", file.QualifiedGoIdent(codegen.SOAPNamespaceIdent), ",")
+	file.P("\t\tBody:  ", file.QualifiedGoIdent(codegen.SOAPBodyIdent), "{Content: reqXML},")
 	file.P("\t}")
-	file.P()
-
-	file.P("\t// Marshal envelope to XML")
-	file.P("\txmlData, err := ", file.QualifiedGoIdent(codegen.XMLMarshalIdent), "(envelope)")
+	file.P("\txmlData, err := ", file.QualifiedGoIdent(codegen.XMLMarshalIdent), "(&reqEnvelope)")
 	file.P("\tif err != nil {")
 	file.P("\t\treturn nil, ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"failed to marshal SOAP envelope: %w\", err)")
 	file.P("\t}")
@@ -296,14 +296,14 @@ func (g *Generator) generateOperationMethod(file *codegen.File, operation *wsdl.
 	file.P("\t}")
 	file.P()
 
-	file.P("\t// Parse SOAP response")
-	file.P("\tvar respEnvelope soapEnvelope")
+	file.P("\t// Unmarshal SOAP envelope")
+	file.P("\tvar respEnvelope ", file.QualifiedGoIdent(codegen.SOAPEnvelopeIdent))
 	file.P("\tif err := ", file.QualifiedGoIdent(codegen.XMLUnmarshalIdent), "(respBody, &respEnvelope); err != nil {")
-	file.P("\t\treturn nil, ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"failed to unmarshal SOAP response: %w\", err)")
+	file.P("\t\treturn nil, ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"failed to unmarshal SOAP envelope: %w\", err)")
 	file.P("\t}")
 	file.P()
 
-	file.P("\t// Extract response from SOAP body")
+	file.P("\t// Unmarshal response body")
 	file.P("\tvar result ", outputType)
 	file.P("\tif err := ", file.QualifiedGoIdent(codegen.XMLUnmarshalIdent), "(respEnvelope.Body.Content, &result); err != nil {")
 	file.P("\t\treturn nil, ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"failed to unmarshal response body: %w\", err)")
@@ -396,18 +396,6 @@ func (g *Generator) getSOAPActionForOperation(operationName string, binding *wsd
 
 // generateHelperFunctions generates helper types and functions for SOAP
 func (g *Generator) generateHelperFunctions(file *codegen.File) {
-	// Generate private SOAP envelope types
-	file.P("// soapEnvelope represents a SOAP envelope.")
-	file.P("type soapEnvelope struct {")
-	file.P("\tXMLName ", file.QualifiedGoIdent(codegen.XMLNameIdent), " `xml:\"soap:Envelope\"`")
-	file.P("\tXMLNS   string   `xml:\"xmlns:soap,attr\"`")
-	file.P("\tBody    soapBody `xml:\"soap:Body\"`")
-	file.P("}")
-	file.P()
-
-	file.P("// soapBody represents a SOAP body.")
-	file.P("type soapBody struct {")
-	file.P("\tContent []byte `xml:\",innerxml\"`")
-	file.P("}")
-	file.P()
+	// Note: SOAP envelope types are now provided by the public API
+	// No need to generate private types anymore
 }

@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/xml"
 	"fmt"
+	soap "github.com/way-platform/soap-go"
 	"io"
 	"net/http"
 )
@@ -69,13 +70,11 @@ func (c *Client) ProcessFlexibleDocument(ctx context.Context, req *FlexibleDocum
 	}
 
 	// Create SOAP envelope
-	envelope := &soapEnvelope{
-		XMLNS: "http://schemas.xmlsoap.org/soap/envelope/",
-		Body:  soapBody{Content: reqXML},
+	reqEnvelope := &soap.Envelope{
+		XMLNS: soap.Namespace,
+		Body:  soap.Body{Content: reqXML},
 	}
-
-	// Marshal envelope to XML
-	xmlData, err := xml.Marshal(envelope)
+	xmlData, err := xml.Marshal(&reqEnvelope)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal SOAP envelope: %w", err)
 	}
@@ -108,13 +107,13 @@ func (c *Client) ProcessFlexibleDocument(ctx context.Context, req *FlexibleDocum
 		return nil, fmt.Errorf("HTTP error %d: %s", resp.StatusCode, string(respBody))
 	}
 
-	// Parse SOAP response
-	var respEnvelope soapEnvelope
+	// Unmarshal SOAP envelope
+	var respEnvelope soap.Envelope
 	if err := xml.Unmarshal(respBody, &respEnvelope); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal SOAP response: %w", err)
+		return nil, fmt.Errorf("failed to unmarshal SOAP envelope: %w", err)
 	}
 
-	// Extract response from SOAP body
+	// Unmarshal response body
 	var result interface{}
 	if err := xml.Unmarshal(respEnvelope.Body.Content, &result); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal response body: %w", err)
@@ -132,13 +131,11 @@ func (c *Client) ProcessDynamicContent(ctx context.Context, req *DynamicContentW
 	}
 
 	// Create SOAP envelope
-	envelope := &soapEnvelope{
-		XMLNS: "http://schemas.xmlsoap.org/soap/envelope/",
-		Body:  soapBody{Content: reqXML},
+	reqEnvelope := &soap.Envelope{
+		XMLNS: soap.Namespace,
+		Body:  soap.Body{Content: reqXML},
 	}
-
-	// Marshal envelope to XML
-	xmlData, err := xml.Marshal(envelope)
+	xmlData, err := xml.Marshal(&reqEnvelope)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal SOAP envelope: %w", err)
 	}
@@ -171,13 +168,13 @@ func (c *Client) ProcessDynamicContent(ctx context.Context, req *DynamicContentW
 		return nil, fmt.Errorf("HTTP error %d: %s", resp.StatusCode, string(respBody))
 	}
 
-	// Parse SOAP response
-	var respEnvelope soapEnvelope
+	// Unmarshal SOAP envelope
+	var respEnvelope soap.Envelope
 	if err := xml.Unmarshal(respBody, &respEnvelope); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal SOAP response: %w", err)
+		return nil, fmt.Errorf("failed to unmarshal SOAP envelope: %w", err)
 	}
 
-	// Extract response from SOAP body
+	// Unmarshal response body
 	var result interface{}
 	if err := xml.Unmarshal(respEnvelope.Body.Content, &result); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal response body: %w", err)
@@ -195,13 +192,11 @@ func (c *Client) ProcessMixedDocument(ctx context.Context, req *MixedDocumentWra
 	}
 
 	// Create SOAP envelope
-	envelope := &soapEnvelope{
-		XMLNS: "http://schemas.xmlsoap.org/soap/envelope/",
-		Body:  soapBody{Content: reqXML},
+	reqEnvelope := &soap.Envelope{
+		XMLNS: soap.Namespace,
+		Body:  soap.Body{Content: reqXML},
 	}
-
-	// Marshal envelope to XML
-	xmlData, err := xml.Marshal(envelope)
+	xmlData, err := xml.Marshal(&reqEnvelope)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal SOAP envelope: %w", err)
 	}
@@ -234,13 +229,13 @@ func (c *Client) ProcessMixedDocument(ctx context.Context, req *MixedDocumentWra
 		return nil, fmt.Errorf("HTTP error %d: %s", resp.StatusCode, string(respBody))
 	}
 
-	// Parse SOAP response
-	var respEnvelope soapEnvelope
+	// Unmarshal SOAP envelope
+	var respEnvelope soap.Envelope
 	if err := xml.Unmarshal(respBody, &respEnvelope); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal SOAP response: %w", err)
+		return nil, fmt.Errorf("failed to unmarshal SOAP envelope: %w", err)
 	}
 
-	// Extract response from SOAP body
+	// Unmarshal response body
 	var result interface{}
 	if err := xml.Unmarshal(respEnvelope.Body.Content, &result); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal response body: %w", err)
@@ -258,13 +253,11 @@ func (c *Client) ProcessPerformanceReport(ctx context.Context, req *PerformanceR
 	}
 
 	// Create SOAP envelope
-	envelope := &soapEnvelope{
-		XMLNS: "http://schemas.xmlsoap.org/soap/envelope/",
-		Body:  soapBody{Content: reqXML},
+	reqEnvelope := &soap.Envelope{
+		XMLNS: soap.Namespace,
+		Body:  soap.Body{Content: reqXML},
 	}
-
-	// Marshal envelope to XML
-	xmlData, err := xml.Marshal(envelope)
+	xmlData, err := xml.Marshal(&reqEnvelope)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal SOAP envelope: %w", err)
 	}
@@ -297,13 +290,13 @@ func (c *Client) ProcessPerformanceReport(ctx context.Context, req *PerformanceR
 		return nil, fmt.Errorf("HTTP error %d: %s", resp.StatusCode, string(respBody))
 	}
 
-	// Parse SOAP response
-	var respEnvelope soapEnvelope
+	// Unmarshal SOAP envelope
+	var respEnvelope soap.Envelope
 	if err := xml.Unmarshal(respBody, &respEnvelope); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal SOAP response: %w", err)
+		return nil, fmt.Errorf("failed to unmarshal SOAP envelope: %w", err)
 	}
 
-	// Extract response from SOAP body
+	// Unmarshal response body
 	var result interface{}
 	if err := xml.Unmarshal(respEnvelope.Body.Content, &result); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal response body: %w", err)
@@ -321,13 +314,11 @@ func (c *Client) ProcessUntypedElement(ctx context.Context, req *UntypedElementW
 	}
 
 	// Create SOAP envelope
-	envelope := &soapEnvelope{
-		XMLNS: "http://schemas.xmlsoap.org/soap/envelope/",
-		Body:  soapBody{Content: reqXML},
+	reqEnvelope := &soap.Envelope{
+		XMLNS: soap.Namespace,
+		Body:  soap.Body{Content: reqXML},
 	}
-
-	// Marshal envelope to XML
-	xmlData, err := xml.Marshal(envelope)
+	xmlData, err := xml.Marshal(&reqEnvelope)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal SOAP envelope: %w", err)
 	}
@@ -360,29 +351,17 @@ func (c *Client) ProcessUntypedElement(ctx context.Context, req *UntypedElementW
 		return nil, fmt.Errorf("HTTP error %d: %s", resp.StatusCode, string(respBody))
 	}
 
-	// Parse SOAP response
-	var respEnvelope soapEnvelope
+	// Unmarshal SOAP envelope
+	var respEnvelope soap.Envelope
 	if err := xml.Unmarshal(respBody, &respEnvelope); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal SOAP response: %w", err)
+		return nil, fmt.Errorf("failed to unmarshal SOAP envelope: %w", err)
 	}
 
-	// Extract response from SOAP body
+	// Unmarshal response body
 	var result interface{}
 	if err := xml.Unmarshal(respEnvelope.Body.Content, &result); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal response body: %w", err)
 	}
 
 	return &result, nil
-}
-
-// soapEnvelope represents a SOAP envelope.
-type soapEnvelope struct {
-	XMLName xml.Name `xml:"soap:Envelope"`
-	XMLNS   string   `xml:"xmlns:soap,attr"`
-	Body    soapBody `xml:"soap:Body"`
-}
-
-// soapBody represents a SOAP body.
-type soapBody struct {
-	Content []byte `xml:",innerxml"`
 }
