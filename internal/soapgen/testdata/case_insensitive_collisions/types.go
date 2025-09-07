@@ -24,26 +24,26 @@ type UserRequestType struct {
 	RequestType string `xml:"requestType"`
 }
 
-// UserRequest represents the UserRequest element
-type UserRequest struct {
+// UserRequestWrapper represents the UserRequest element
+type UserRequestWrapper struct {
 	XMLName xml.Name        `xml:"UserRequest"`
 	Value   UserRequestType `xml:",chardata"`
 }
 
-// UserRequestElement represents the userRequest element
-type UserRequestElement struct {
+// UserRequestWrapper2 represents the userRequest element
+type UserRequestWrapper2 struct {
 	XMLName xml.Name        `xml:"userRequest"`
 	Value   UserRequestType `xml:",chardata"`
 }
 
-// GetFleetResponse represents the GetFleetResponse element
-type GetFleetResponse struct {
+// GetFleetResponseWrapper represents the GetFleetResponse element
+type GetFleetResponseWrapper struct {
 	XMLName xml.Name      `xml:"GetFleetResponse"`
 	Value   FleetDataType `xml:",chardata"`
 }
 
-// GetFleetResponseElement represents the getFleetResponse element
-type GetFleetResponseElement struct {
+// GetFleetResponseWrapper2 represents the getFleetResponse element
+type GetFleetResponseWrapper2 struct {
 	XMLName xml.Name      `xml:"getFleetResponse"`
 	Value   FleetDataType `xml:",chardata"`
 }

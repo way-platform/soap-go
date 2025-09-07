@@ -129,19 +129,32 @@ func (g *Generator) generateTypesFile(schema *xsd.Schema, packageName, filename 
 	// Generate inline complex types first (before elements that use them)
 	generateInlineComplexTypes(file, ctx, dataTypes)
 
-	// Generate data types (for proper dependency ordering)
-	for _, element := range dataTypes {
-		if typeRegistry.shouldGenerateWithContext(element, DataElementContext) {
-			generateStructFromElement(file, element, ctx, typeRegistry)
+	// Generate data types with classification-based wrapper naming
+	bindingStyle := g.getBindingStyle()
+	processedElements := make(map[string]bool)
+
+	// First pass: Generate wrapper types for operation elements
+	allElements := append([]*xsd.Element{}, dataTypes...)
+	allElements = append(allElements, messageTypes...)
+
+	for _, element := range allElements {
+		if processedElements[element.Name] {
+			continue // Skip duplicates
+		}
+		processedElements[element.Name] = true
+
+		if g.shouldUseWrapperForElement(element.Name, bindingStyle) {
+			if typeRegistry.shouldGenerateWithContext(element, SOAPWrapperContext) {
+				generateStructFromElementWithWrapper(file, element, ctx, typeRegistry)
+			}
+		} else {
+			if typeRegistry.shouldGenerateWithContext(element, DataElementContext) {
+				generateStructFromElement(file, element, ctx, typeRegistry)
+			}
 		}
 	}
 
-	// Generate message wrapper types with context-aware collision detection
-	for _, element := range messageTypes {
-		if typeRegistry.shouldGenerateWithContext(element, SOAPWrapperContext) {
-			generateStructFromElementWithWrapper(file, element, ctx, typeRegistry)
-		}
-	}
+	// All elements have been processed in the two passes above
 
 	return file, nil
 }

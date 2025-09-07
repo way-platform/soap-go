@@ -31,8 +31,8 @@ type Login struct {
 	LoginRequest LoginRequest `xml:"LoginRequest"`
 }
 
-// LoginResponseWrapper represents the loginResponse element
-type LoginResponseWrapper struct {
+// LoginResponseElement represents the loginResponse element
+type LoginResponseElement struct {
 	XMLName       xml.Name      `xml:"loginResponse"`
 	LoginResponse LoginResponse `xml:"LoginResponse"`
 }

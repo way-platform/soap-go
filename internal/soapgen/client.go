@@ -6,6 +6,7 @@ import (
 
 	"github.com/way-platform/soap-go/internal/codegen"
 	"github.com/way-platform/soap-go/wsdl"
+	"github.com/way-platform/soap-go/xsd"
 )
 
 // generateClientFile generates a Go file with SOAP client implementation
@@ -365,6 +366,9 @@ func (g *Generator) getMessageElementType(messageName string) (string, error) {
 		messageName = messageName[colonIdx+1:]
 	}
 
+	// Get the binding style for consistent naming
+	bindingStyle := g.getBindingStyle()
+
 	// Find the message definition
 	for _, message := range g.definitions.Messages {
 		if message.Name == messageName {
@@ -377,13 +381,60 @@ func (g *Generator) getMessageElementType(messageName string) (string, error) {
 					if colonIdx := strings.LastIndex(elementName, ":"); colonIdx != -1 {
 						elementName = elementName[colonIdx+1:]
 					}
-					return toGoName(elementName), nil
+
+					// Use consistent type naming based on binding style
+					return g.getConsistentTypeName(elementName, bindingStyle), nil
 				}
 			}
 		}
 	}
 
 	return "", fmt.Errorf("message %s not found", messageName)
+}
+
+// isMessageWrapperElement checks if an element is a SOAP message wrapper
+func (g *Generator) isMessageWrapperElement(element *xsd.Element) bool {
+	if element.ComplexType == nil || element.ComplexType.Sequence == nil {
+		return false
+	}
+
+	elems := element.ComplexType.Sequence.Elements
+
+	// Must have exactly one element that is a reference
+	if len(elems) != 1 || elems[0].Ref == "" {
+		return false
+	}
+
+	// Extract the referenced element name (remove namespace prefix)
+	refName := elems[0].Ref
+	if colonIdx := strings.LastIndex(refName, ":"); colonIdx != -1 {
+		refName = refName[colonIdx+1:]
+	}
+
+	// If the wrapper element name is different from the referenced element name,
+	// and the wrapper uses camelCase (starts with lowercase), it's likely a message wrapper
+	wrapperName := element.Name
+	if len(wrapperName) > 0 && wrapperName[0] >= 'a' && wrapperName[0] <= 'z' {
+		// camelCase wrapper name suggests it's a SOAP operation wrapper
+		return true
+	}
+
+	// Check for common SOAP response wrapper patterns
+	lowerWrapperName := strings.ToLower(wrapperName)
+	lowerRefName := strings.ToLower(refName)
+
+	// If wrapper ends with "response" and references a different element, it's likely a response wrapper
+	if strings.HasSuffix(lowerWrapperName, "response") && lowerWrapperName != lowerRefName {
+		return true
+	}
+
+	// If the referenced element name is significantly different from wrapper name,
+	// and the wrapper doesn't start with uppercase (PascalCase), treat as wrapper
+	if wrapperName != refName && len(wrapperName) > 0 && wrapperName[0] >= 'a' && wrapperName[0] <= 'z' {
+		return true
+	}
+
+	return false
 }
 
 // getSOAPActionForOperation gets the SOAP action for an operation from binding

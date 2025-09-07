@@ -39,20 +39,20 @@ type UserDataType struct {
 	Email    string `xml:"email"`
 }
 
-// UserData represents the UserData element
-type UserData struct {
+// UserDataWrapper represents the UserData element
+type UserDataWrapper struct {
 	XMLName xml.Name     `xml:"UserData"`
 	Value   UserDataType `xml:",chardata"`
 }
 
-// ProcessRequest represents the ProcessRequest element
-type ProcessRequest struct {
+// ProcessRequestWrapper represents the ProcessRequest element
+type ProcessRequestWrapper struct {
 	XMLName xml.Name           `xml:"ProcessRequest"`
 	Value   ProcessRequestType `xml:",chardata"`
 }
 
-// SystemInfo represents the SystemInfo element
-type SystemInfo struct {
+// SystemInfoWrapper represents the SystemInfo element
+type SystemInfoWrapper struct {
 	XMLName xml.Name       `xml:"SystemInfo"`
 	Value   SystemInfoType `xml:",chardata"`
 }

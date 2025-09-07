@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
-    xmlns:tns="http://example.com/test"
+    xmlns:tns="http://example.com/document-literal-test"
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
-    targetNamespace="http://example.com/test">
+    targetNamespace="http://example.com/document-literal-test">
 
     <types>
-        <xs:schema targetNamespace="http://example.com/test" elementFormDefault="qualified">
+        <xs:schema targetNamespace="http://example.com/document-literal-test"
+            elementFormDefault="qualified">
 
-            <!-- Core data types (should get clean names) -->
+            <!-- Core data types (inner types) -->
             <xs:element name="LoginRequest">
                 <xs:complexType>
                     <xs:sequence>
@@ -37,8 +38,19 @@
                 </xs:complexType>
             </xs:element>
 
-            <!-- SOAP message wrappers (should get *Wrapper suffix) -->
-            <!-- camelCase wrapper referencing PascalCase data type -->
+            <xs:element name="GetUserResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="user" type="xs:string" />
+                        <xs:element name="role" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- SOAP message wrapper elements (outer wrappers) -->
+            <!-- These should ALL get "Wrapper" suffix for consistency in Document/Literal -->
+
+            <!-- Login operation wrappers -->
             <xs:element name="login">
                 <xs:complexType>
                     <xs:sequence>
@@ -47,7 +59,6 @@
                 </xs:complexType>
             </xs:element>
 
-            <!-- Response wrapper with "response" suffix -->
             <xs:element name="loginResponse">
                 <xs:complexType>
                     <xs:sequence>
@@ -56,8 +67,8 @@
                 </xs:complexType>
             </xs:element>
 
-            <!-- Another operation wrapper -->
-            <xs:element name="getUserInfo">
+            <!-- GetUser operation wrappers -->
+            <xs:element name="getUser">
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element ref="tns:UserInfo" />
@@ -65,22 +76,37 @@
                 </xs:complexType>
             </xs:element>
 
-            <!-- Mixed case: PascalCase wrapper that should NOT be treated as wrapper -->
-            <xs:element name="LoginData">
+            <xs:element name="getUserResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element name="loginAttempts" type="xs:int" />
-                        <xs:element name="lastLogin" type="xs:dateTime" />
+                        <xs:element ref="tns:GetUserResponse" />
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
 
-            <!-- Edge case: camelCase but doesn't reference single element - not a wrapper -->
-            <xs:element name="loginStats">
+            <!-- Logout operation wrappers (simple case) -->
+            <xs:element name="logout">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element name="totalAttempts" type="xs:int" />
-                        <xs:element name="successfulLogins" type="xs:int" />
+                        <xs:element name="sessionId" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="logoutResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="success" type="xs:boolean" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- Non-operation element (should NOT get wrapper suffix) -->
+            <xs:element name="ServerConfig">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="version" type="xs:string" />
+                        <xs:element name="environment" type="xs:string" />
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -88,15 +114,24 @@
         </xs:schema>
     </types>
 
-    <!-- Messages for SOAP operations -->
+    <!-- Messages -->
     <message name="LoginRequestMessage">
         <part element="tns:login" name="body" />
     </message>
     <message name="LoginResponseMessage">
         <part element="tns:loginResponse" name="body" />
     </message>
-    <message name="GetUserInfoRequestMessage">
-        <part element="tns:getUserInfo" name="body" />
+    <message name="GetUserRequestMessage">
+        <part element="tns:getUser" name="body" />
+    </message>
+    <message name="GetUserResponseMessage">
+        <part element="tns:getUserResponse" name="body" />
+    </message>
+    <message name="LogoutRequestMessage">
+        <part element="tns:logout" name="body" />
+    </message>
+    <message name="LogoutResponseMessage">
+        <part element="tns:logoutResponse" name="body" />
     </message>
 
     <!-- Port Type -->
@@ -105,8 +140,13 @@
             <input message="tns:LoginRequestMessage" />
             <output message="tns:LoginResponseMessage" />
         </operation>
-        <operation name="GetUserInfo">
-            <input message="tns:GetUserInfoRequestMessage" />
+        <operation name="GetUser">
+            <input message="tns:GetUserRequestMessage" />
+            <output message="tns:GetUserResponseMessage" />
+        </operation>
+        <operation name="Logout">
+            <input message="tns:LogoutRequestMessage" />
+            <output message="tns:LogoutResponseMessage" />
         </operation>
     </portType>
 
@@ -114,7 +154,7 @@
     <binding name="TestServiceBinding" type="tns:TestServicePortType">
         <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
         <operation name="Login">
-            <soap:operation soapAction="http://example.com/test/Login" />
+            <soap:operation soapAction="http://example.com/document-literal-test/Login" />
             <input>
                 <soap:body use="literal" />
             </input>
@@ -122,11 +162,23 @@
                 <soap:body use="literal" />
             </output>
         </operation>
-        <operation name="GetUserInfo">
-            <soap:operation soapAction="http://example.com/test/GetUserInfo" />
+        <operation name="GetUser">
+            <soap:operation soapAction="http://example.com/document-literal-test/GetUser" />
             <input>
                 <soap:body use="literal" />
             </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+        </operation>
+        <operation name="Logout">
+            <soap:operation soapAction="http://example.com/document-literal-test/Logout" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
         </operation>
     </binding>
 

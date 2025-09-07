@@ -47,14 +47,14 @@ type TimeRangeType struct {
 	End   time.Time `xml:"End"`
 }
 
-// DownloadRequest represents the DownloadRequest element
-type DownloadRequest struct {
+// DownloadRequestWrapper represents the DownloadRequest element
+type DownloadRequestWrapper struct {
 	XMLName xml.Name            `xml:"DownloadRequest"`
 	Value   DownloadRequestType `xml:",chardata"`
 }
 
-// ConfigData represents the ConfigData element
-type ConfigData struct {
+// ConfigDataWrapper represents the ConfigData element
+type ConfigDataWrapper struct {
 	XMLName xml.Name       `xml:"ConfigData"`
 	Value   ConfigDataType `xml:",chardata"`
 }

@@ -40,35 +40,35 @@ type NestedDynamicDocument_NestedDocument struct {
 
 // Inline complex types
 
-// FlexibleDocument represents the FlexibleDocument element
-type FlexibleDocument struct {
+// FlexibleDocumentWrapper represents the FlexibleDocument element
+type FlexibleDocumentWrapper struct {
 	XMLName xml.Name             `xml:"FlexibleDocument"`
 	Value   FlexibleDocumentType `xml:",chardata"`
 }
 
-// DynamicContent represents the DynamicContent element
-type DynamicContent struct {
+// DynamicContentWrapper represents the DynamicContent element
+type DynamicContentWrapper struct {
 	XMLName xml.Name `xml:"DynamicContent"`
 	Header  string   `xml:"header"`
 	Content RawXML   `xml:",innerxml"`
 }
 
-// MixedDocument represents the MixedDocument element
-type MixedDocument struct {
+// MixedDocumentWrapper represents the MixedDocument element
+type MixedDocumentWrapper struct {
 	XMLName            xml.Name `xml:"MixedDocument"`
 	KnownElement       string   `xml:"knownElement"`
 	UnknownTypeElement *string  `xml:"unknownTypeElement,omitempty"`
 	Content            RawXML   `xml:",innerxml"`
 }
 
-// PerformanceReport represents the PerformanceReport element
-type PerformanceReport struct {
+// PerformanceReportWrapper represents the PerformanceReport element
+type PerformanceReportWrapper struct {
 	XMLName xml.Name            `xml:"PerformanceReport"`
 	Value   PerformanceDataType `xml:",chardata"`
 }
 
-// UntypedElement represents the UntypedElement element
-type UntypedElement struct {
+// UntypedElementWrapper represents the UntypedElement element
+type UntypedElementWrapper struct {
 	XMLName xml.Name `xml:"UntypedElement"`
 	Value   string   `xml:",chardata"`
 }

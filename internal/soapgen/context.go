@@ -250,6 +250,15 @@ func (r *TypeRegistry) generateUniqueTypeName(baseName, xmlName string, context 
 		}
 	}
 
+	// For SOAPWrapperContext, always use wrapper suffix for consistency
+	if context == SOAPWrapperContext {
+		candidateName := baseName + "Wrapper"
+		if !r.hasGoTypeName(candidateName) {
+			return candidateName
+		}
+		return r.generateNumberedName(baseName + "Wrapper")
+	}
+
 	// Check for case-insensitive collisions with different XML names
 	hasCollision := r.hasCaseInsensitiveCollision(baseName, xmlName)
 
@@ -267,12 +276,7 @@ func (r *TypeRegistry) generateUniqueTypeName(baseName, xmlName string, context 
 		}
 		// If that's taken, try with XML name hint
 		return r.generateNumberedName(baseName + "Element")
-	case SOAPWrapperContext:
-		candidateName := baseName + "Wrapper"
-		if !r.hasGoTypeName(candidateName) {
-			return candidateName
-		}
-		return r.generateNumberedName(baseName + "Wrapper")
+	// SOAPWrapperContext is handled above before collision detection
 	case OperationWrapperContext:
 		candidateName := baseName + "Operation"
 		if !r.hasGoTypeName(candidateName) {

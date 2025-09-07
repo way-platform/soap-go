@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://example.com/rpc-literal-test"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://example.com/rpc-literal-test">
+
+    <types>
+        <xs:schema targetNamespace="http://example.com/rpc-literal-test"
+            elementFormDefault="qualified">
+
+            <!-- In RPC style, these are typically the parameter/return types -->
+            <xs:element name="authenticate">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="username" type="xs:string" />
+                        <xs:element name="password" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="authenticateResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="token" type="xs:string" />
+                        <xs:element name="expires" type="xs:dateTime" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="fetchData">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="token" type="xs:string" />
+                        <xs:element name="dataId" type="xs:long" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="fetchDataResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="data" type="xs:string" />
+                        <xs:element name="lastModified" type="xs:dateTime" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- Non-operation element (should NOT get wrapper suffix) -->
+            <xs:element name="SystemStatus">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="online" type="xs:boolean" />
+                        <xs:element name="version" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+        </xs:schema>
+    </types>
+
+    <!-- Messages -->
+    <message name="AuthenticateRequestMessage">
+        <part element="tns:authenticate" name="body" />
+    </message>
+    <message name="AuthenticateResponseMessage">
+        <part element="tns:authenticateResponse" name="body" />
+    </message>
+    <message name="FetchDataRequestMessage">
+        <part element="tns:fetchData" name="body" />
+    </message>
+    <message name="FetchDataResponseMessage">
+        <part element="tns:fetchDataResponse" name="body" />
+    </message>
+
+    <!-- Port Type -->
+    <portType name="RPCTestServicePortType">
+        <operation name="Authenticate">
+            <input message="tns:AuthenticateRequestMessage" />
+            <output message="tns:AuthenticateResponseMessage" />
+        </operation>
+        <operation name="FetchData">
+            <input message="tns:FetchDataRequestMessage" />
+            <output message="tns:FetchDataResponseMessage" />
+        </operation>
+    </portType>
+
+    <!-- SOAP Binding (RPC/Literal) -->
+    <binding name="RPCTestServiceBinding" type="tns:RPCTestServicePortType">
+        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http" />
+        <operation name="Authenticate">
+            <soap:operation soapAction="http://example.com/rpc-literal-test/Authenticate" />
+            <input>
+                <soap:body use="literal" namespace="http://example.com/rpc-literal-test" />
+            </input>
+            <output>
+                <soap:body use="literal" namespace="http://example.com/rpc-literal-test" />
+            </output>
+        </operation>
+        <operation name="FetchData">
+            <soap:operation soapAction="http://example.com/rpc-literal-test/FetchData" />
+            <input>
+                <soap:body use="literal" namespace="http://example.com/rpc-literal-test" />
+            </input>
+            <output>
+                <soap:body use="literal" namespace="http://example.com/rpc-literal-test" />
+            </output>
+        </operation>
+    </binding>
+
+    <!-- Service -->
+    <service name="RPCTestService">
+        <port name="RPCTestServicePort" binding="tns:RPCTestServiceBinding">
+            <soap:address location="http://example.com/rpc-test" />
+        </port>
+    </service>
+
+</definitions>

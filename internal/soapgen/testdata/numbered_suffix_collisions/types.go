@@ -39,20 +39,20 @@ type RequestType struct {
 	Type string `xml:"type"`
 }
 
-// Request represents the Request element
-type Request struct {
+// RequestWrapper represents the Request element
+type RequestWrapper struct {
 	XMLName xml.Name    `xml:"Request"`
 	Value   RequestType `xml:",chardata"`
 }
 
-// RequestElement represents the request element
-type RequestElement struct {
+// RequestWrapper2 represents the request element
+type RequestWrapper2 struct {
 	XMLName xml.Name    `xml:"request"`
 	Value   RequestType `xml:",chardata"`
 }
 
-// REQUEST represents the REQUEST element
-type REQUEST struct {
+// REQUESTWrapper represents the REQUEST element
+type REQUESTWrapper struct {
 	XMLName xml.Name    `xml:"REQUEST"`
 	Value   RequestType `xml:",chardata"`
 }
@@ -87,20 +87,20 @@ type Request2 struct {
 	Value   RequestType `xml:",chardata"`
 }
 
-// Data represents the Data element
-type Data struct {
+// DataWrapper represents the Data element
+type DataWrapper struct {
 	XMLName xml.Name `xml:"Data"`
 	Value   DataType `xml:",chardata"`
 }
 
-// DataElement represents the data element
-type DataElement struct {
+// DataWrapper2 represents the data element
+type DataWrapper2 struct {
 	XMLName xml.Name `xml:"data"`
 	Value   DataType `xml:",chardata"`
 }
 
-// DATA represents the DATA element
-type DATA struct {
+// DATAWrapper represents the DATA element
+type DATAWrapper struct {
 	XMLName xml.Name `xml:"DATA"`
 	Value   DataType `xml:",chardata"`
 }
@@ -141,8 +141,8 @@ type Data3 struct {
 	Value   DataType `xml:",chardata"`
 }
 
-// ExtremeCaseElement represents the ExtremeCaseElement element
-type ExtremeCaseElement struct {
+// ExtremeCaseElementWrapper represents the ExtremeCaseElement element
+type ExtremeCaseElementWrapper struct {
 	XMLName xml.Name        `xml:"ExtremeCaseElement"`
 	Value   ExtremeCaseType `xml:",chardata"`
 }
