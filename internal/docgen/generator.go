@@ -33,7 +33,7 @@ type inlineSimpleTypeInfo struct {
 func NewGenerator(filename string, definitions *wsdl.Definitions) *Generator {
 	return &Generator{
 		definitions:       definitions,
-		output:            codegen.NewFile(filename),
+		output:            codegen.NewFile(filename, ""),
 		filename:          filename,
 		inlineSimpleTypes: make(map[string]*inlineSimpleTypeInfo),
 	}

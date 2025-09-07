@@ -31,12 +31,6 @@ type Login struct {
 	LoginRequest LoginRequest `xml:"LoginRequest"`
 }
 
-// LoginResponseElement represents the loginResponse element
-type LoginResponseElement struct {
-	XMLName       xml.Name      `xml:"loginResponse"`
-	LoginResponse LoginResponse `xml:"LoginResponse"`
-}
-
 // GetUserData represents the getUserData element
 type GetUserData struct {
 	XMLName  xml.Name `xml:"getUserData"`

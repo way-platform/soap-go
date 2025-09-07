@@ -45,12 +45,6 @@ type RequestWrapper struct {
 	Value   RequestType `xml:",chardata"`
 }
 
-// RequestWrapper2 represents the request element
-type RequestWrapper2 struct {
-	XMLName xml.Name    `xml:"request"`
-	Value   RequestType `xml:",chardata"`
-}
-
 // REQUESTWrapper represents the REQUEST element
 type REQUESTWrapper struct {
 	XMLName xml.Name    `xml:"REQUEST"`
@@ -60,12 +54,6 @@ type REQUESTWrapper struct {
 // RequestElement represents the requestElement element
 type RequestElement struct {
 	XMLName xml.Name    `xml:"requestElement"`
-	Value   RequestType `xml:",chardata"`
-}
-
-// RequestWrapper represents the requestWrapper element
-type RequestWrapper struct {
-	XMLName xml.Name    `xml:"requestWrapper"`
 	Value   RequestType `xml:",chardata"`
 }
 
@@ -93,12 +81,6 @@ type DataWrapper struct {
 	Value   DataType `xml:",chardata"`
 }
 
-// DataWrapper2 represents the data element
-type DataWrapper2 struct {
-	XMLName xml.Name `xml:"data"`
-	Value   DataType `xml:",chardata"`
-}
-
 // DATAWrapper represents the DATA element
 type DATAWrapper struct {
 	XMLName xml.Name `xml:"DATA"`
@@ -108,12 +90,6 @@ type DATAWrapper struct {
 // DataElement represents the dataElement element
 type DataElement struct {
 	XMLName xml.Name `xml:"dataElement"`
-	Value   DataType `xml:",chardata"`
-}
-
-// DataWrapper represents the dataWrapper element
-type DataWrapper struct {
-	XMLName xml.Name `xml:"dataWrapper"`
 	Value   DataType `xml:",chardata"`
 }
 

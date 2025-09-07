@@ -61,7 +61,7 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 }
 
 // ProcessDownloadRequest executes the ProcessDownloadRequest SOAP operation.
-func (c *Client) ProcessDownloadRequest(ctx context.Context, req *DownloadRequest) (*interface{}, error) {
+func (c *Client) ProcessDownloadRequest(ctx context.Context, req *DownloadRequestWrapper) (*interface{}, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
@@ -124,7 +124,7 @@ func (c *Client) ProcessDownloadRequest(ctx context.Context, req *DownloadReques
 }
 
 // ProcessConfigData executes the ProcessConfigData SOAP operation.
-func (c *Client) ProcessConfigData(ctx context.Context, req *ConfigData) (*interface{}, error) {
+func (c *Client) ProcessConfigData(ctx context.Context, req *ConfigDataWrapper) (*interface{}, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {

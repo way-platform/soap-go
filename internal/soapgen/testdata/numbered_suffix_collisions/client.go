@@ -61,7 +61,7 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 }
 
 // ProcessRequest executes the ProcessRequest SOAP operation.
-func (c *Client) ProcessRequest(ctx context.Context, req *Request) (*interface{}, error) {
+func (c *Client) ProcessRequest(ctx context.Context, req *RequestWrapper) (*interface{}, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
@@ -124,7 +124,7 @@ func (c *Client) ProcessRequest(ctx context.Context, req *Request) (*interface{}
 }
 
 // ProcessRequestLower executes the ProcessRequestLower SOAP operation.
-func (c *Client) ProcessRequestLower(ctx context.Context, req *Request) (*interface{}, error) {
+func (c *Client) ProcessRequestLower(ctx context.Context, req *RequestWrapper) (*interface{}, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
@@ -187,7 +187,7 @@ func (c *Client) ProcessRequestLower(ctx context.Context, req *Request) (*interf
 }
 
 // ProcessRequestUpper executes the ProcessRequestUpper SOAP operation.
-func (c *Client) ProcessRequestUpper(ctx context.Context, req *REQUEST) (*interface{}, error) {
+func (c *Client) ProcessRequestUpper(ctx context.Context, req *REQUESTWrapper) (*interface{}, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
@@ -250,7 +250,7 @@ func (c *Client) ProcessRequestUpper(ctx context.Context, req *REQUEST) (*interf
 }
 
 // ProcessData executes the ProcessData SOAP operation.
-func (c *Client) ProcessData(ctx context.Context, req *Data) (*interface{}, error) {
+func (c *Client) ProcessData(ctx context.Context, req *DataWrapper) (*interface{}, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
@@ -313,7 +313,7 @@ func (c *Client) ProcessData(ctx context.Context, req *Data) (*interface{}, erro
 }
 
 // ProcessDataLower executes the ProcessDataLower SOAP operation.
-func (c *Client) ProcessDataLower(ctx context.Context, req *Data) (*interface{}, error) {
+func (c *Client) ProcessDataLower(ctx context.Context, req *DataWrapper) (*interface{}, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
@@ -376,7 +376,7 @@ func (c *Client) ProcessDataLower(ctx context.Context, req *Data) (*interface{},
 }
 
 // ProcessDataUpper executes the ProcessDataUpper SOAP operation.
-func (c *Client) ProcessDataUpper(ctx context.Context, req *DATA) (*interface{}, error) {
+func (c *Client) ProcessDataUpper(ctx context.Context, req *DATAWrapper) (*interface{}, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
@@ -439,7 +439,7 @@ func (c *Client) ProcessDataUpper(ctx context.Context, req *DATA) (*interface{},
 }
 
 // ProcessExtremeCase executes the ProcessExtremeCase SOAP operation.
-func (c *Client) ProcessExtremeCase(ctx context.Context, req *ExtremeCaseElement) (*interface{}, error) {
+func (c *Client) ProcessExtremeCase(ctx context.Context, req *ExtremeCaseElementWrapper) (*interface{}, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
@@ -502,7 +502,7 @@ func (c *Client) ProcessExtremeCase(ctx context.Context, req *ExtremeCaseElement
 }
 
 // HandleRequest executes the HandleRequest SOAP operation.
-func (c *Client) HandleRequest(ctx context.Context, req *Request) (*interface{}, error) {
+func (c *Client) HandleRequest(ctx context.Context, req *RequestWrapper) (*interface{}, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
@@ -565,7 +565,7 @@ func (c *Client) HandleRequest(ctx context.Context, req *Request) (*interface{},
 }
 
 // ValidateRequest executes the ValidateRequest SOAP operation.
-func (c *Client) ValidateRequest(ctx context.Context, req *Request) (*interface{}, error) {
+func (c *Client) ValidateRequest(ctx context.Context, req *RequestWrapper) (*interface{}, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
@@ -628,7 +628,7 @@ func (c *Client) ValidateRequest(ctx context.Context, req *Request) (*interface{
 }
 
 // SubmitRequest executes the SubmitRequest SOAP operation.
-func (c *Client) SubmitRequest(ctx context.Context, req *Request) (*interface{}, error) {
+func (c *Client) SubmitRequest(ctx context.Context, req *RequestWrapper) (*interface{}, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {

@@ -2,6 +2,7 @@ package complex_rawxml_scenarios
 
 import (
 	"encoding/xml"
+	"time"
 )
 
 // RawXML captures raw XML content for untyped elements.
@@ -11,14 +12,17 @@ type RawXML []byte
 
 // FlexibleDocumentType represents the FlexibleDocumentType complex type
 type FlexibleDocumentType struct {
-	DocumentID string `xml:"documentID"`
-	Version    string `xml:"version"`
+	DocumentID   string `xml:"documentID"`
+	Version      string `xml:"version"`
+	OtherContent RawXML `xml:",innerxml"`
 }
 
 // MultiAnyType represents the MultiAnyType complex type
 type MultiAnyType struct {
-	Section1 string `xml:"section1"`
-	Section2 string `xml:"section2"`
+	Section1               string `xml:"section1"`
+	Section2               string `xml:"section2"`
+	LocalContent           RawXML `xml:",innerxml"`
+	TargetNamespaceContent RawXML `xml:",innerxml"`
 }
 
 // PerformanceDataType represents the PerformanceDataType complex type
@@ -36,6 +40,7 @@ type ValidType struct {
 // NestedDynamicDocument_NestedDocument represents an inline complex type
 type NestedDynamicDocument_NestedDocument struct {
 	InnerElement string `xml:"innerElement"`
+	Content      RawXML `xml:",innerxml"`
 }
 
 // Inline complex types
@@ -75,9 +80,9 @@ type UntypedElementWrapper struct {
 
 // NestedDynamicDocument represents the NestedDynamicDocument element
 type NestedDynamicDocument struct {
-	XMLName        xml.Name                             `xml:"NestedDynamicDocument"`
-	OuterElement   string                               `xml:"outerElement"`
-	NestedDocument NestedDynamicDocument_NestedDocument `xml:"nestedDocument"`
+	XMLName        xml.Name `xml:"NestedDynamicDocument"`
+	OuterElement   string   `xml:"outerElement"`
+	NestedDocument RawXML   `xml:",innerxml"`
 }
 
 // ValidElement represents the ValidElement element

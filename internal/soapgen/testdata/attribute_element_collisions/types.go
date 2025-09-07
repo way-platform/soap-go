@@ -2,6 +2,7 @@ package attribute_element_collisions
 
 import (
 	"encoding/xml"
+	"time"
 )
 
 // Complex types

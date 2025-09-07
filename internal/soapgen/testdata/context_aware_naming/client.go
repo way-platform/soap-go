@@ -61,7 +61,7 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 }
 
 // ProcessUserData executes the ProcessUserData SOAP operation.
-func (c *Client) ProcessUserData(ctx context.Context, req *UserData) (*UserData, error) {
+func (c *Client) ProcessUserData(ctx context.Context, req *UserDataWrapper) (*UserDataWrapper, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
@@ -115,7 +115,7 @@ func (c *Client) ProcessUserData(ctx context.Context, req *UserData) (*UserData,
 	}
 
 	// Extract response from SOAP body
-	var result UserData
+	var result UserDataWrapper
 	if err := xml.Unmarshal(respEnvelope.Body.Content, &result); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal response body: %w", err)
 	}
@@ -124,7 +124,7 @@ func (c *Client) ProcessUserData(ctx context.Context, req *UserData) (*UserData,
 }
 
 // ProcessRequest executes the ProcessRequest SOAP operation.
-func (c *Client) ProcessRequest(ctx context.Context, req *ProcessRequest) (*ProcessRequest, error) {
+func (c *Client) ProcessRequest(ctx context.Context, req *ProcessRequestWrapper) (*ProcessRequestWrapper, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
@@ -178,7 +178,7 @@ func (c *Client) ProcessRequest(ctx context.Context, req *ProcessRequest) (*Proc
 	}
 
 	// Extract response from SOAP body
-	var result ProcessRequest
+	var result ProcessRequestWrapper
 	if err := xml.Unmarshal(respEnvelope.Body.Content, &result); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal response body: %w", err)
 	}
@@ -187,7 +187,7 @@ func (c *Client) ProcessRequest(ctx context.Context, req *ProcessRequest) (*Proc
 }
 
 // GetSystemInfo executes the GetSystemInfo SOAP operation.
-func (c *Client) GetSystemInfo(ctx context.Context, req *SystemInfo) (*interface{}, error) {
+func (c *Client) GetSystemInfo(ctx context.Context, req *SystemInfoWrapper) (*interface{}, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
@@ -250,7 +250,7 @@ func (c *Client) GetSystemInfo(ctx context.Context, req *SystemInfo) (*interface
 }
 
 // UpdateUserData executes the UpdateUserData SOAP operation.
-func (c *Client) UpdateUserData(ctx context.Context, req *UserData) (*interface{}, error) {
+func (c *Client) UpdateUserData(ctx context.Context, req *UserDataWrapper) (*interface{}, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
@@ -313,7 +313,7 @@ func (c *Client) UpdateUserData(ctx context.Context, req *UserData) (*interface{
 }
 
 // ValidateProcessRequest executes the ValidateProcessRequest SOAP operation.
-func (c *Client) ValidateProcessRequest(ctx context.Context, req *ProcessRequest) (*interface{}, error) {
+func (c *Client) ValidateProcessRequest(ctx context.Context, req *ProcessRequestWrapper) (*interface{}, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {

@@ -61,7 +61,7 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 }
 
 // ProcessFlexibleDocument executes the ProcessFlexibleDocument SOAP operation.
-func (c *Client) ProcessFlexibleDocument(ctx context.Context, req *FlexibleDocument) (*interface{}, error) {
+func (c *Client) ProcessFlexibleDocument(ctx context.Context, req *FlexibleDocumentWrapper) (*interface{}, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
@@ -124,7 +124,7 @@ func (c *Client) ProcessFlexibleDocument(ctx context.Context, req *FlexibleDocum
 }
 
 // ProcessDynamicContent executes the ProcessDynamicContent SOAP operation.
-func (c *Client) ProcessDynamicContent(ctx context.Context, req *DynamicContent) (*interface{}, error) {
+func (c *Client) ProcessDynamicContent(ctx context.Context, req *DynamicContentWrapper) (*interface{}, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
@@ -187,7 +187,7 @@ func (c *Client) ProcessDynamicContent(ctx context.Context, req *DynamicContent)
 }
 
 // ProcessMixedDocument executes the ProcessMixedDocument SOAP operation.
-func (c *Client) ProcessMixedDocument(ctx context.Context, req *MixedDocument) (*interface{}, error) {
+func (c *Client) ProcessMixedDocument(ctx context.Context, req *MixedDocumentWrapper) (*interface{}, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
@@ -250,7 +250,7 @@ func (c *Client) ProcessMixedDocument(ctx context.Context, req *MixedDocument) (
 }
 
 // ProcessPerformanceReport executes the ProcessPerformanceReport SOAP operation.
-func (c *Client) ProcessPerformanceReport(ctx context.Context, req *PerformanceReport) (*interface{}, error) {
+func (c *Client) ProcessPerformanceReport(ctx context.Context, req *PerformanceReportWrapper) (*interface{}, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
@@ -313,7 +313,7 @@ func (c *Client) ProcessPerformanceReport(ctx context.Context, req *PerformanceR
 }
 
 // ProcessUntypedElement executes the ProcessUntypedElement SOAP operation.
-func (c *Client) ProcessUntypedElement(ctx context.Context, req *UntypedElement) (*interface{}, error) {
+func (c *Client) ProcessUntypedElement(ctx context.Context, req *UntypedElementWrapper) (*interface{}, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {

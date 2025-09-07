@@ -61,7 +61,7 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 }
 
 // TestUserRequest executes the TestUserRequest SOAP operation.
-func (c *Client) TestUserRequest(ctx context.Context, req *UserRequest) (*interface{}, error) {
+func (c *Client) TestUserRequest(ctx context.Context, req *UserRequestWrapper) (*interface{}, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
@@ -124,7 +124,7 @@ func (c *Client) TestUserRequest(ctx context.Context, req *UserRequest) (*interf
 }
 
 // TestUserRequestLower executes the TestUserRequestLower SOAP operation.
-func (c *Client) TestUserRequestLower(ctx context.Context, req *UserRequest) (*interface{}, error) {
+func (c *Client) TestUserRequestLower(ctx context.Context, req *UserRequestWrapper) (*interface{}, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
@@ -187,7 +187,7 @@ func (c *Client) TestUserRequestLower(ctx context.Context, req *UserRequest) (*i
 }
 
 // TestGetFleetResponse executes the TestGetFleetResponse SOAP operation.
-func (c *Client) TestGetFleetResponse(ctx context.Context, req *GetFleetResponse) (*interface{}, error) {
+func (c *Client) TestGetFleetResponse(ctx context.Context, req *GetFleetResponseWrapper) (*interface{}, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
@@ -250,7 +250,7 @@ func (c *Client) TestGetFleetResponse(ctx context.Context, req *GetFleetResponse
 }
 
 // TestGetFleetResponseLower executes the TestGetFleetResponseLower SOAP operation.
-func (c *Client) TestGetFleetResponseLower(ctx context.Context, req *GetFleetResponse) (*interface{}, error) {
+func (c *Client) TestGetFleetResponseLower(ctx context.Context, req *GetFleetResponseWrapper) (*interface{}, error) {
 	// Marshal request to XML
 	reqXML, err := xml.Marshal(req)
 	if err != nil {

@@ -76,11 +76,9 @@ func (r *FieldRegistry) generateUniqueFieldName(xmlName string, isAttribute bool
 	}
 
 	// Check if this exact combination already exists
-	if existing, exists := r.fields[baseName]; exists {
-		// If it's the same XML name and attribute type, reuse the same field name
-		if existing.xmlName == xmlName && existing.isAttribute == isAttribute {
-			return existing.goFieldName
-		}
+	if _, exists := r.fields[baseName]; exists {
+		// Always generate unique names to avoid field redeclaration errors
+		// TODO: Implement proper field combination logic for multiple references to same element
 
 		// Collision detected - generate unique name
 		var candidateName string
@@ -259,46 +257,14 @@ func (r *TypeRegistry) generateUniqueTypeName(baseName, xmlName string, context 
 		return r.generateNumberedName(baseName + "Wrapper")
 	}
 
-	// Check for case-insensitive collisions with different XML names
-	hasCollision := r.hasCaseInsensitiveCollision(baseName, xmlName)
-
-	if !hasCollision {
-		// No collision, use the base name
-		return baseName
-	}
-
-	// Handle collision with context-specific suffixes
-	switch context {
-	case DataElementContext:
-		candidateName := baseName + "Element"
-		if !r.hasGoTypeName(candidateName) {
-			return candidateName
-		}
-		// If that's taken, try with XML name hint
-		return r.generateNumberedName(baseName + "Element")
-	// SOAPWrapperContext is handled above before collision detection
-	case OperationWrapperContext:
-		candidateName := baseName + "Operation"
-		if !r.hasGoTypeName(candidateName) {
-			return candidateName
-		}
-		return r.generateNumberedName(baseName + "Operation")
-	default:
+	// Check for Go type name collisions (simplified approach)
+	if r.hasGoTypeName(baseName) {
+		// Collision detected, generate unique name with numbered suffix
 		return r.generateNumberedName(baseName)
 	}
-}
 
-// hasCaseInsensitiveCollision checks if there's a collision with different XML names that map to the same Go name
-func (r *TypeRegistry) hasCaseInsensitiveCollision(goName, xmlName string) bool {
-	for existingXMLName, typeInfos := range r.xmlNames {
-		if existingXMLName != xmlName && toGoName(existingXMLName) == goName {
-			// Found different XML name that maps to same Go name
-			if len(typeInfos) > 0 {
-				return true
-			}
-		}
-	}
-	return false
+	// No collision, use the base name
+	return baseName
 }
 
 // hasGoTypeName checks if a Go type name is already used
@@ -428,65 +394,4 @@ func isMessageWrapper(element *xsd.Element) bool {
 	return false
 }
 
-// collectRequiredImports recursively collects all import statements needed for the given element
-func collectRequiredImports(element *xsd.Element, imports map[string]bool, ctx *SchemaContext) {
-	if element.ComplexType != nil {
-		// Handle sequence elements
-		if element.ComplexType.Sequence != nil {
-			for _, fieldElement := range element.ComplexType.Sequence.Elements {
-				// Parse the type and check if it requires any imports
-				if fieldElement.Type != "" {
-					parsedType := xsd.ParseType(fieldElement.Type)
-					for _, imp := range parsedType.RequiresImport() {
-						imports[imp] = true
-					}
-				} else if fieldElement.ComplexType != nil {
-					// For inline complex types, we use RawXML which is generated in the same package
-					// Check if inline complex types need other imports
-					collectRequiredImportsFromComplexType(fieldElement.ComplexType, imports)
-				}
-			}
-		}
-
-		// Handle attributes
-		for _, attr := range element.ComplexType.Attributes {
-			if attr.Type != "" {
-				parsedType := xsd.ParseType(attr.Type)
-				for _, imp := range parsedType.RequiresImport() {
-					imports[imp] = true
-				}
-			}
-		}
-
-		// Handle complex content extensions
-		if element.ComplexType.ComplexContent != nil && element.ComplexType.ComplexContent.Extension != nil {
-			ext := element.ComplexType.ComplexContent.Extension
-			if ext.Sequence != nil {
-				for _, fieldElement := range ext.Sequence.Elements {
-					if fieldElement.Type != "" {
-						parsedType := xsd.ParseType(fieldElement.Type)
-						for _, imp := range parsedType.RequiresImport() {
-							imports[imp] = true
-						}
-					}
-					// For inline complex types (fieldElement.ComplexType != nil), we use RawXML
-					// which is generated in the same package, so no additional imports needed
-				}
-			}
-		}
-	}
-}
-
-// collectRequiredImportsFromComplexType checks if a complex type needs any imports
-func collectRequiredImportsFromComplexType(complexType *xsd.ComplexType, imports map[string]bool) {
-	if complexType.Sequence != nil {
-		for _, elem := range complexType.Sequence.Elements {
-			if elem.Type != "" {
-				parsedType := xsd.ParseType(elem.Type)
-				for _, imp := range parsedType.RequiresImport() {
-					imports[imp] = true
-				}
-			}
-		}
-	}
-}
+// Import collection is now handled automatically via QualifiedGoIdent calls in codegen

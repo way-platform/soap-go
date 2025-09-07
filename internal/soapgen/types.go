@@ -47,7 +47,17 @@ func mapXSDTypeToGoWithContext(xsdType string, ctx *SchemaContext) string {
 
 	// First try to resolve as a simple type in the schema
 	if simpleType := ctx.resolveSimpleType(xsdType); simpleType != nil {
-		return resolveSimpleTypeToGo(simpleType)
+		// For simple types with restrictions, check if it's an enumeration
+		if simpleType.Restriction != nil && simpleType.Restriction.Base != "" {
+			// If it has enumerations, keep it as a custom type (enum)
+			if len(simpleType.Restriction.Enumerations) > 0 {
+				return toGoName(extractLocalName(xsdType))
+			}
+			// Otherwise, resolve to the base type (for simple restrictions)
+			return mapXSDTypeToGoWithContext(simpleType.Restriction.Base, ctx)
+		}
+		// If no restriction, treat as the simple type name
+		return toGoName(extractLocalName(xsdType))
 	}
 
 	// Then try to resolve as a complex type in the schema
@@ -122,25 +132,6 @@ func inferGoTypeFromCustomTypeName(typeName string) string {
 
 	// Default to generating a proper Go type name for complex types
 	return xsd.ToGoTypeName(typeName)
-}
-
-// resolveSimpleTypeToGo converts a simple type definition to a Go type
-func resolveSimpleTypeToGo(simpleType *xsd.SimpleType) string {
-	if simpleType.Restriction != nil {
-		// Get the base type and handle restrictions
-		baseType := xsd.ParseType(simpleType.Restriction.Base)
-
-		// Check if it's an enumeration
-		if len(simpleType.Restriction.Enumerations) > 0 {
-			// For enumerations, return the custom enum type name
-			return toGoName(simpleType.Name)
-		}
-
-		return baseType.ToGoType()
-	}
-
-	// Default to string if we can't determine the type
-	return "string"
 }
 
 // extractLocalName removes namespace prefix from a type name

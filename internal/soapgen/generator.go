@@ -2,7 +2,6 @@ package soapgen
 
 import (
 	"fmt"
-	"sort"
 
 	"github.com/way-platform/soap-go/internal/codegen"
 	"github.com/way-platform/soap-go/wsdl"
@@ -74,7 +73,7 @@ func (g *Generator) Files() []*codegen.File {
 
 // generateTypesFile generates a Go file with types from an XSD schema
 func (g *Generator) generateTypesFile(schema *xsd.Schema, packageName, filename string) (*codegen.File, error) {
-	file := codegen.NewFile(filename)
+	file := codegen.NewFile(filename, packageName)
 
 	// Create schema context for reference resolution
 	ctx := newSchemaContext(schema)
@@ -96,29 +95,7 @@ func (g *Generator) generateTypesFile(schema *xsd.Schema, packageName, filename 
 	// Separate data types from message wrapper types
 	dataTypes, messageTypes := categorizeElements(schema.Elements)
 
-	// Collect all required imports by analyzing the types used
-	requiredImports := make(map[string]bool)
-
-	// Always add encoding/xml for XMLName fields
-	requiredImports["encoding/xml"] = true
-
-	for _, element := range append(dataTypes, messageTypes...) {
-		collectRequiredImports(element, requiredImports, ctx)
-	}
-
-	// Add imports in sorted order for deterministic output
-	var imports []string
-	for imp := range requiredImports {
-		imports = append(imports, imp)
-	}
-	sort.Strings(imports)
-	for _, imp := range imports {
-		file.Import(imp)
-	}
-
-	if len(requiredImports) > 0 {
-		file.P()
-	}
+	// Import handling is now automatic via QualifiedGoIdent calls
 
 	// Generate simple type constants first (for enumerations)
 	generateSimpleTypeConstants(file, ctx)
@@ -132,6 +109,7 @@ func (g *Generator) generateTypesFile(schema *xsd.Schema, packageName, filename 
 	// Generate data types with classification-based wrapper naming
 	bindingStyle := g.getBindingStyle()
 	processedElements := make(map[string]bool)
+	processedGoTypes := make(map[string]bool) // Track processed Go type names to prevent duplicates
 
 	// First pass: Generate wrapper types for operation elements
 	allElements := append([]*xsd.Element{}, dataTypes...)
@@ -142,6 +120,19 @@ func (g *Generator) generateTypesFile(schema *xsd.Schema, packageName, filename 
 			continue // Skip duplicates
 		}
 		processedElements[element.Name] = true
+
+		// Check if we would generate a duplicate Go type name
+		var goTypeName string
+		if g.shouldUseWrapperForElement(element.Name, bindingStyle) {
+			goTypeName = toGoName(element.Name) + "Wrapper"
+		} else {
+			goTypeName = toGoName(element.Name)
+		}
+
+		if processedGoTypes[goTypeName] {
+			continue // Skip elements that would generate duplicate Go type names
+		}
+		processedGoTypes[goTypeName] = true
 
 		if g.shouldUseWrapperForElement(element.Name, bindingStyle) {
 			if typeRegistry.shouldGenerateWithContext(element, SOAPWrapperContext) {

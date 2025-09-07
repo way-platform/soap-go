@@ -8,24 +8,40 @@ import (
 	"go/parser"
 	"go/printer"
 	"go/token"
+	"path"
 	"sort"
 	"strconv"
 	"strings"
 )
 
-// NewFile creates a new [File] with the given filename.
-func NewFile(filename string) *File {
+// GoIdent represents a Go identifier with its import path.
+type GoIdent struct {
+	GoImportPath string // Import path, e.g., "encoding/xml"
+	GoName       string // Identifier name, e.g., "Name"
+}
+
+// GoPackageName represents a package name used in generated code.
+type GoPackageName string
+
+// NewFile creates a new [File] with the given filename and import path.
+func NewFile(filename, goImportPath string) *File {
 	return &File{
-		filename: filename,
-		imports:  make(map[string]bool),
+		filename:         filename,
+		goImportPath:     goImportPath,
+		packageNames:     make(map[string]GoPackageName),
+		usedPackageNames: make(map[GoPackageName]bool),
+		imports:         make(map[string]bool),
 	}
 }
 
 // File represents a generated Go file.
 type File struct {
-	filename string
-	imports  map[string]bool
-	buf      bytes.Buffer
+	filename         string
+	goImportPath     string                    // Import path of the generated file
+	packageNames     map[string]GoPackageName  // Import path -> package name
+	usedPackageNames map[GoPackageName]bool    // Track used package names
+	imports          map[string]bool           // Import paths to include
+	buf              bytes.Buffer
 }
 
 // P writes a line of code to the file.
@@ -36,9 +52,50 @@ func (g *File) P(v ...any) {
 	fmt.Fprintln(&g.buf)
 }
 
-// Import adds an import to the file.
-func (g *File) Import(importPath string) {
-	g.imports[importPath] = true
+// QualifiedGoIdent returns the qualified Go identifier and manages imports automatically.
+// If the identifier is from the same package, returns just the name.
+// If from a different package, returns packageName.Name and ensures the import is added.
+func (f *File) QualifiedGoIdent(ident GoIdent) string {
+	if ident.GoImportPath == f.goImportPath || ident.GoImportPath == "" {
+		return ident.GoName
+	}
+
+	if packageName, ok := f.packageNames[ident.GoImportPath]; ok {
+		return string(packageName) + "." + ident.GoName
+	}
+
+	packageName := cleanPackageName(path.Base(ident.GoImportPath))
+	for i, orig := 1, packageName; f.usedPackageNames[GoPackageName(packageName)]; i++ {
+		packageName = orig + strconv.Itoa(i)
+	}
+
+	f.packageNames[ident.GoImportPath] = GoPackageName(packageName)
+	f.usedPackageNames[GoPackageName(packageName)] = true
+	f.imports[ident.GoImportPath] = true
+
+	return packageName + "." + ident.GoName
+}
+
+// Import adds a blank import to the file (for side effects).
+// For normal imports, use QualifiedGoIdent instead.
+func (f *File) Import(importPath string) {
+	f.imports[importPath] = true
+}
+
+// cleanPackageName returns a valid Go package name from an import path.
+func cleanPackageName(name string) string {
+	// Remove common suffixes and invalid characters
+	name = strings.TrimSuffix(name, ".go")
+	name = strings.ReplaceAll(name, "-", "")
+	name = strings.ReplaceAll(name, "_", "")
+	name = strings.ReplaceAll(name, ".", "")
+	
+	// Ensure it starts with a letter
+	if len(name) == 0 || !((name[0] >= 'a' && name[0] <= 'z') || (name[0] >= 'A' && name[0] <= 'Z')) {
+		name = "pkg" + name
+	}
+	
+	return name
 }
 
 // Filename returns the filename of the file.

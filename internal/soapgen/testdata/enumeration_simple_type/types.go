@@ -1,9 +1,5 @@
 package enumeration_simple_type
 
-import (
-	"encoding/xml"
-)
-
 // Enumeration types
 
 // ColorType represents an enumeration type

@@ -26,10 +26,10 @@ type Address struct {
 
 // Person represents the Person element
 type Person struct {
-	XMLName    xml.Name    `xml:"Person"`
-	PersonName PersonName  `xml:"PersonName"`
-	PersonAge  PersonAge   `xml:"PersonAge"`
-	Address    Address     `xml:"Address"`
-	PersonName *PersonName `xml:"PersonName,omitempty"`
-	Address    []Address   `xml:"Address"`
+	XMLName        xml.Name    `xml:"Person"`
+	PersonName     PersonName  `xml:"PersonName"`
+	PersonAge      PersonAge   `xml:"PersonAge"`
+	Address        Address     `xml:"Address"`
+	PersonNameElem *PersonName `xml:"PersonName,omitempty"`
+	AddressElem    []Address   `xml:"Address"`
 }

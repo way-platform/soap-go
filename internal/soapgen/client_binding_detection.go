@@ -55,56 +55,13 @@ func (g *Generator) getBindingStyle() BindingStyle {
 	return style
 }
 
-// shouldUseWrapperNaming determines if wrapper naming should be used based on binding style
-func (g *Generator) shouldUseWrapperNaming(bindingStyle BindingStyle) bool {
-	switch {
-	case bindingStyle.Style == "rpc":
-		// RPC style always uses wrappers for operation parameters
-		return true
-	case bindingStyle.Style == "document" && bindingStyle.Use == "literal":
-		// Document/literal: Use wrappers if the schema is designed with operation wrappers
-		// We detect this by checking if there are message wrapper elements
-		return g.hasMessageWrapperElements()
-	case bindingStyle.Style == "document" && bindingStyle.Use == "encoded":
-		// Document/encoded: Typically no additional wrappers
-		return false
-	default:
-		// Default to wrapper naming for unknown styles
-		return true
-	}
-}
-
-// hasMessageWrapperElements checks if the WSDL schema contains message wrapper elements
-func (g *Generator) hasMessageWrapperElements() bool {
-	for _, schema := range g.definitions.Types.Schemas {
-		for _, element := range schema.Elements {
-			if g.isMessageWrapperElement(&element) {
-				return true
-			}
-		}
-	}
-	return false
-}
-
 // getConsistentTypeName returns the Go type name with consistent wrapper naming
 func (g *Generator) getConsistentTypeName(xmlElementName string, bindingStyle BindingStyle) string {
 	baseName := toGoName(xmlElementName)
 
-	// For RPC style, always use Wrapper suffix for operation elements
-	if bindingStyle.Style == "rpc" {
-		// In RPC style, operation elements are always wrappers
+	// Use the same logic as type generation for consistency
+	if g.shouldUseWrapperForElement(xmlElementName, bindingStyle) {
 		return baseName + "Wrapper"
-	}
-
-	// For Document/Literal style with wrapper elements, use consistent naming
-	if bindingStyle.Style == "document" && bindingStyle.Use == "literal" {
-		// If this WSDL uses message wrapper elements, be consistent and use Wrapper suffix for all operation elements
-		if g.shouldUseWrapperNaming(bindingStyle) {
-			// Check if this is an operation message element (wrapper or not)
-			if g.isOperationMessageElement(xmlElementName) {
-				return baseName + "Wrapper"
-			}
-		}
 	}
 
 	// For non-operation elements or non-wrapper styles, use the base name
@@ -130,6 +87,7 @@ func (g *Generator) isOperationMessageElement(xmlElementName string) bool {
 	}
 	return false
 }
+
 // shouldUseWrapperForElement determines if a specific element should use wrapper naming
 // based on binding style and whether it's used in SOAP operations
 func (g *Generator) shouldUseWrapperForElement(elementName string, bindingStyle BindingStyle) bool {
@@ -138,12 +96,12 @@ func (g *Generator) shouldUseWrapperForElement(elementName string, bindingStyle 
 		// RPC style: ALL operation elements use wrappers
 		return g.isOperationMessageElement(elementName)
 	}
-	
+
 	if bindingStyle.Style == "document" && bindingStyle.Use == "literal" {
 		// Document/Literal: Use wrapper naming for ALL operation elements for consistency
 		return g.isOperationMessageElement(elementName)
 	}
-	
+
 	// Other binding styles: no wrapper naming
 	return false
 }
