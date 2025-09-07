@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/tls"
+	"encoding/xml"
 	"fmt"
 	"io"
 	"net/http"
@@ -128,4 +129,33 @@ func ParseHeaders(headerStrings []string) (map[string]string, error) {
 	}
 
 	return headers, nil
+}
+
+// AddXMLDeclaration adds an XML declaration to the beginning of XML data if it doesn't already have one.
+func AddXMLDeclaration(xmlData []byte) []byte {
+	// Check if XML declaration is already present
+	if len(xmlData) > 5 && string(xmlData[:5]) == "<?xml" {
+		return xmlData
+	}
+
+	// Add standard XML declaration
+	return append([]byte(xml.Header), xmlData...)
+}
+
+// EnsureXMLDeclaration ensures XML data has proper XML declaration with UTF-8 encoding.
+// This is useful for SOAP services that require explicit encoding declaration.
+func EnsureXMLDeclaration(xmlData []byte) []byte {
+	return EnsureXMLDeclarationWithEncoding(xmlData, "UTF-8")
+}
+
+// EnsureXMLDeclarationWithEncoding ensures XML data has proper XML declaration with specified encoding.
+func EnsureXMLDeclarationWithEncoding(xmlData []byte, encoding string) []byte {
+	// Check if XML declaration is already present
+	if len(xmlData) > 5 && string(xmlData[:5]) == "<?xml" {
+		return xmlData
+	}
+
+	// Create custom XML declaration with specified encoding
+	declaration := fmt.Sprintf("<?xml version=\"1.0\" encoding=\"%s\"?>\n", encoding)
+	return append([]byte(declaration), xmlData...)
 }

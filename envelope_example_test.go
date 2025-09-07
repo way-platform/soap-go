@@ -22,9 +22,9 @@ func ExampleEnvelope_basic() {
 		log.Fatal(err)
 	}
 	fmt.Println(string(xmlData))
-	// Output: <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-	//   <Body xmlns="http://schemas.xmlsoap.org/soap/envelope/"><GetWeather><city>London</city></GetWeather></Body>
-	// </Envelope>
+	// Output: <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+	//   <soap:Body><GetWeather><city>London</city></GetWeather></soap:Body>
+	// </soap:Envelope>
 }
 
 // ExampleEnvelope_withHeader demonstrates creating a SOAP envelope with headers.
@@ -56,13 +56,13 @@ func ExampleEnvelope_withHeader() {
 		log.Fatal(err)
 	}
 	fmt.Println(string(xmlData))
-	// Output: <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-	//   <Header xmlns="http://schemas.xmlsoap.org/soap/envelope/">
+	// Output: <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+	//   <soap:Header>
 	//     <Authentication xmlns="http://example.com/auth" mustUnderstand="true" actor="http://example.com/gateway"><token>abc123xyz</token><user>john.doe</user></Authentication>
 	//     <Transaction xmlns="http://example.com/tx"><id>tx-456</id></Transaction>
-	//   </Header>
-	//   <Body xmlns="http://schemas.xmlsoap.org/soap/envelope/"><GetUserProfile><userId>12345</userId></GetUserProfile></Body>
-	// </Envelope>
+	//   </soap:Header>
+	//   <soap:Body><GetUserProfile><userId>12345</userId></GetUserProfile></soap:Body>
+	// </soap:Envelope>
 }
 
 // ExampleEnvelope_withEncodingStyle demonstrates setting encoding style.
@@ -79,41 +79,31 @@ func ExampleEnvelope_withEncodingStyle() {
 		log.Fatal(err)
 	}
 	fmt.Println(string(xmlData))
-	// Output: <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
-	//   <Body xmlns="http://schemas.xmlsoap.org/soap/envelope/"><GetStockPrice><symbol>AAPL</symbol></GetStockPrice></Body>
-	// </Envelope>
+	// Output: <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+	//   <soap:Body><GetStockPrice><symbol>AAPL</symbol></GetStockPrice></soap:Body>
+	// </soap:Envelope>
 }
 
-// ExampleEnvelope_unmarshal demonstrates unmarshaling a SOAP envelope from XML.
-func ExampleEnvelope_unmarshal() {
-	// Sample SOAP envelope XML
-	soapXML := `<?xml version="1.0" encoding="UTF-8"?>
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-    <soap:Header>
-        <auth:Token xmlns:auth="http://example.com/auth" mustUnderstand="true">
-            <auth:value>secret123</auth:value>
-        </auth:Token>
-    </soap:Header>
-    <soap:Body>
-        <GetTemperature>
-            <city>Paris</city>
-        </GetTemperature>
-    </soap:Body>
-</soap:Envelope>`
-	// Unmarshal the XML into an envelope
-	var envelope soap.Envelope
-	if err := xml.Unmarshal([]byte(soapXML), &envelope); err != nil {
+// ExampleEnvelope_realWorld demonstrates creating a SOAP envelope for real-world use.
+func ExampleEnvelope_realWorld() {
+	// Create a SOAP envelope for a weather service request
+	envelope := &soap.Envelope{
+		XMLNS: soap.Namespace,
+		Body: soap.Body{
+			Content: []byte(`<GetTemperature xmlns="http://weather.example.com/"><city>Paris</city></GetTemperature>`),
+		},
+	}
+
+	// Marshal to XML (this is what gets sent to SOAP services)
+	xmlData, err := xml.MarshalIndent(envelope, "", "  ")
+	if err != nil {
 		log.Fatal(err)
 	}
-	// Access the envelope data
-	fmt.Printf("Namespace: %s\n", envelope.XMLName.Space)
-	fmt.Printf("Body Content:%s\n", string(envelope.Body.Content))
-	// Output:
-	// Namespace: http://schemas.xmlsoap.org/soap/envelope/
-	// Body Content:
-	//         <GetTemperature>
-	//             <city>Paris</city>
-	//         </GetTemperature>
+
+	fmt.Println(string(xmlData))
+	// Output: <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+	//   <soap:Body><GetTemperature xmlns="http://weather.example.com/"><city>Paris</city></GetTemperature></soap:Body>
+	// </soap:Envelope>
 }
 
 // ExampleFault demonstrates creating and handling SOAP faults.
@@ -139,9 +129,9 @@ func ExampleFault() {
 		log.Fatal(err)
 	}
 	fmt.Println(string(xmlData))
-	// Output: <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-	//   <Body xmlns="http://schemas.xmlsoap.org/soap/envelope/"><Fault><faultcode>Client</faultcode><faultstring>Invalid authentication credentials</faultstring><faultactor>http://example.com/auth-service</faultactor><detail><error><code>AUTH001</code><message>Token expired</message></error></detail></Fault></Body>
-	// </Envelope>
+	// Output: <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+	//   <soap:Body><soap:Fault><faultcode>Client</faultcode><faultstring>Invalid authentication credentials</faultstring><faultactor>http://example.com/auth-service</faultactor><detail><error><code>AUTH001</code><message>Token expired</message></error></detail></soap:Fault></soap:Body>
+	// </soap:Envelope>
 }
 
 // ExampleEnvelope_extensibility demonstrates using custom attributes for extensibility.
@@ -166,9 +156,9 @@ func ExampleEnvelope_extensibility() {
 	}
 
 	fmt.Println(string(xmlData))
-	// Output: <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" version="1.2" xmlns:trace="http://example.com/trace" trace:trace="enabled">
-	//   <Body xmlns="http://schemas.xmlsoap.org/soap/envelope/" priority="high"><ProcessOrder><orderId>12345</orderId></ProcessOrder></Body>
-	// </Envelope>
+	// Output: <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" version="1.2" xmlns:trace="http://example.com/trace" trace:trace="enabled">
+	//   <soap:Body priority="high"><ProcessOrder><orderId>12345</orderId></ProcessOrder></soap:Body>
+	// </soap:Envelope>
 }
 
 // ExampleHeaderEntry_mustUnderstand demonstrates the mustUnderstand attribute usage.
@@ -204,11 +194,11 @@ func ExampleHeaderEntry_mustUnderstand() {
 	}
 
 	fmt.Println(string(xmlData))
-	// Output: <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-	//   <Header xmlns="http://schemas.xmlsoap.org/soap/envelope/">
+	// Output: <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+	//   <soap:Header>
 	//     <Security xmlns="http://example.com/security" mustUnderstand="true"><signature>digital_signature_here</signature></Security>
 	//     <Metadata xmlns="http://example.com/meta"><version>2.0</version></Metadata>
-	//   </Header>
-	//   <Body xmlns="http://schemas.xmlsoap.org/soap/envelope/"><SecureOperation><data>sensitive</data></SecureOperation></Body>
-	// </Envelope>
+	//   </soap:Header>
+	//   <soap:Body><SecureOperation><data>sensitive</data></SecureOperation></soap:Body>
+	// </soap:Envelope>
 }

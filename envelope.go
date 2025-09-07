@@ -9,20 +9,21 @@ const Namespace = "http://schemas.xmlsoap.org/soap/envelope/"
 
 // Envelope represents a SOAP 1.1 envelope according to the specification.
 // It provides a complete implementation supporting headers, body, faults, and extensibility.
+// Generates soap: prefixed XML for maximum compatibility with real-world SOAP services.
 type Envelope struct {
-	XMLName xml.Name `xml:"http://schemas.xmlsoap.org/soap/envelope/ Envelope"`
+	XMLName xml.Name `xml:"soap:Envelope"`
 
 	// SOAP namespace declaration - this gets marshaled as xmlns:soap
 	XMLNS string `xml:"xmlns:soap,attr"`
 
 	// Optional encoding style as per SOAP 1.1 spec section 4.1.1
-	EncodingStyle string `xml:"encodingStyle,attr,omitempty"`
+	EncodingStyle string `xml:"soap:encodingStyle,attr,omitempty"`
 
 	// Optional header as per SOAP 1.1 spec section 4.2
-	Header *Header `xml:"http://schemas.xmlsoap.org/soap/envelope/ Header,omitempty"`
+	Header *Header `xml:"soap:Header,omitempty"`
 
 	// Mandatory body as per SOAP 1.1 spec section 4.3
-	Body Body `xml:"http://schemas.xmlsoap.org/soap/envelope/ Body"`
+	Body Body `xml:"soap:Body"`
 
 	// Additional attributes for extensibility as per SOAP 1.1 spec section 4.1
 	Attrs []xml.Attr `xml:",any,attr"`
@@ -72,7 +73,7 @@ type Body struct {
 // Fault represents a SOAP fault element as per SOAP 1.1 spec section 4.4.
 // Used for error reporting within SOAP messages.
 type Fault struct {
-	XMLName xml.Name `xml:"Fault"`
+	XMLName xml.Name `xml:"soap:Fault"`
 
 	// FaultCode is mandatory and provides algorithmic fault identification
 	FaultCode string `xml:"faultcode"`
