@@ -87,25 +87,17 @@ func (g *Generator) generateNewClientFunction(file *codegen.File) {
 
 	file.P("// NewClient creates a new SOAP client.")
 	file.P("func NewClient(opts ...ClientOption) (*Client, error) {")
-	
 	if endpoint != "" {
-		file.P("\t// Prepend default endpoint from WSDL to user options")
 		file.P("\tsoapOpts := append([]", file.QualifiedGoIdent(codegen.SOAPClientOptionIdent), "{")
 		file.P("\t\t", file.QualifiedGoIdent(codegen.SOAPWithEndpointIdent), "(\"", endpoint, "\"),")
 		file.P("\t}, opts...)")
-		file.P()
-		file.P("\t// Create underlying SOAP client")
 		file.P("\tsoapClient, err := ", file.QualifiedGoIdent(codegen.SOAPNewClientIdent), "(soapOpts...)")
 	} else {
-		file.P("\t// Create underlying SOAP client")
 		file.P("\tsoapClient, err := ", file.QualifiedGoIdent(codegen.SOAPNewClientIdent), "(opts...)")
 	}
-	
 	file.P("\tif err != nil {")
 	file.P("\t\treturn nil, ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"failed to create SOAP client: %w\", err)")
 	file.P("\t}")
-	file.P()
-	
 	file.P("\treturn &Client{")
 	file.P("\t\tClient: soapClient,")
 	file.P("\t}, nil")
@@ -194,6 +186,9 @@ func (g *Generator) getPortTypeForBinding(binding *wsdl.Binding) *wsdl.PortType 
 func (g *Generator) generateOperationMethod(file *codegen.File, operation *wsdl.Operation, binding *wsdl.Binding) error {
 	methodName := toGoName(operation.Name)
 
+	// Check if this is a one-way operation (no output message)
+	isOneWay := operation.Output == nil
+
 	// Get input and output message types
 	inputType, outputType, err := g.getOperationTypes(operation)
 	if err != nil {
@@ -210,41 +205,53 @@ func (g *Generator) generateOperationMethod(file *codegen.File, operation *wsdl.
 		doc = strings.ReplaceAll(doc, "\n", " ")
 		file.P("// ", methodName, " ", doc)
 	} else {
-		file.P("// ", methodName, " executes the ", operation.Name, " SOAP operation.")
+		if isOneWay {
+			file.P("// ", methodName, " executes the ", operation.Name, " one-way SOAP operation.")
+		} else {
+			file.P("// ", methodName, " executes the ", operation.Name, " SOAP operation.")
+		}
 	}
 
-	file.P("func (c *Client) ", methodName, "(ctx ", file.QualifiedGoIdent(codegen.ContextIdent), ", req *", inputType, ") (*", outputType, ", ", file.QualifiedGoIdent(codegen.ErrorIdent), ") {")
-
-	file.P("\t// Marshal request to XML")
-	file.P("\treqXML, err := ", file.QualifiedGoIdent(codegen.XMLMarshalIdent), "(req)")
-	file.P("\tif err != nil {")
-	file.P("\t\treturn nil, ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"failed to marshal request: %w\", err)")
-	file.P("\t}")
-	file.P()
-
-	file.P("\t// Create SOAP envelope with request body")
-	file.P("\treqEnvelope := ", file.QualifiedGoIdent(codegen.SOAPNewEnvelopeWithBodyIdent), "(reqXML)")
-	file.P()
-
-	file.P("\t// Make SOAP call")
-	if soapAction != "" {
-		file.P("\trespEnvelope, err := c.Call(ctx, \"", soapAction, "\", reqEnvelope)")
+	// Generate different method signatures for one-way vs request-response operations
+	if isOneWay {
+		// One-way operation: return only error
+		file.P("func (c *Client) ", methodName, "(ctx ", file.QualifiedGoIdent(codegen.ContextIdent), ", req *", inputType, ") ", file.QualifiedGoIdent(codegen.ErrorIdent), " {")
+		file.P("\treqXML, err := ", file.QualifiedGoIdent(codegen.XMLMarshalIdent), "(req)")
+		file.P("\tif err != nil {")
+		file.P("\t\treturn ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"failed to marshal request: %w\", err)")
+		file.P("\t}")
+		file.P("\treqEnvelope := ", file.QualifiedGoIdent(codegen.SOAPNewEnvelopeWithBodyIdent), "(reqXML)")
+		if soapAction != "" {
+			file.P("\t_, err = c.Call(ctx, \"", soapAction, "\", reqEnvelope)")
+		} else {
+			file.P("\t_, err = c.Call(ctx, \"\", reqEnvelope)")
+		}
+		file.P("\tif err != nil {")
+		file.P("\t\treturn ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"SOAP call failed: %w\", err)")
+		file.P("\t}")
+		file.P("\treturn nil")
 	} else {
-		file.P("\trespEnvelope, err := c.Call(ctx, \"\", reqEnvelope)")
+		// Request-response operation: return response and error
+		file.P("func (c *Client) ", methodName, "(ctx ", file.QualifiedGoIdent(codegen.ContextIdent), ", req *", inputType, ") (*", outputType, ", ", file.QualifiedGoIdent(codegen.ErrorIdent), ") {")
+		file.P("\treqXML, err := ", file.QualifiedGoIdent(codegen.XMLMarshalIdent), "(req)")
+		file.P("\tif err != nil {")
+		file.P("\t\treturn nil, ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"failed to marshal request: %w\", err)")
+		file.P("\t}")
+		file.P("\treqEnvelope := ", file.QualifiedGoIdent(codegen.SOAPNewEnvelopeWithBodyIdent), "(reqXML)")
+		if soapAction != "" {
+			file.P("\trespEnvelope, err := c.Call(ctx, \"", soapAction, "\", reqEnvelope)")
+		} else {
+			file.P("\trespEnvelope, err := c.Call(ctx, \"\", reqEnvelope)")
+		}
+		file.P("\tif err != nil {")
+		file.P("\t\treturn nil, ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"SOAP call failed: %w\", err)")
+		file.P("\t}")
+		file.P("\tvar result ", outputType)
+		file.P("\tif err := ", file.QualifiedGoIdent(codegen.XMLUnmarshalIdent), "(respEnvelope.Body.Content, &result); err != nil {")
+		file.P("\t\treturn nil, ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"failed to unmarshal response body: %w\", err)")
+		file.P("\t}")
+		file.P("\treturn &result, nil")
 	}
-	file.P("\tif err != nil {")
-	file.P("\t\treturn nil, ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"SOAP call failed: %w\", err)")
-	file.P("\t}")
-	file.P()
-
-	file.P("\t// Unmarshal response body")
-	file.P("\tvar result ", outputType)
-	file.P("\tif err := ", file.QualifiedGoIdent(codegen.XMLUnmarshalIdent), "(respEnvelope.Body.Content, &result); err != nil {")
-	file.P("\t\treturn nil, ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"failed to unmarshal response body: %w\", err)")
-	file.P("\t}")
-	file.P()
-
-	file.P("\treturn &result, nil")
 	file.P("}")
 	file.P()
 
@@ -274,7 +281,9 @@ func (g *Generator) getOperationTypes(operation *wsdl.Operation) (inputType, out
 		inputType = "interface{}"
 	}
 	if outputType == "" {
-		outputType = "interface{}"
+		// For operations without output messages, use an empty struct
+		// This is more appropriate than interface{} for acknowledgment responses
+		outputType = "struct{}"
 	}
 
 	return inputType, outputType, nil

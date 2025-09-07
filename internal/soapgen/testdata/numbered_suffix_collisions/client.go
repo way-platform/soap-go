@@ -17,278 +17,154 @@ type Client struct {
 
 // NewClient creates a new SOAP client.
 func NewClient(opts ...ClientOption) (*Client, error) {
-	// Prepend default endpoint from WSDL to user options
 	soapOpts := append([]soap.ClientOption{
 		soap.WithEndpoint("http://example.com/numbered-suffix-collisions"),
 	}, opts...)
-
-	// Create underlying SOAP client
 	soapClient, err := soap.NewClient(soapOpts...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create SOAP client: %w", err)
 	}
-
 	return &Client{
 		Client: soapClient,
 	}, nil
 }
 
-// ProcessRequest executes the ProcessRequest SOAP operation.
-func (c *Client) ProcessRequest(ctx context.Context, req *RequestWrapper) (*interface{}, error) {
-	// Marshal request to XML
+// ProcessRequest executes the ProcessRequest one-way SOAP operation.
+func (c *Client) ProcessRequest(ctx context.Context, req *RequestWrapper) error {
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to marshal request: %w", err)
 	}
-
-	// Create SOAP envelope with request body
 	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
-
-	// Make SOAP call
-	respEnvelope, err := c.Call(ctx, "urn:ProcessRequest", reqEnvelope)
+	_, err = c.Call(ctx, "urn:ProcessRequest", reqEnvelope)
 	if err != nil {
-		return nil, fmt.Errorf("SOAP call failed: %w", err)
+		return fmt.Errorf("SOAP call failed: %w", err)
 	}
-
-	// Unmarshal response body
-	var result interface{}
-	if err := xml.Unmarshal(respEnvelope.Body.Content, &result); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal response body: %w", err)
-	}
-
-	return &result, nil
+	return nil
 }
 
-// ProcessRequestLower executes the ProcessRequestLower SOAP operation.
-func (c *Client) ProcessRequestLower(ctx context.Context, req *RequestWrapper) (*interface{}, error) {
-	// Marshal request to XML
+// ProcessRequestLower executes the ProcessRequestLower one-way SOAP operation.
+func (c *Client) ProcessRequestLower(ctx context.Context, req *RequestWrapper) error {
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to marshal request: %w", err)
 	}
-
-	// Create SOAP envelope with request body
 	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
-
-	// Make SOAP call
-	respEnvelope, err := c.Call(ctx, "urn:ProcessRequestLower", reqEnvelope)
+	_, err = c.Call(ctx, "urn:ProcessRequestLower", reqEnvelope)
 	if err != nil {
-		return nil, fmt.Errorf("SOAP call failed: %w", err)
+		return fmt.Errorf("SOAP call failed: %w", err)
 	}
-
-	// Unmarshal response body
-	var result interface{}
-	if err := xml.Unmarshal(respEnvelope.Body.Content, &result); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal response body: %w", err)
-	}
-
-	return &result, nil
+	return nil
 }
 
-// ProcessRequestUpper executes the ProcessRequestUpper SOAP operation.
-func (c *Client) ProcessRequestUpper(ctx context.Context, req *REQUESTWrapper) (*interface{}, error) {
-	// Marshal request to XML
+// ProcessRequestUpper executes the ProcessRequestUpper one-way SOAP operation.
+func (c *Client) ProcessRequestUpper(ctx context.Context, req *REQUESTWrapper) error {
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to marshal request: %w", err)
 	}
-
-	// Create SOAP envelope with request body
 	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
-
-	// Make SOAP call
-	respEnvelope, err := c.Call(ctx, "urn:ProcessRequestUpper", reqEnvelope)
+	_, err = c.Call(ctx, "urn:ProcessRequestUpper", reqEnvelope)
 	if err != nil {
-		return nil, fmt.Errorf("SOAP call failed: %w", err)
+		return fmt.Errorf("SOAP call failed: %w", err)
 	}
-
-	// Unmarshal response body
-	var result interface{}
-	if err := xml.Unmarshal(respEnvelope.Body.Content, &result); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal response body: %w", err)
-	}
-
-	return &result, nil
+	return nil
 }
 
-// ProcessData executes the ProcessData SOAP operation.
-func (c *Client) ProcessData(ctx context.Context, req *DataWrapper) (*interface{}, error) {
-	// Marshal request to XML
+// ProcessData executes the ProcessData one-way SOAP operation.
+func (c *Client) ProcessData(ctx context.Context, req *DataWrapper) error {
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to marshal request: %w", err)
 	}
-
-	// Create SOAP envelope with request body
 	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
-
-	// Make SOAP call
-	respEnvelope, err := c.Call(ctx, "urn:ProcessData", reqEnvelope)
+	_, err = c.Call(ctx, "urn:ProcessData", reqEnvelope)
 	if err != nil {
-		return nil, fmt.Errorf("SOAP call failed: %w", err)
+		return fmt.Errorf("SOAP call failed: %w", err)
 	}
-
-	// Unmarshal response body
-	var result interface{}
-	if err := xml.Unmarshal(respEnvelope.Body.Content, &result); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal response body: %w", err)
-	}
-
-	return &result, nil
+	return nil
 }
 
-// ProcessDataLower executes the ProcessDataLower SOAP operation.
-func (c *Client) ProcessDataLower(ctx context.Context, req *DataWrapper) (*interface{}, error) {
-	// Marshal request to XML
+// ProcessDataLower executes the ProcessDataLower one-way SOAP operation.
+func (c *Client) ProcessDataLower(ctx context.Context, req *DataWrapper) error {
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to marshal request: %w", err)
 	}
-
-	// Create SOAP envelope with request body
 	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
-
-	// Make SOAP call
-	respEnvelope, err := c.Call(ctx, "urn:ProcessDataLower", reqEnvelope)
+	_, err = c.Call(ctx, "urn:ProcessDataLower", reqEnvelope)
 	if err != nil {
-		return nil, fmt.Errorf("SOAP call failed: %w", err)
+		return fmt.Errorf("SOAP call failed: %w", err)
 	}
-
-	// Unmarshal response body
-	var result interface{}
-	if err := xml.Unmarshal(respEnvelope.Body.Content, &result); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal response body: %w", err)
-	}
-
-	return &result, nil
+	return nil
 }
 
-// ProcessDataUpper executes the ProcessDataUpper SOAP operation.
-func (c *Client) ProcessDataUpper(ctx context.Context, req *DATAWrapper) (*interface{}, error) {
-	// Marshal request to XML
+// ProcessDataUpper executes the ProcessDataUpper one-way SOAP operation.
+func (c *Client) ProcessDataUpper(ctx context.Context, req *DATAWrapper) error {
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to marshal request: %w", err)
 	}
-
-	// Create SOAP envelope with request body
 	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
-
-	// Make SOAP call
-	respEnvelope, err := c.Call(ctx, "urn:ProcessDataUpper", reqEnvelope)
+	_, err = c.Call(ctx, "urn:ProcessDataUpper", reqEnvelope)
 	if err != nil {
-		return nil, fmt.Errorf("SOAP call failed: %w", err)
+		return fmt.Errorf("SOAP call failed: %w", err)
 	}
-
-	// Unmarshal response body
-	var result interface{}
-	if err := xml.Unmarshal(respEnvelope.Body.Content, &result); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal response body: %w", err)
-	}
-
-	return &result, nil
+	return nil
 }
 
-// ProcessExtremeCase executes the ProcessExtremeCase SOAP operation.
-func (c *Client) ProcessExtremeCase(ctx context.Context, req *ExtremeCaseElementWrapper) (*interface{}, error) {
-	// Marshal request to XML
+// ProcessExtremeCase executes the ProcessExtremeCase one-way SOAP operation.
+func (c *Client) ProcessExtremeCase(ctx context.Context, req *ExtremeCaseElementWrapper) error {
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to marshal request: %w", err)
 	}
-
-	// Create SOAP envelope with request body
 	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
-
-	// Make SOAP call
-	respEnvelope, err := c.Call(ctx, "urn:ProcessExtremeCase", reqEnvelope)
+	_, err = c.Call(ctx, "urn:ProcessExtremeCase", reqEnvelope)
 	if err != nil {
-		return nil, fmt.Errorf("SOAP call failed: %w", err)
+		return fmt.Errorf("SOAP call failed: %w", err)
 	}
-
-	// Unmarshal response body
-	var result interface{}
-	if err := xml.Unmarshal(respEnvelope.Body.Content, &result); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal response body: %w", err)
-	}
-
-	return &result, nil
+	return nil
 }
 
-// HandleRequest executes the HandleRequest SOAP operation.
-func (c *Client) HandleRequest(ctx context.Context, req *RequestWrapper) (*interface{}, error) {
-	// Marshal request to XML
+// HandleRequest executes the HandleRequest one-way SOAP operation.
+func (c *Client) HandleRequest(ctx context.Context, req *RequestWrapper) error {
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to marshal request: %w", err)
 	}
-
-	// Create SOAP envelope with request body
 	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
-
-	// Make SOAP call
-	respEnvelope, err := c.Call(ctx, "urn:HandleRequest", reqEnvelope)
+	_, err = c.Call(ctx, "urn:HandleRequest", reqEnvelope)
 	if err != nil {
-		return nil, fmt.Errorf("SOAP call failed: %w", err)
+		return fmt.Errorf("SOAP call failed: %w", err)
 	}
-
-	// Unmarshal response body
-	var result interface{}
-	if err := xml.Unmarshal(respEnvelope.Body.Content, &result); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal response body: %w", err)
-	}
-
-	return &result, nil
+	return nil
 }
 
-// ValidateRequest executes the ValidateRequest SOAP operation.
-func (c *Client) ValidateRequest(ctx context.Context, req *RequestWrapper) (*interface{}, error) {
-	// Marshal request to XML
+// ValidateRequest executes the ValidateRequest one-way SOAP operation.
+func (c *Client) ValidateRequest(ctx context.Context, req *RequestWrapper) error {
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to marshal request: %w", err)
 	}
-
-	// Create SOAP envelope with request body
 	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
-
-	// Make SOAP call
-	respEnvelope, err := c.Call(ctx, "urn:ValidateRequest", reqEnvelope)
+	_, err = c.Call(ctx, "urn:ValidateRequest", reqEnvelope)
 	if err != nil {
-		return nil, fmt.Errorf("SOAP call failed: %w", err)
+		return fmt.Errorf("SOAP call failed: %w", err)
 	}
-
-	// Unmarshal response body
-	var result interface{}
-	if err := xml.Unmarshal(respEnvelope.Body.Content, &result); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal response body: %w", err)
-	}
-
-	return &result, nil
+	return nil
 }
 
-// SubmitRequest executes the SubmitRequest SOAP operation.
-func (c *Client) SubmitRequest(ctx context.Context, req *RequestWrapper) (*interface{}, error) {
-	// Marshal request to XML
+// SubmitRequest executes the SubmitRequest one-way SOAP operation.
+func (c *Client) SubmitRequest(ctx context.Context, req *RequestWrapper) error {
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to marshal request: %w", err)
 	}
-
-	// Create SOAP envelope with request body
 	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
-
-	// Make SOAP call
-	respEnvelope, err := c.Call(ctx, "urn:SubmitRequest", reqEnvelope)
+	_, err = c.Call(ctx, "urn:SubmitRequest", reqEnvelope)
 	if err != nil {
-		return nil, fmt.Errorf("SOAP call failed: %w", err)
+		return fmt.Errorf("SOAP call failed: %w", err)
 	}
-
-	// Unmarshal response body
-	var result interface{}
-	if err := xml.Unmarshal(respEnvelope.Body.Content, &result); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal response body: %w", err)
-	}
-
-	return &result, nil
+	return nil
 }
