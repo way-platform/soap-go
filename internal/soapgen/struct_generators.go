@@ -1,6 +1,8 @@
 package soapgen
 
 import (
+	"strings"
+
 	"github.com/way-platform/soap-go/internal/codegen"
 	"github.com/way-platform/soap-go/xsd"
 )
@@ -103,7 +105,10 @@ func generateStandardStructWithName(g *codegen.File, element *xsd.Element, ctx *
 			rawXMLCount := 0
 			for _, field := range element.ComplexType.Sequence.Elements {
 				if field.Type == "" && field.ComplexType != nil {
-					rawXMLCount++
+					// Only count if this inline complex type will actually become RawXML
+					if shouldUseRawXMLForComplexType(field.ComplexType) {
+						rawXMLCount++
+					}
 				}
 			}
 			for range element.ComplexType.Sequence.Any {
@@ -227,4 +232,36 @@ func generateStructFromComplexType(g *codegen.File, complexType *xsd.ComplexType
 	// Close struct
 	g.P("}")
 	g.P()
+}
+
+// generateRawXMLWrapperTypes generates wrapper types for RawXML fields that need their own ,innerxml
+func generateRawXMLWrapperTypes(g *codegen.File, ctx *SchemaContext) {
+	if ctx == nil || ctx.anonymousTypes == nil {
+		return
+	}
+
+	generated := make(map[string]bool) // Track generated types to avoid duplicates
+	hasTypes := false
+
+	for typeName := range ctx.anonymousTypes {
+		// Check if this is a RawXML wrapper type (has RAWXML_ prefix)
+		if strings.HasPrefix(typeName, "RAWXML_") && !generated[typeName] {
+			// Remove the RAWXML_ prefix to get the actual type name
+			actualTypeName := strings.TrimPrefix(typeName, "RAWXML_")
+
+			if !hasTypes {
+				g.P("// RawXML wrapper types")
+				g.P()
+				hasTypes = true
+			}
+
+			// Generate a simple wrapper type with a single RawXML field
+			g.P("// ", actualTypeName, " represents an inline complex type")
+			g.P("type ", actualTypeName, " struct {")
+			g.P("\tContent RawXML `xml:\",innerxml\"`")
+			g.P("}")
+			g.P()
+			generated[typeName] = true
+		}
+	}
 }

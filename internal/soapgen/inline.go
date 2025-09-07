@@ -18,6 +18,9 @@ func generateInlineComplexTypes(g *codegen.File, ctx *SchemaContext, elements []
 		}
 	}
 
+	// Generate RawXML wrapper types for multiple RawXML fields
+	generateRawXMLWrapperTypes(g, ctx)
+
 	if hasTypes {
 		g.P()
 	}

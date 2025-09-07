@@ -34,10 +34,10 @@ type DocumentWithRawContent struct {
 
 // DocumentWithMultipleRawContent represents the DocumentWithMultipleRawContent element
 type DocumentWithMultipleRawContent struct {
-	XMLName xml.Name `xml:"DocumentWithMultipleRawContent"`
-	Title   string   `xml:"title"`
-	Header  RawXML   `xml:"header"`
-	Body    RawXML   `xml:"body"`
+	XMLName xml.Name                              `xml:"DocumentWithMultipleRawContent"`
+	Title   string                                `xml:"title"`
+	Header  DocumentWithMultipleRawContent_Header `xml:"header"`
+	Body    DocumentWithMultipleRawContent_Body   `xml:"body"`
 }
 
 // PureUntypedDocument represents the PureUntypedDocument element

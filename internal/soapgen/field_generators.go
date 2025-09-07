@@ -172,10 +172,32 @@ func generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistryIntern
 	}
 
 	// Generate XML tag
-	// Otherwise use element names for proper XML structure parsing
+	// For RawXML fields, the behavior depends on how many RawXML fields are in the struct:
+	// - Single RawXML field: Use ,innerxml to capture all inner XML content
+	// - Multiple RawXML fields: Use element-specific tags and generate wrapper types
 	var xmlTag string
-	if goType == "RawXML" && singleRawXMLCount == 1 {
-		xmlTag = ",innerxml"
+	if goType == "RawXML" {
+		if singleRawXMLCount == 1 {
+			// Single RawXML field - use innerxml to capture all content
+			xmlTag = ",innerxml"
+		} else {
+			// Multiple RawXML fields - use element names and generate wrapper types
+			// The wrapper types will be generated separately with their own ,innerxml fields
+			xmlTag = buildXMLTag(xmlName, element.MinOccurs == "0", isAttribute)
+
+			// For multiple RawXML fields, we need to use wrapper types instead of direct RawXML
+			// Generate a wrapper type name
+			if ctx != nil && parentElementName != "" {
+				wrapperTypeName := toGoName(parentElementName) + "_" + toGoName(element.Name)
+				goType = wrapperTypeName
+
+				// Mark this wrapper type as needing generation as a RawXML wrapper
+				// Use a special prefix to distinguish from regular inline types
+				if ctx.anonymousTypes != nil {
+					ctx.anonymousTypes["RAWXML_"+wrapperTypeName] = true
+				}
+			}
+		}
 	} else {
 		xmlTag = buildXMLTag(xmlName, element.MinOccurs == "0", isAttribute)
 	}
