@@ -19,12 +19,15 @@ func TestEnvelopeMarshalUnmarshal(t *testing.T) {
 	}
 
 	envelope := &Envelope{
-		XMLName:       xml.Name{Space: Namespace, Local: "Envelope"},
+		XMLName:       xml.Name{Space: Namespace, Local: "soapenv:Envelope"},
 		EncodingStyle: "http://schemas.xmlsoap.org/soap/encoding/",
 		Header: &Header{
 			Entries: []HeaderEntry{headerEntry},
 		},
-		Body: Body{Content: []byte("<body>body-content</body>")},
+		Body: Body{
+			XMLName: xml.Name{Local: "Body"},
+			Content: []byte("<body>body-content</body>"),
+		},
 	}
 
 	// Marshal to XML

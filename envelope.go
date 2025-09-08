@@ -12,7 +12,7 @@ const Namespace = "http://schemas.xmlsoap.org/soap/envelope/"
 // It can handle any namespace prefix and URI, making it compatible with various SOAP implementations.
 // The XMLName field determines the actual element name and namespace used in marshaling/unmarshaling.
 type Envelope struct {
-	XMLName xml.Name `xml:"Envelope"`
+	XMLName xml.Name
 
 	// Optional encoding style as per SOAP 1.1 spec section 4.1.1
 	EncodingStyle string `xml:"encodingStyle,attr,omitempty"`
@@ -30,6 +30,8 @@ type Envelope struct {
 // Header represents a SOAP header containing header entries.
 // Each header entry can have mustUnderstand and actor attributes as per SOAP 1.1 spec section 4.2.
 type Header struct {
+	XMLName xml.Name
+
 	// Header entries - flexible content allowing any XML
 	Entries []HeaderEntry `xml:",any"`
 
@@ -60,6 +62,8 @@ type HeaderEntry struct {
 // Body represents a SOAP body containing the main message payload.
 // As per SOAP 1.1 spec section 4.3, it contains body entries.
 type Body struct {
+	XMLName xml.Name
+
 	// Content as raw XML for maximum flexibility
 	// This allows both simple payloads and complex nested structures
 	Content []byte `xml:",innerxml"`

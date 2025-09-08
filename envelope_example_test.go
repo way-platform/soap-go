@@ -179,12 +179,17 @@ func ExampleHeaderEntry_mustUnderstand() {
 	}
 
 	envelope := &soap.Envelope{
-		XMLName: xml.Name{Space: soap.Namespace, Local: "Envelope"},
+		XMLName: xml.Name{Local: "soapenv:Envelope"},
 		Header: &soap.Header{
+			XMLName: xml.Name{Local: "soapenv:Header"},
 			Entries: []soap.HeaderEntry{criticalHeader, optionalHeader},
 		},
 		Body: soap.Body{
+			XMLName: xml.Name{Local: "soapenv:Body"},
 			Content: []byte(`<SecureOperation><data>sensitive</data></SecureOperation>`),
+		},
+		Attrs: []xml.Attr{
+			{Name: xml.Name{Local: "xmlns:soapenv"}, Value: soap.Namespace},
 		},
 	}
 
