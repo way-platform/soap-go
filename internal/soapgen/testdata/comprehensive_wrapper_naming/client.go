@@ -30,13 +30,13 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 }
 
 // Login executes the Login SOAP operation.
-func (c *Client) Login(ctx context.Context, req *LoginWrapper) (*LoginResponseWrapper, error) {
+func (c *Client) Login(ctx context.Context, req *LoginWrapper, opts ...ClientOption) (*LoginResponseWrapper, error) {
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
-	respEnvelope, err := c.Call(ctx, "http://example.com/test/Login", reqEnvelope)
+	respEnvelope, err := c.Call(ctx, "http://example.com/test/Login", reqEnvelope, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("SOAP call failed: %w", err)
 	}
@@ -48,13 +48,13 @@ func (c *Client) Login(ctx context.Context, req *LoginWrapper) (*LoginResponseWr
 }
 
 // GetUserInfo executes the GetUserInfo one-way SOAP operation.
-func (c *Client) GetUserInfo(ctx context.Context, req *GetUserInfoWrapper) error {
+func (c *Client) GetUserInfo(ctx context.Context, req *GetUserInfoWrapper, opts ...ClientOption) error {
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
 		return fmt.Errorf("failed to marshal request: %w", err)
 	}
 	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
-	_, err = c.Call(ctx, "http://example.com/test/GetUserInfo", reqEnvelope)
+	_, err = c.Call(ctx, "http://example.com/test/GetUserInfo", reqEnvelope, opts...)
 	if err != nil {
 		return fmt.Errorf("SOAP call failed: %w", err)
 	}

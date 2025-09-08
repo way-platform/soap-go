@@ -21,6 +21,7 @@ type Client struct {
 }
 
 // ClientOption configures a Client using the functional options pattern.
+// Can be used both during client creation and per-call.
 type ClientOption func(*clientConfig)
 
 // clientConfig holds the configuration for a Client.
@@ -29,6 +30,7 @@ type clientConfig struct {
 	endpoint       string
 	debug          bool
 	xmlDeclaration bool
+	headers        map[string]string
 }
 
 // WithHTTPClient sets a custom HTTP client for the SOAP client.
@@ -63,6 +65,22 @@ func WithXMLDeclaration(include bool) ClientOption {
 	}
 }
 
+// WithHeader sets a custom header for requests.
+// Can be used for SOAPAction or any other custom headers.
+func WithHeader(key, value string) ClientOption {
+	return func(c *clientConfig) {
+		if c.headers == nil {
+			c.headers = make(map[string]string)
+		}
+		c.headers[key] = value
+	}
+}
+
+// WithSOAPAction is a convenience function for setting the SOAPAction header.
+func WithSOAPAction(action string) ClientOption {
+	return WithHeader("SOAPAction", action)
+}
+
 // NewClient creates a new SOAP client with the specified options.
 // Returns an error if the configuration is invalid.
 func NewClient(opts ...ClientOption) (*Client, error) {
@@ -71,6 +89,7 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 		endpoint:       "",
 		debug:          false,
 		xmlDeclaration: true, // Default to including XML declaration
+		headers:        make(map[string]string),
 	}
 
 	for _, opt := range opts {
@@ -85,30 +104,17 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 	}, nil
 }
 
-// CallOption configures a SOAP call.
-type CallOption func(*callConfig)
-
-// callConfig holds the configuration for a single SOAP call.
-type callConfig struct {
-	endpoint string
-	headers  map[string]string
-}
-
-// WithCallEndpoint overrides the client's default endpoint for this call.
-func WithCallEndpoint(endpoint string) CallOption {
-	return func(c *callConfig) {
-		c.endpoint = endpoint
-	}
-}
-
 // Call executes a SOAP request with the provided action and envelope.
 // The action parameter is used to set the SOAPAction header.
 // Call-specific options can override client defaults.
-func (c *Client) Call(ctx context.Context, action string, requestEnvelope *Envelope, opts ...CallOption) (*Envelope, error) {
-	// Build call configuration
-	config := &callConfig{
-		endpoint: c.endpoint,
-		headers:  make(map[string]string),
+func (c *Client) Call(ctx context.Context, action string, requestEnvelope *Envelope, opts ...ClientOption) (*Envelope, error) {
+	// Copy client configuration for this call
+	config := &clientConfig{
+		httpClient:     c.httpClient,
+		endpoint:       c.endpoint,
+		debug:          c.debug,
+		xmlDeclaration: c.xmlDeclaration,
+		headers:        make(map[string]string),
 	}
 
 	// Set SOAPAction from the action parameter
@@ -133,7 +139,7 @@ func (c *Client) Call(ctx context.Context, action string, requestEnvelope *Envel
 	}
 
 	// Add XML declaration if enabled
-	if c.xmlDeclaration {
+	if config.xmlDeclaration {
 		xmlData = addXMLDeclaration(xmlData)
 	}
 
@@ -152,7 +158,7 @@ func (c *Client) Call(ctx context.Context, action string, requestEnvelope *Envel
 	}
 
 	// Debug: dump request
-	if c.debug {
+	if config.debug {
 		dump, err := httputil.DumpRequestOut(req, true)
 		if err != nil {
 			return nil, fmt.Errorf("failed to dump request for debug: %w", err)
@@ -161,14 +167,14 @@ func (c *Client) Call(ctx context.Context, action string, requestEnvelope *Envel
 	}
 
 	// Execute request
-	resp, err := c.httpClient.Do(req)
+	resp, err := config.httpClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute HTTP request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	// Debug: dump response
-	if c.debug {
+	if config.debug {
 		dump, err := httputil.DumpResponse(resp, true)
 		if err != nil {
 			return nil, fmt.Errorf("failed to dump response for debug: %w", err)
@@ -193,6 +199,11 @@ func (c *Client) Call(ctx context.Context, action string, requestEnvelope *Envel
 	responseEnvelope, err := parseSOAPResponse(respBody)
 	if err != nil {
 		return nil, err
+	}
+
+	// Check for SOAP faults in the response
+	if fault := checkForSOAPFault(responseEnvelope); fault != nil {
+		return responseEnvelope, fault
 	}
 
 	return responseEnvelope, nil
@@ -222,4 +233,26 @@ func parseSOAPResponse(respBody []byte) (*Envelope, error) {
 		return nil, fmt.Errorf("failed to unmarshal SOAP response: %w", err)
 	}
 	return &responseEnvelope, nil
+}
+
+// checkForSOAPFault checks if the response envelope contains a SOAP fault.
+// Returns the fault as an error if found, nil otherwise.
+func checkForSOAPFault(envelope *Envelope) error {
+	if envelope == nil || len(envelope.Body.Content) == 0 {
+		return nil
+	}
+
+	// Try to unmarshal the body content as a SOAP fault
+	var fault Fault
+	if err := xml.Unmarshal(envelope.Body.Content, &fault); err != nil {
+		// Not a fault or unmarshaling failed - not necessarily an error
+		return nil
+	}
+
+	// Check if this is actually a fault by verifying required fields
+	if fault.XMLName.Local == "Fault" && fault.FaultCode != "" && fault.FaultString != "" {
+		return &fault
+	}
+
+	return nil
 }

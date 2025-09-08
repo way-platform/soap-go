@@ -2,6 +2,7 @@ package soap
 
 import (
 	"encoding/xml"
+	"fmt"
 )
 
 // Namespace is the standard SOAP 1.1 envelope namespace
@@ -69,6 +70,7 @@ type Body struct {
 
 // Fault represents a SOAP fault element as per SOAP 1.1 spec section 4.4.
 // Used for error reporting within SOAP messages.
+// It implements the error interface to allow SOAP faults to be used as Go errors.
 type Fault struct {
 	XMLName xml.Name `xml:"Fault"`
 
@@ -83,6 +85,12 @@ type Fault struct {
 
 	// Detail is optional and contains application-specific error information
 	Detail *Detail `xml:"detail,omitempty"`
+}
+
+// Error implements the error interface for Fault.
+// Returns the fault string as the error message.
+func (f *Fault) Error() string {
+	return fmt.Sprintf("SOAP fault %s: %s", f.FaultString, f.FaultCode)
 }
 
 // Detail represents fault detail information.

@@ -215,16 +215,16 @@ func (g *Generator) generateOperationMethod(file *codegen.File, operation *wsdl.
 	// Generate different method signatures for one-way vs request-response operations
 	if isOneWay {
 		// One-way operation: return only error
-		file.P("func (c *Client) ", methodName, "(ctx ", file.QualifiedGoIdent(codegen.ContextIdent), ", req *", inputType, ") ", file.QualifiedGoIdent(codegen.ErrorIdent), " {")
+		file.P("func (c *Client) ", methodName, "(ctx ", file.QualifiedGoIdent(codegen.ContextIdent), ", req *", inputType, ", opts ...ClientOption) ", file.QualifiedGoIdent(codegen.ErrorIdent), " {")
 		file.P("\treqXML, err := ", file.QualifiedGoIdent(codegen.XMLMarshalIdent), "(req)")
 		file.P("\tif err != nil {")
 		file.P("\t\treturn ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"failed to marshal request: %w\", err)")
 		file.P("\t}")
 		file.P("\treqEnvelope := ", file.QualifiedGoIdent(codegen.SOAPNewEnvelopeWithBodyIdent), "(reqXML)")
 		if soapAction != "" {
-			file.P("\t_, err = c.Call(ctx, \"", soapAction, "\", reqEnvelope)")
+			file.P("\t_, err = c.Call(ctx, \"", soapAction, "\", reqEnvelope, opts...)")
 		} else {
-			file.P("\t_, err = c.Call(ctx, \"\", reqEnvelope)")
+			file.P("\t_, err = c.Call(ctx, \"\", reqEnvelope, opts...)")
 		}
 		file.P("\tif err != nil {")
 		file.P("\t\treturn ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"SOAP call failed: %w\", err)")
@@ -232,16 +232,16 @@ func (g *Generator) generateOperationMethod(file *codegen.File, operation *wsdl.
 		file.P("\treturn nil")
 	} else {
 		// Request-response operation: return response and error
-		file.P("func (c *Client) ", methodName, "(ctx ", file.QualifiedGoIdent(codegen.ContextIdent), ", req *", inputType, ") (*", outputType, ", ", file.QualifiedGoIdent(codegen.ErrorIdent), ") {")
+		file.P("func (c *Client) ", methodName, "(ctx ", file.QualifiedGoIdent(codegen.ContextIdent), ", req *", inputType, ", opts ...ClientOption) (*", outputType, ", ", file.QualifiedGoIdent(codegen.ErrorIdent), ") {")
 		file.P("\treqXML, err := ", file.QualifiedGoIdent(codegen.XMLMarshalIdent), "(req)")
 		file.P("\tif err != nil {")
 		file.P("\t\treturn nil, ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"failed to marshal request: %w\", err)")
 		file.P("\t}")
 		file.P("\treqEnvelope := ", file.QualifiedGoIdent(codegen.SOAPNewEnvelopeWithBodyIdent), "(reqXML)")
 		if soapAction != "" {
-			file.P("\trespEnvelope, err := c.Call(ctx, \"", soapAction, "\", reqEnvelope)")
+			file.P("\trespEnvelope, err := c.Call(ctx, \"", soapAction, "\", reqEnvelope, opts...)")
 		} else {
-			file.P("\trespEnvelope, err := c.Call(ctx, \"\", reqEnvelope)")
+			file.P("\trespEnvelope, err := c.Call(ctx, \"\", reqEnvelope, opts...)")
 		}
 		file.P("\tif err != nil {")
 		file.P("\t\treturn nil, ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"SOAP call failed: %w\", err)")

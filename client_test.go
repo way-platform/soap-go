@@ -3,6 +3,7 @@ package soap
 import (
 	"context"
 	"encoding/xml"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -161,7 +162,7 @@ func TestClient_CallWithEndpoint(t *testing.T) {
 
 	// Make the call with custom endpoint
 	ctx := context.Background()
-	respEnv, err := client.Call(ctx, "", reqEnv, WithCallEndpoint(server.URL))
+	respEnv, err := client.Call(ctx, "", reqEnv, WithEndpoint(server.URL))
 	if err != nil {
 		t.Fatalf("Client.Call() error = %v", err)
 	}
@@ -200,7 +201,7 @@ func TestClient_CallWithSOAPAction(t *testing.T) {
 
 	// Make the call with SOAPAction
 	ctx := context.Background()
-	respEnv, err := client.Call(ctx, expectedSOAPAction, reqEnv, WithCallEndpoint(server.URL))
+	respEnv, err := client.Call(ctx, expectedSOAPAction, reqEnv, WithEndpoint(server.URL))
 	if err != nil {
 		t.Fatalf("Client.Call() error = %v", err)
 	}
@@ -241,15 +242,79 @@ func TestClient_HTTPError(t *testing.T) {
 }
 
 func TestClient_SOAPFault(t *testing.T) {
-	// Create a test server that returns a SOAP fault
+	// Create a test server that returns a SOAP fault with 200 status (proper SOAP fault)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		faultEnv := NewEnvelopeWithBody([]byte(`<soap:Fault xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 					<faultcode>Client</faultcode>
 					<faultstring>Invalid request</faultstring>
+					<faultactor>http://example.com/service</faultactor>
+					<detail><errorcode>E001</errorcode></detail>
 				</soap:Fault>`))
 		respXML, _ := xml.Marshal(faultEnv)
 		w.Header().Set("Content-Type", "text/xml; charset=utf-8")
-		w.WriteHeader(http.StatusInternalServerError) // Some services return 500 for SOAP faults
+		w.WriteHeader(http.StatusOK) // SOAP faults should be returned with 200 status
+		_, _ = w.Write(respXML)
+	}))
+	defer server.Close()
+
+	// Create client
+	client, err := NewClient(WithEndpoint(server.URL))
+	if err != nil {
+		t.Fatalf("Failed to create client: %v", err)
+	}
+
+	// Create request envelope
+	reqEnv := NewEnvelopeWithBody([]byte(`<request>Test</request>`))
+
+	// Make the call - should return SOAP fault as error
+	ctx := context.Background()
+	respEnv, err := client.Call(ctx, "", reqEnv)
+	if err == nil {
+		t.Fatal("Expected SOAP fault error, got nil")
+	}
+
+	// Verify that we got a response envelope (even with fault)
+	if respEnv == nil {
+		t.Fatal("Expected response envelope, got nil")
+	}
+
+	// Check if it's a SOAP fault using errors.As
+	var fault *Fault
+	if !errors.As(err, &fault) {
+		t.Fatalf("Expected SOAP fault, got: %T", err)
+	}
+
+	// Verify fault details
+	if fault.FaultCode != "Client" {
+		t.Errorf("Expected fault code 'Client', got: %s", fault.FaultCode)
+	}
+	if fault.FaultString != "Invalid request" {
+		t.Errorf("Expected fault string 'Invalid request', got: %s", fault.FaultString)
+	}
+
+	// Test error message format
+	expectedError := "SOAP fault Invalid request: Client"
+	if fault.Error() != expectedError {
+		t.Errorf("Expected error message %q, got: %s", expectedError, fault.Error())
+	}
+	if fault.FaultActor != "http://example.com/service" {
+		t.Errorf("Expected fault actor 'http://example.com/service', got: %s", fault.FaultActor)
+	}
+	if string(fault.Detail.Content) != "<errorcode>E001</errorcode>" {
+		t.Errorf("Expected fault detail '<errorcode>E001</errorcode>', got: %s", string(fault.Detail.Content))
+	}
+}
+
+func TestClient_SOAPFaultWith500Status(t *testing.T) {
+	// Create a test server that returns a SOAP fault with 500 status (some servers do this)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		faultEnv := NewEnvelopeWithBody([]byte(`<soap:Fault xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+					<faultcode>Server</faultcode>
+					<faultstring>Internal server error</faultstring>
+				</soap:Fault>`))
+		respXML, _ := xml.Marshal(faultEnv)
+		w.Header().Set("Content-Type", "text/xml; charset=utf-8")
+		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = w.Write(respXML)
 	}))
 	defer server.Close()
@@ -264,11 +329,16 @@ func TestClient_SOAPFault(t *testing.T) {
 	reqEnv := NewEnvelopeWithBody([]byte(`<request>Test</request>`))
 
 	// Make the call - should return HTTP error due to 500 status
-	// In a real implementation, we might want to handle SOAP faults differently
 	ctx := context.Background()
 	_, err = client.Call(ctx, "", reqEnv)
 	if err == nil {
 		t.Fatal("Expected HTTP error for 500 status, got nil")
+	}
+
+	// This should be an HTTP error, not a SOAP fault, because of the 500 status
+	var fault *Fault
+	if errors.As(err, &fault) {
+		t.Fatal("Expected HTTP error, got SOAP fault")
 	}
 }
 

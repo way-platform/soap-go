@@ -30,13 +30,13 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 }
 
 // ProcessDownloadRequest executes the ProcessDownloadRequest one-way SOAP operation.
-func (c *Client) ProcessDownloadRequest(ctx context.Context, req *DownloadRequestWrapper) error {
+func (c *Client) ProcessDownloadRequest(ctx context.Context, req *DownloadRequestWrapper, opts ...ClientOption) error {
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
 		return fmt.Errorf("failed to marshal request: %w", err)
 	}
 	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
-	_, err = c.Call(ctx, "urn:ProcessDownloadRequest", reqEnvelope)
+	_, err = c.Call(ctx, "urn:ProcessDownloadRequest", reqEnvelope, opts...)
 	if err != nil {
 		return fmt.Errorf("SOAP call failed: %w", err)
 	}
@@ -44,13 +44,13 @@ func (c *Client) ProcessDownloadRequest(ctx context.Context, req *DownloadReques
 }
 
 // ProcessConfigData executes the ProcessConfigData one-way SOAP operation.
-func (c *Client) ProcessConfigData(ctx context.Context, req *ConfigDataWrapper) error {
+func (c *Client) ProcessConfigData(ctx context.Context, req *ConfigDataWrapper, opts ...ClientOption) error {
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
 		return fmt.Errorf("failed to marshal request: %w", err)
 	}
 	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
-	_, err = c.Call(ctx, "urn:ProcessConfigData", reqEnvelope)
+	_, err = c.Call(ctx, "urn:ProcessConfigData", reqEnvelope, opts...)
 	if err != nil {
 		return fmt.Errorf("SOAP call failed: %w", err)
 	}

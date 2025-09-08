@@ -110,7 +110,7 @@ func run(cfg config) error {
 	}
 
 	// Make the SOAP call
-	responseEnvelope, err := client.Call(ctx, cfg.action, requestEnvelope, soap.WithCallEndpoint(cfg.endpoint))
+	responseEnvelope, err := client.Call(ctx, cfg.action, requestEnvelope, soap.WithEndpoint(cfg.endpoint))
 	if err != nil {
 		return fmt.Errorf("SOAP call failed: %w", err)
 	}

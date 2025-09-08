@@ -30,13 +30,13 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 }
 
 // Authenticate executes the Authenticate SOAP operation.
-func (c *Client) Authenticate(ctx context.Context, req *AuthenticateWrapper) (*AuthenticateResponseWrapper, error) {
+func (c *Client) Authenticate(ctx context.Context, req *AuthenticateWrapper, opts ...ClientOption) (*AuthenticateResponseWrapper, error) {
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
-	respEnvelope, err := c.Call(ctx, "http://example.com/rpc-literal-test/Authenticate", reqEnvelope)
+	respEnvelope, err := c.Call(ctx, "http://example.com/rpc-literal-test/Authenticate", reqEnvelope, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("SOAP call failed: %w", err)
 	}
@@ -48,13 +48,13 @@ func (c *Client) Authenticate(ctx context.Context, req *AuthenticateWrapper) (*A
 }
 
 // FetchData executes the FetchData SOAP operation.
-func (c *Client) FetchData(ctx context.Context, req *FetchDataWrapper) (*FetchDataResponseWrapper, error) {
+func (c *Client) FetchData(ctx context.Context, req *FetchDataWrapper, opts ...ClientOption) (*FetchDataResponseWrapper, error) {
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
-	respEnvelope, err := c.Call(ctx, "http://example.com/rpc-literal-test/FetchData", reqEnvelope)
+	respEnvelope, err := c.Call(ctx, "http://example.com/rpc-literal-test/FetchData", reqEnvelope, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("SOAP call failed: %w", err)
 	}

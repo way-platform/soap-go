@@ -30,13 +30,13 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 }
 
 // GetWeather Get weather report for all major cities around the world.
-func (c *Client) GetWeather(ctx context.Context, req *GetWeatherWrapper) (*GetWeatherResponseWrapper, error) {
+func (c *Client) GetWeather(ctx context.Context, req *GetWeatherWrapper, opts ...ClientOption) (*GetWeatherResponseWrapper, error) {
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
-	respEnvelope, err := c.Call(ctx, "http://www.webserviceX.NET/GetWeather", reqEnvelope)
+	respEnvelope, err := c.Call(ctx, "http://www.webserviceX.NET/GetWeather", reqEnvelope, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("SOAP call failed: %w", err)
 	}
@@ -48,13 +48,13 @@ func (c *Client) GetWeather(ctx context.Context, req *GetWeatherWrapper) (*GetWe
 }
 
 // GetCitiesByCountry Get all major                 cities by country name(full / part).
-func (c *Client) GetCitiesByCountry(ctx context.Context, req *GetCitiesByCountryWrapper) (*GetCitiesByCountryResponseWrapper, error) {
+func (c *Client) GetCitiesByCountry(ctx context.Context, req *GetCitiesByCountryWrapper, opts ...ClientOption) (*GetCitiesByCountryResponseWrapper, error) {
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
-	respEnvelope, err := c.Call(ctx, "http://www.webserviceX.NET/GetCitiesByCountry", reqEnvelope)
+	respEnvelope, err := c.Call(ctx, "http://www.webserviceX.NET/GetCitiesByCountry", reqEnvelope, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("SOAP call failed: %w", err)
 	}

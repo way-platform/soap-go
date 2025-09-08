@@ -34,7 +34,6 @@ var (
 	SOAPBodyIdent                = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "Body"}
 	SOAPNamespaceIdent           = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "Namespace"}
 	SOAPNewEnvelopeWithBodyIdent = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "NewEnvelopeWithBody"}
-	SOAPWithCallEndpointIdent    = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "WithCallEndpoint"}
 
 	// Built-in types (no import path needed)
 	StringIdent = GoIdent{GoImportPath: "", GoName: "string"}

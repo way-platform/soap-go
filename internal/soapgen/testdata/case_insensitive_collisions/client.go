@@ -30,13 +30,13 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 }
 
 // TestUserRequest executes the TestUserRequest one-way SOAP operation.
-func (c *Client) TestUserRequest(ctx context.Context, req *UserRequestWrapper) error {
+func (c *Client) TestUserRequest(ctx context.Context, req *UserRequestWrapper, opts ...ClientOption) error {
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
 		return fmt.Errorf("failed to marshal request: %w", err)
 	}
 	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
-	_, err = c.Call(ctx, "urn:TestUserRequest", reqEnvelope)
+	_, err = c.Call(ctx, "urn:TestUserRequest", reqEnvelope, opts...)
 	if err != nil {
 		return fmt.Errorf("SOAP call failed: %w", err)
 	}
@@ -44,13 +44,13 @@ func (c *Client) TestUserRequest(ctx context.Context, req *UserRequestWrapper) e
 }
 
 // TestUserRequestLower executes the TestUserRequestLower one-way SOAP operation.
-func (c *Client) TestUserRequestLower(ctx context.Context, req *UserRequestWrapper) error {
+func (c *Client) TestUserRequestLower(ctx context.Context, req *UserRequestWrapper, opts ...ClientOption) error {
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
 		return fmt.Errorf("failed to marshal request: %w", err)
 	}
 	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
-	_, err = c.Call(ctx, "urn:TestUserRequestLower", reqEnvelope)
+	_, err = c.Call(ctx, "urn:TestUserRequestLower", reqEnvelope, opts...)
 	if err != nil {
 		return fmt.Errorf("SOAP call failed: %w", err)
 	}
@@ -58,13 +58,13 @@ func (c *Client) TestUserRequestLower(ctx context.Context, req *UserRequestWrapp
 }
 
 // TestGetFleetResponse executes the TestGetFleetResponse one-way SOAP operation.
-func (c *Client) TestGetFleetResponse(ctx context.Context, req *GetFleetResponseWrapper) error {
+func (c *Client) TestGetFleetResponse(ctx context.Context, req *GetFleetResponseWrapper, opts ...ClientOption) error {
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
 		return fmt.Errorf("failed to marshal request: %w", err)
 	}
 	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
-	_, err = c.Call(ctx, "urn:TestGetFleetResponse", reqEnvelope)
+	_, err = c.Call(ctx, "urn:TestGetFleetResponse", reqEnvelope, opts...)
 	if err != nil {
 		return fmt.Errorf("SOAP call failed: %w", err)
 	}
@@ -72,13 +72,13 @@ func (c *Client) TestGetFleetResponse(ctx context.Context, req *GetFleetResponse
 }
 
 // TestGetFleetResponseLower executes the TestGetFleetResponseLower one-way SOAP operation.
-func (c *Client) TestGetFleetResponseLower(ctx context.Context, req *GetFleetResponseWrapper) error {
+func (c *Client) TestGetFleetResponseLower(ctx context.Context, req *GetFleetResponseWrapper, opts ...ClientOption) error {
 	reqXML, err := xml.Marshal(req)
 	if err != nil {
 		return fmt.Errorf("failed to marshal request: %w", err)
 	}
 	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
-	_, err = c.Call(ctx, "urn:TestGetFleetResponseLower", reqEnvelope)
+	_, err = c.Call(ctx, "urn:TestGetFleetResponseLower", reqEnvelope, opts...)
 	if err != nil {
 		return fmt.Errorf("SOAP call failed: %w", err)
 	}
