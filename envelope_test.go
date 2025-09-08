@@ -6,7 +6,68 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
+
+func TestNewEnvelope(t *testing.T) {
+	type testCase struct {
+		name string
+		opts []EnvelopeOption
+		want string
+	}
+	testCases := []testCase{
+		{
+			name: "default",
+			opts: nil,
+			want: strings.Join([]string{
+				`<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">`,
+				`  <soapenv:Body></soapenv:Body>`,
+				`</soapenv:Envelope>`,
+			}, "\n"),
+		},
+
+		{
+			name: "with raw body",
+			opts: []EnvelopeOption{WithBody([]byte(`<data:Foo>Bar</data:Foo>`))},
+			want: strings.Join([]string{
+				`<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">`,
+				`  <soapenv:Body><data:Foo>Bar</data:Foo></soapenv:Body>`,
+				`</soapenv:Envelope>`,
+			}, "\n"),
+		},
+
+		{
+			name: "with typed body",
+			opts: []EnvelopeOption{WithBody(struct {
+				XMLName xml.Name `xml:"data:Foo"`
+				Content string   `xml:",innerxml"`
+			}{
+				Content: "Bar",
+			})},
+			want: strings.Join([]string{
+				`<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">`,
+				`  <soapenv:Body><data:Foo>Bar</data:Foo></soapenv:Body>`,
+				`</soapenv:Envelope>`,
+			}, "\n"),
+		},
+	}
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			envelope, err := NewEnvelope(tt.opts...)
+			if err != nil {
+				t.Fatalf("Failed to create envelope: %v", err)
+			}
+			envelopeXML, err := xml.MarshalIndent(envelope, "", "  ")
+			if err != nil {
+				t.Fatalf("Failed to marshal envelope: %v", err)
+			}
+			if diff := cmp.Diff(strings.TrimSpace(tt.want), strings.TrimSpace(string(envelopeXML))); diff != "" {
+				t.Errorf("Envelope XML mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
 
 func TestEnvelopeMarshalUnmarshal(t *testing.T) {
 	// Create envelope with header and body
@@ -18,13 +79,16 @@ func TestEnvelopeMarshalUnmarshal(t *testing.T) {
 		Content:        []byte("<value>header-content</value>"),
 	}
 
-	envelope := &Envelope{
-		XMLName:       xml.Name{Space: Namespace, Local: "Envelope"},
-		EncodingStyle: "http://schemas.xmlsoap.org/soap/encoding/",
-		Header: &Header{
-			Entries: []HeaderEntry{headerEntry},
-		},
-		Body: Body{Content: []byte("<body>body-content</body>")},
+	envelope, err := NewEnvelope(WithBody([]byte("<body>body-content</body>")))
+	if err != nil {
+		t.Fatalf("Failed to create envelope: %v", err)
+	}
+
+	// Add encoding style and header manually since these are advanced features
+	envelope.EncodingStyle = "http://schemas.xmlsoap.org/soap/encoding/"
+	envelope.Header = &Header{
+		XMLName: xml.Name{Local: "soapenv:Header"},
+		Entries: []HeaderEntry{headerEntry},
 	}
 
 	// Marshal to XML
@@ -95,9 +159,9 @@ func TestFaultHandling(t *testing.T) {
 	}
 
 	// Create envelope with fault in body
-	envelope := &Envelope{
-		XMLName: xml.Name{Space: Namespace, Local: "Envelope"},
-		Body:    Body{Content: faultXML},
+	envelope, err := NewEnvelope(WithBody(faultXML))
+	if err != nil {
+		t.Fatalf("Failed to create envelope with fault: %v", err)
 	}
 
 	// Marshal envelope with fault
@@ -236,14 +300,16 @@ func TestHeaderEntryMustUnderstand(t *testing.T) {
 
 func TestEnvelopeExtensibility(t *testing.T) {
 	// Test custom attributes on envelope
-	envelope := &Envelope{
-		XMLName: xml.Name{Space: Namespace, Local: "Envelope"},
-		Body:    Body{Content: []byte("<test>content</test>")},
-		Attrs: []xml.Attr{
-			{Name: xml.Name{Local: "custom"}, Value: "value"},
-			{Name: xml.Name{Local: "version"}, Value: "1.0"},
-		},
+	envelope, err := NewEnvelope(WithBody([]byte("<test>content</test>")))
+	if err != nil {
+		t.Fatalf("Failed to create envelope: %v", err)
 	}
+
+	// Add custom attributes for extensibility
+	envelope.Attrs = append(envelope.Attrs, []xml.Attr{
+		{Name: xml.Name{Local: "custom"}, Value: "value"},
+		{Name: xml.Name{Local: "version"}, Value: "1.0"},
+	}...)
 
 	xmlData, err := xml.Marshal(envelope)
 	if err != nil {

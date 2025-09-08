@@ -12,7 +12,7 @@ const Namespace = "http://schemas.xmlsoap.org/soap/envelope/"
 // It can handle any namespace prefix and URI, making it compatible with various SOAP implementations.
 // The XMLName field determines the actual element name and namespace used in marshaling/unmarshaling.
 type Envelope struct {
-	XMLName xml.Name `xml:"Envelope"`
+	XMLName xml.Name
 
 	// Optional encoding style as per SOAP 1.1 spec section 4.1.1
 	EncodingStyle string `xml:"encodingStyle,attr,omitempty"`
@@ -30,6 +30,8 @@ type Envelope struct {
 // Header represents a SOAP header containing header entries.
 // Each header entry can have mustUnderstand and actor attributes as per SOAP 1.1 spec section 4.2.
 type Header struct {
+	XMLName xml.Name
+
 	// Header entries - flexible content allowing any XML
 	Entries []HeaderEntry `xml:",any"`
 
@@ -60,6 +62,8 @@ type HeaderEntry struct {
 // Body represents a SOAP body containing the main message payload.
 // As per SOAP 1.1 spec section 4.3, it contains body entries.
 type Body struct {
+	XMLName xml.Name
+
 	// Content as raw XML for maximum flexibility
 	// This allows both simple payloads and complex nested structures
 	Content []byte `xml:",innerxml"`
@@ -72,7 +76,7 @@ type Body struct {
 // Used for error reporting within SOAP messages.
 // It implements the error interface to allow SOAP faults to be used as Go errors.
 type Fault struct {
-	XMLName xml.Name `xml:"Fault"`
+	XMLName xml.Name
 
 	// FaultCode is mandatory and provides algorithmic fault identification
 	FaultCode string `xml:"faultcode"`
@@ -103,52 +107,81 @@ type Detail struct {
 	Attrs []xml.Attr `xml:",any,attr"`
 }
 
+type envelopeConfig struct {
+	prefix    string
+	namespace string
+	body      any
+}
+
+func newEnvelopeConfig() *envelopeConfig {
+	return &envelopeConfig{
+		prefix:    "soapenv",
+		namespace: Namespace,
+		body:      nil,
+	}
+}
+
+func (cfg *envelopeConfig) xmlName(element string) xml.Name {
+	if cfg.prefix == "" {
+		return xml.Name{Local: element}
+	}
+	return xml.Name{Local: cfg.prefix + ":" + element}
+}
+
+func (cfg *envelopeConfig) xmlNSAttr() (xml.Attr, bool) {
+	if cfg.prefix == "" || cfg.namespace == "" {
+		return xml.Attr{}, false
+	}
+	return xml.Attr{
+		Name:  xml.Name{Local: "xmlns:" + cfg.prefix},
+		Value: cfg.namespace,
+	}, true
+}
+
 // EnvelopeOption is a function that configures an Envelope.
-type EnvelopeOption func(*Envelope) error
+type EnvelopeOption func(*envelopeConfig)
 
 // WithNamespace sets the namespace for the Envelope.
-func WithNamespace(namespace string) EnvelopeOption {
-	return func(env *Envelope) error {
-		env.XMLName.Space = namespace
-		env.XMLName.Local = "Envelope"
-		env.Attrs = []xml.Attr{
-			{
-				Name:  xml.Name{Local: "xmlns:" + namespace},
-				Value: namespace,
-			},
-		}
-		return nil
+func WithNamespace(prefix, namespace string) EnvelopeOption {
+	return func(cfg *envelopeConfig) {
+		cfg.prefix = prefix
+		cfg.namespace = namespace
 	}
 }
 
 // WithBody sets the body for the Envelope.
 func WithBody(body any) EnvelopeOption {
-	return func(env *Envelope) error {
-		if body == nil {
-			return fmt.Errorf("body is nil")
-		}
-		switch body := body.(type) {
-		case []byte:
-			env.Body = Body{Content: body}
-			return nil
-		default:
-			xmlData, err := xml.Marshal(body)
-			if err != nil {
-				return err
-			}
-			env.Body = Body{Content: xmlData}
-			return nil
-		}
+	return func(cfg *envelopeConfig) {
+		cfg.body = body
 	}
 }
 
 // NewEnvelope creates a new SOAP envelope with the specified options.
 func NewEnvelope(opts ...EnvelopeOption) (*Envelope, error) {
-	var result Envelope
+	cfg := newEnvelopeConfig()
 	for _, opt := range opts {
-		if err := opt(&result); err != nil {
+		opt(cfg)
+	}
+	result := Envelope{
+		XMLName: cfg.xmlName("Envelope"),
+		Body: Body{
+			XMLName: cfg.xmlName("Body"),
+		},
+	}
+	if xmlNSAttr, ok := cfg.xmlNSAttr(); ok {
+		result.Attrs = append(result.Attrs, xmlNSAttr)
+	}
+	switch body := cfg.body.(type) {
+	case nil:
+		// do nothing
+	case []byte:
+		result.Body.Content = body
+	default:
+		bodyData, err := xml.Marshal(body)
+		if err != nil {
 			return nil, err
 		}
+		result.Body.Content = bodyData
 	}
 	return &result, nil
 }
