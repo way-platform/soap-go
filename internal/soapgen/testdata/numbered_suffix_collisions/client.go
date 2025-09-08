@@ -2,7 +2,6 @@ package numbered_suffix_collisions
 
 import (
 	"context"
-	"encoding/xml"
 	"fmt"
 	soap "github.com/way-platform/soap-go"
 )
@@ -31,11 +30,10 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 
 // ProcessRequest executes the ProcessRequest one-way SOAP operation.
 func (c *Client) ProcessRequest(ctx context.Context, req *RequestWrapper, opts ...ClientOption) error {
-	reqXML, err := xml.Marshal(req)
+	reqEnvelope, err := soap.NewEnvelope(soap.WithBody(req))
 	if err != nil {
-		return fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to create SOAP envelope: %w", err)
 	}
-	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
 	_, err = c.Call(ctx, "urn:ProcessRequest", reqEnvelope, opts...)
 	if err != nil {
 		return fmt.Errorf("SOAP call failed: %w", err)
@@ -45,11 +43,10 @@ func (c *Client) ProcessRequest(ctx context.Context, req *RequestWrapper, opts .
 
 // ProcessRequestLower executes the ProcessRequestLower one-way SOAP operation.
 func (c *Client) ProcessRequestLower(ctx context.Context, req *RequestWrapper, opts ...ClientOption) error {
-	reqXML, err := xml.Marshal(req)
+	reqEnvelope, err := soap.NewEnvelope(soap.WithBody(req))
 	if err != nil {
-		return fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to create SOAP envelope: %w", err)
 	}
-	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
 	_, err = c.Call(ctx, "urn:ProcessRequestLower", reqEnvelope, opts...)
 	if err != nil {
 		return fmt.Errorf("SOAP call failed: %w", err)
@@ -59,11 +56,10 @@ func (c *Client) ProcessRequestLower(ctx context.Context, req *RequestWrapper, o
 
 // ProcessRequestUpper executes the ProcessRequestUpper one-way SOAP operation.
 func (c *Client) ProcessRequestUpper(ctx context.Context, req *REQUESTWrapper, opts ...ClientOption) error {
-	reqXML, err := xml.Marshal(req)
+	reqEnvelope, err := soap.NewEnvelope(soap.WithBody(req))
 	if err != nil {
-		return fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to create SOAP envelope: %w", err)
 	}
-	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
 	_, err = c.Call(ctx, "urn:ProcessRequestUpper", reqEnvelope, opts...)
 	if err != nil {
 		return fmt.Errorf("SOAP call failed: %w", err)
@@ -73,11 +69,10 @@ func (c *Client) ProcessRequestUpper(ctx context.Context, req *REQUESTWrapper, o
 
 // ProcessData executes the ProcessData one-way SOAP operation.
 func (c *Client) ProcessData(ctx context.Context, req *DataWrapper, opts ...ClientOption) error {
-	reqXML, err := xml.Marshal(req)
+	reqEnvelope, err := soap.NewEnvelope(soap.WithBody(req))
 	if err != nil {
-		return fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to create SOAP envelope: %w", err)
 	}
-	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
 	_, err = c.Call(ctx, "urn:ProcessData", reqEnvelope, opts...)
 	if err != nil {
 		return fmt.Errorf("SOAP call failed: %w", err)
@@ -87,11 +82,10 @@ func (c *Client) ProcessData(ctx context.Context, req *DataWrapper, opts ...Clie
 
 // ProcessDataLower executes the ProcessDataLower one-way SOAP operation.
 func (c *Client) ProcessDataLower(ctx context.Context, req *DataWrapper, opts ...ClientOption) error {
-	reqXML, err := xml.Marshal(req)
+	reqEnvelope, err := soap.NewEnvelope(soap.WithBody(req))
 	if err != nil {
-		return fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to create SOAP envelope: %w", err)
 	}
-	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
 	_, err = c.Call(ctx, "urn:ProcessDataLower", reqEnvelope, opts...)
 	if err != nil {
 		return fmt.Errorf("SOAP call failed: %w", err)
@@ -101,11 +95,10 @@ func (c *Client) ProcessDataLower(ctx context.Context, req *DataWrapper, opts ..
 
 // ProcessDataUpper executes the ProcessDataUpper one-way SOAP operation.
 func (c *Client) ProcessDataUpper(ctx context.Context, req *DATAWrapper, opts ...ClientOption) error {
-	reqXML, err := xml.Marshal(req)
+	reqEnvelope, err := soap.NewEnvelope(soap.WithBody(req))
 	if err != nil {
-		return fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to create SOAP envelope: %w", err)
 	}
-	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
 	_, err = c.Call(ctx, "urn:ProcessDataUpper", reqEnvelope, opts...)
 	if err != nil {
 		return fmt.Errorf("SOAP call failed: %w", err)
@@ -115,11 +108,10 @@ func (c *Client) ProcessDataUpper(ctx context.Context, req *DATAWrapper, opts ..
 
 // ProcessExtremeCase executes the ProcessExtremeCase one-way SOAP operation.
 func (c *Client) ProcessExtremeCase(ctx context.Context, req *ExtremeCaseElementWrapper, opts ...ClientOption) error {
-	reqXML, err := xml.Marshal(req)
+	reqEnvelope, err := soap.NewEnvelope(soap.WithBody(req))
 	if err != nil {
-		return fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to create SOAP envelope: %w", err)
 	}
-	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
 	_, err = c.Call(ctx, "urn:ProcessExtremeCase", reqEnvelope, opts...)
 	if err != nil {
 		return fmt.Errorf("SOAP call failed: %w", err)
@@ -129,11 +121,10 @@ func (c *Client) ProcessExtremeCase(ctx context.Context, req *ExtremeCaseElement
 
 // HandleRequest executes the HandleRequest one-way SOAP operation.
 func (c *Client) HandleRequest(ctx context.Context, req *RequestWrapper, opts ...ClientOption) error {
-	reqXML, err := xml.Marshal(req)
+	reqEnvelope, err := soap.NewEnvelope(soap.WithBody(req))
 	if err != nil {
-		return fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to create SOAP envelope: %w", err)
 	}
-	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
 	_, err = c.Call(ctx, "urn:HandleRequest", reqEnvelope, opts...)
 	if err != nil {
 		return fmt.Errorf("SOAP call failed: %w", err)
@@ -143,11 +134,10 @@ func (c *Client) HandleRequest(ctx context.Context, req *RequestWrapper, opts ..
 
 // ValidateRequest executes the ValidateRequest one-way SOAP operation.
 func (c *Client) ValidateRequest(ctx context.Context, req *RequestWrapper, opts ...ClientOption) error {
-	reqXML, err := xml.Marshal(req)
+	reqEnvelope, err := soap.NewEnvelope(soap.WithBody(req))
 	if err != nil {
-		return fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to create SOAP envelope: %w", err)
 	}
-	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
 	_, err = c.Call(ctx, "urn:ValidateRequest", reqEnvelope, opts...)
 	if err != nil {
 		return fmt.Errorf("SOAP call failed: %w", err)
@@ -157,11 +147,10 @@ func (c *Client) ValidateRequest(ctx context.Context, req *RequestWrapper, opts 
 
 // SubmitRequest executes the SubmitRequest one-way SOAP operation.
 func (c *Client) SubmitRequest(ctx context.Context, req *RequestWrapper, opts ...ClientOption) error {
-	reqXML, err := xml.Marshal(req)
+	reqEnvelope, err := soap.NewEnvelope(soap.WithBody(req))
 	if err != nil {
-		return fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to create SOAP envelope: %w", err)
 	}
-	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
 	_, err = c.Call(ctx, "urn:SubmitRequest", reqEnvelope, opts...)
 	if err != nil {
 		return fmt.Errorf("SOAP call failed: %w", err)

@@ -102,7 +102,7 @@ func TestClient_Call(t *testing.T) {
 		}
 
 		// Create a response envelope
-		respEnv := NewEnvelopeWithBody([]byte(`<response>Hello World</response>`))
+		respEnv, _ := NewEnvelope(WithBody([]byte(`<response>Hello World</response>`)))
 
 		respXML, err := xml.Marshal(respEnv)
 		if err != nil {
@@ -122,7 +122,7 @@ func TestClient_Call(t *testing.T) {
 	}
 
 	// Create request envelope
-	reqEnv := NewEnvelopeWithBody([]byte(`<request>Test</request>`))
+	reqEnv, _ := NewEnvelope(WithBody([]byte(`<request>Test</request>`)))
 
 	// Make the call
 	ctx := context.Background()
@@ -144,7 +144,7 @@ func TestClient_Call(t *testing.T) {
 func TestClient_CallWithEndpoint(t *testing.T) {
 	// Create a test server
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		respEnv := NewEnvelopeWithBody([]byte(`<response>Custom Endpoint</response>`))
+		respEnv, _ := NewEnvelope(WithBody([]byte(`<response>Custom Endpoint</response>`)))
 		respXML, _ := xml.Marshal(respEnv)
 		w.Header().Set("Content-Type", "text/xml; charset=utf-8")
 		_, _ = w.Write(respXML)
@@ -158,7 +158,7 @@ func TestClient_CallWithEndpoint(t *testing.T) {
 	}
 
 	// Create request envelope
-	reqEnv := NewEnvelopeWithBody([]byte(`<request>Test</request>`))
+	reqEnv, _ := NewEnvelope(WithBody([]byte(`<request>Test</request>`)))
 
 	// Make the call with custom endpoint
 	ctx := context.Background()
@@ -183,7 +183,7 @@ func TestClient_CallWithSOAPAction(t *testing.T) {
 			t.Errorf("Expected SOAPAction '%s', got '%s'", expectedSOAPAction, soapAction)
 		}
 
-		respEnv := NewEnvelopeWithBody([]byte(`<response>SOAP Action Test</response>`))
+		respEnv, _ := NewEnvelope(WithBody([]byte(`<response>SOAP Action Test</response>`)))
 		respXML, _ := xml.Marshal(respEnv)
 		w.Header().Set("Content-Type", "text/xml; charset=utf-8")
 		_, _ = w.Write(respXML)
@@ -197,7 +197,7 @@ func TestClient_CallWithSOAPAction(t *testing.T) {
 	}
 
 	// Create request envelope
-	reqEnv := NewEnvelopeWithBody([]byte(`<request>Test</request>`))
+	reqEnv, _ := NewEnvelope(WithBody([]byte(`<request>Test</request>`)))
 
 	// Make the call with SOAPAction
 	ctx := context.Background()
@@ -227,7 +227,7 @@ func TestClient_HTTPError(t *testing.T) {
 	}
 
 	// Create request envelope
-	reqEnv := NewEnvelopeWithBody([]byte(`<request>Test</request>`))
+	reqEnv, _ := NewEnvelope(WithBody([]byte(`<request>Test</request>`)))
 
 	// Make the call - should return HTTP error
 	ctx := context.Background()
@@ -244,12 +244,12 @@ func TestClient_HTTPError(t *testing.T) {
 func TestClient_SOAPFault(t *testing.T) {
 	// Create a test server that returns a SOAP fault with 200 status (proper SOAP fault)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		faultEnv := NewEnvelopeWithBody([]byte(`<soap:Fault xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+		faultEnv, _ := NewEnvelope(WithBody([]byte(`<soap:Fault xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 					<faultcode>Client</faultcode>
 					<faultstring>Invalid request</faultstring>
 					<faultactor>http://example.com/service</faultactor>
 					<detail><errorcode>E001</errorcode></detail>
-				</soap:Fault>`))
+				</soap:Fault>`)))
 		respXML, _ := xml.Marshal(faultEnv)
 		w.Header().Set("Content-Type", "text/xml; charset=utf-8")
 		w.WriteHeader(http.StatusOK) // SOAP faults should be returned with 200 status
@@ -264,7 +264,7 @@ func TestClient_SOAPFault(t *testing.T) {
 	}
 
 	// Create request envelope
-	reqEnv := NewEnvelopeWithBody([]byte(`<request>Test</request>`))
+	reqEnv, _ := NewEnvelope(WithBody([]byte(`<request>Test</request>`)))
 
 	// Make the call - should return SOAP fault as error
 	ctx := context.Background()
@@ -308,10 +308,10 @@ func TestClient_SOAPFault(t *testing.T) {
 func TestClient_SOAPFaultWith500Status(t *testing.T) {
 	// Create a test server that returns a SOAP fault with 500 status (some servers do this)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		faultEnv := NewEnvelopeWithBody([]byte(`<soap:Fault xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+		faultEnv, _ := NewEnvelope(WithBody([]byte(`<soap:Fault xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 					<faultcode>Server</faultcode>
 					<faultstring>Internal server error</faultstring>
-				</soap:Fault>`))
+				</soap:Fault>`)))
 		respXML, _ := xml.Marshal(faultEnv)
 		w.Header().Set("Content-Type", "text/xml; charset=utf-8")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -326,7 +326,7 @@ func TestClient_SOAPFaultWith500Status(t *testing.T) {
 	}
 
 	// Create request envelope
-	reqEnv := NewEnvelopeWithBody([]byte(`<request>Test</request>`))
+	reqEnv, _ := NewEnvelope(WithBody([]byte(`<request>Test</request>`)))
 
 	// Make the call - should return HTTP error due to 500 status
 	ctx := context.Background()
@@ -350,7 +350,7 @@ func TestClient_EmptyEndpoint(t *testing.T) {
 	}
 
 	// Create request envelope
-	reqEnv := NewEnvelopeWithBody([]byte(`<request>Test</request>`))
+	reqEnv, _ := NewEnvelope(WithBody([]byte(`<request>Test</request>`)))
 
 	// Make the call - should fail due to empty endpoint
 	ctx := context.Background()
@@ -414,9 +414,9 @@ func TestClient_Integration(t *testing.T) {
 		}
 
 		// Simple response - in real world this would process the request content
-		respEnv := NewEnvelopeWithBody([]byte(`<CalculateResponse xmlns="http://example.com/calculator">
+		respEnv, _ := NewEnvelope(WithBody([]byte(`<CalculateResponse xmlns="http://example.com/calculator">
 					<result>42</result>
-				</CalculateResponse>`))
+				</CalculateResponse>`)))
 
 		respXML, err := xml.Marshal(respEnv)
 		if err != nil {
@@ -439,11 +439,11 @@ func TestClient_Integration(t *testing.T) {
 	}
 
 	// Create a realistic request envelope
-	reqEnv := NewEnvelopeWithBody([]byte(`<Calculate xmlns="http://example.com/calculator">
+	reqEnv, _ := NewEnvelope(WithBody([]byte(`<Calculate xmlns="http://example.com/calculator">
 				<a>10</a>
 				<b>32</b>
 				<operation>add</operation>
-			</Calculate>`))
+			</Calculate>`)))
 
 	// Make the call
 	ctx := context.Background()
@@ -506,7 +506,7 @@ func TestClient_XMLDeclarationOption(t *testing.T) {
 				receivedBody = body
 
 				// Return a simple response
-				respEnv := NewEnvelopeWithBody([]byte(`<response>OK</response>`))
+				respEnv, _ := NewEnvelope(WithBody([]byte(`<response>OK</response>`)))
 				respXML, _ := xml.Marshal(respEnv)
 				w.Header().Set("Content-Type", "text/xml; charset=utf-8")
 				_, _ = w.Write(respXML)
@@ -526,7 +526,7 @@ func TestClient_XMLDeclarationOption(t *testing.T) {
 			}
 
 			// Create request envelope
-			reqEnv := NewEnvelopeWithBody([]byte(`<request>Test</request>`))
+			reqEnv, _ := NewEnvelope(WithBody([]byte(`<request>Test</request>`)))
 
 			// Make the call
 			ctx := context.Background()

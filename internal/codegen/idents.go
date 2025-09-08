@@ -26,14 +26,15 @@ var (
 	IOReadAllIdent                 = GoIdent{GoImportPath: "io", GoName: "ReadAll"}
 
 	// SOAP library types
-	SOAPClientIdent              = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "Client"}
-	SOAPClientOptionIdent        = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "ClientOption"}
-	SOAPNewClientIdent           = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "NewClient"}
-	SOAPWithEndpointIdent        = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "WithEndpoint"}
-	SOAPEnvelopeIdent            = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "Envelope"}
-	SOAPBodyIdent                = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "Body"}
-	SOAPNamespaceIdent           = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "Namespace"}
-	SOAPNewEnvelopeWithBodyIdent = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "NewEnvelopeWithBody"}
+	SOAPClientIdent       = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "Client"}
+	SOAPClientOptionIdent = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "ClientOption"}
+	SOAPNewClientIdent    = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "NewClient"}
+	SOAPWithEndpointIdent = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "WithEndpoint"}
+	SOAPEnvelopeIdent     = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "Envelope"}
+	SOAPBodyIdent         = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "Body"}
+	SOAPNamespaceIdent    = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "Namespace"}
+	SOAPNewEnvelopeIdent  = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "NewEnvelope"}
+	SOAPWithBodyIdent     = GoIdent{GoImportPath: "github.com/way-platform/soap-go", GoName: "WithBody"}
 
 	// Built-in types (no import path needed)
 	StringIdent = GoIdent{GoImportPath: "", GoName: "string"}

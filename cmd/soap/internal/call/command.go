@@ -106,7 +106,10 @@ func run(cfg config) error {
 		}
 	} else {
 		// Wrap payload in SOAP envelope
-		requestEnvelope = soap.NewEnvelopeWithBody(payloadData)
+		requestEnvelope, err = soap.NewEnvelope(soap.WithBody(payloadData))
+		if err != nil {
+			return fmt.Errorf("failed to create SOAP envelope: %w", err)
+		}
 	}
 
 	// Make the SOAP call

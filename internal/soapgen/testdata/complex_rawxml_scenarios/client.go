@@ -2,7 +2,6 @@ package complex_rawxml_scenarios
 
 import (
 	"context"
-	"encoding/xml"
 	"fmt"
 	soap "github.com/way-platform/soap-go"
 )
@@ -31,11 +30,10 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 
 // ProcessFlexibleDocument executes the ProcessFlexibleDocument one-way SOAP operation.
 func (c *Client) ProcessFlexibleDocument(ctx context.Context, req *FlexibleDocumentWrapper, opts ...ClientOption) error {
-	reqXML, err := xml.Marshal(req)
+	reqEnvelope, err := soap.NewEnvelope(soap.WithBody(req))
 	if err != nil {
-		return fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to create SOAP envelope: %w", err)
 	}
-	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
 	_, err = c.Call(ctx, "urn:ProcessFlexibleDocument", reqEnvelope, opts...)
 	if err != nil {
 		return fmt.Errorf("SOAP call failed: %w", err)
@@ -45,11 +43,10 @@ func (c *Client) ProcessFlexibleDocument(ctx context.Context, req *FlexibleDocum
 
 // ProcessDynamicContent executes the ProcessDynamicContent one-way SOAP operation.
 func (c *Client) ProcessDynamicContent(ctx context.Context, req *DynamicContentWrapper, opts ...ClientOption) error {
-	reqXML, err := xml.Marshal(req)
+	reqEnvelope, err := soap.NewEnvelope(soap.WithBody(req))
 	if err != nil {
-		return fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to create SOAP envelope: %w", err)
 	}
-	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
 	_, err = c.Call(ctx, "urn:ProcessDynamicContent", reqEnvelope, opts...)
 	if err != nil {
 		return fmt.Errorf("SOAP call failed: %w", err)
@@ -59,11 +56,10 @@ func (c *Client) ProcessDynamicContent(ctx context.Context, req *DynamicContentW
 
 // ProcessMixedDocument executes the ProcessMixedDocument one-way SOAP operation.
 func (c *Client) ProcessMixedDocument(ctx context.Context, req *MixedDocumentWrapper, opts ...ClientOption) error {
-	reqXML, err := xml.Marshal(req)
+	reqEnvelope, err := soap.NewEnvelope(soap.WithBody(req))
 	if err != nil {
-		return fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to create SOAP envelope: %w", err)
 	}
-	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
 	_, err = c.Call(ctx, "urn:ProcessMixedDocument", reqEnvelope, opts...)
 	if err != nil {
 		return fmt.Errorf("SOAP call failed: %w", err)
@@ -73,11 +69,10 @@ func (c *Client) ProcessMixedDocument(ctx context.Context, req *MixedDocumentWra
 
 // ProcessPerformanceReport executes the ProcessPerformanceReport one-way SOAP operation.
 func (c *Client) ProcessPerformanceReport(ctx context.Context, req *PerformanceReportWrapper, opts ...ClientOption) error {
-	reqXML, err := xml.Marshal(req)
+	reqEnvelope, err := soap.NewEnvelope(soap.WithBody(req))
 	if err != nil {
-		return fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to create SOAP envelope: %w", err)
 	}
-	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
 	_, err = c.Call(ctx, "urn:ProcessPerformanceReport", reqEnvelope, opts...)
 	if err != nil {
 		return fmt.Errorf("SOAP call failed: %w", err)
@@ -87,11 +82,10 @@ func (c *Client) ProcessPerformanceReport(ctx context.Context, req *PerformanceR
 
 // ProcessUntypedElement executes the ProcessUntypedElement one-way SOAP operation.
 func (c *Client) ProcessUntypedElement(ctx context.Context, req *UntypedElementWrapper, opts ...ClientOption) error {
-	reqXML, err := xml.Marshal(req)
+	reqEnvelope, err := soap.NewEnvelope(soap.WithBody(req))
 	if err != nil {
-		return fmt.Errorf("failed to marshal request: %w", err)
+		return fmt.Errorf("failed to create SOAP envelope: %w", err)
 	}
-	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
 	_, err = c.Call(ctx, "urn:ProcessUntypedElement", reqEnvelope, opts...)
 	if err != nil {
 		return fmt.Errorf("SOAP call failed: %w", err)

@@ -31,11 +31,10 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 
 // GetWeather Get weather report for all major cities around the world.
 func (c *Client) GetWeather(ctx context.Context, req *GetWeatherWrapper, opts ...ClientOption) (*GetWeatherResponseWrapper, error) {
-	reqXML, err := xml.Marshal(req)
+	reqEnvelope, err := soap.NewEnvelope(soap.WithBody(req))
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal request: %w", err)
+		return nil, fmt.Errorf("failed to create SOAP envelope: %w", err)
 	}
-	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
 	respEnvelope, err := c.Call(ctx, "http://www.webserviceX.NET/GetWeather", reqEnvelope, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("SOAP call failed: %w", err)
@@ -49,11 +48,10 @@ func (c *Client) GetWeather(ctx context.Context, req *GetWeatherWrapper, opts ..
 
 // GetCitiesByCountry Get all major                 cities by country name(full / part).
 func (c *Client) GetCitiesByCountry(ctx context.Context, req *GetCitiesByCountryWrapper, opts ...ClientOption) (*GetCitiesByCountryResponseWrapper, error) {
-	reqXML, err := xml.Marshal(req)
+	reqEnvelope, err := soap.NewEnvelope(soap.WithBody(req))
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal request: %w", err)
+		return nil, fmt.Errorf("failed to create SOAP envelope: %w", err)
 	}
-	reqEnvelope := soap.NewEnvelopeWithBody(reqXML)
 	respEnvelope, err := c.Call(ctx, "http://www.webserviceX.NET/GetCitiesByCountry", reqEnvelope, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("SOAP call failed: %w", err)

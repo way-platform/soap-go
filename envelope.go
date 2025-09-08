@@ -103,44 +103,52 @@ type Detail struct {
 	Attrs []xml.Attr `xml:",any,attr"`
 }
 
-// NewEnvelope creates a new SOAP envelope with the standard SOAP 1.1 namespace.
-// This is a convenience function for the most common use case.
-func NewEnvelope() *Envelope {
-	return &Envelope{
-		XMLName: xml.Name{
-			Space: Namespace,
-			Local: "Envelope",
-		},
-	}
-}
+// EnvelopeOption is a function that configures an Envelope.
+type EnvelopeOption func(*Envelope) error
 
-// NewEnvelopeWithNamespace creates a new SOAP envelope with a custom namespace URI and prefix.
-// This allows for maximum flexibility when working with different SOAP implementations.
-func NewEnvelopeWithNamespace(namespaceURI, prefix string) *Envelope {
-	return &Envelope{
-		XMLName: xml.Name{
-			Space: namespaceURI,
-			Local: "Envelope",
-		},
-		Attrs: []xml.Attr{
+// WithNamespace sets the namespace for the Envelope.
+func WithNamespace(namespace string) EnvelopeOption {
+	return func(env *Envelope) error {
+		env.XMLName.Space = namespace
+		env.XMLName.Local = "Envelope"
+		env.Attrs = []xml.Attr{
 			{
-				Name:  xml.Name{Local: "xmlns:" + prefix},
-				Value: namespaceURI,
+				Name:  xml.Name{Local: "xmlns:" + namespace},
+				Value: namespace,
 			},
-		},
+		}
+		return nil
 	}
 }
 
-// NewEnvelopeWithBody creates a new SOAP envelope with the specified body content.
-func NewEnvelopeWithBody(bodyContent []byte) *Envelope {
-	env := NewEnvelope()
-	env.Body = Body{Content: bodyContent}
-	return env
+// WithBody sets the body for the Envelope.
+func WithBody(body any) EnvelopeOption {
+	return func(env *Envelope) error {
+		if body == nil {
+			return fmt.Errorf("body is nil")
+		}
+		switch body := body.(type) {
+		case []byte:
+			env.Body = Body{Content: body}
+			return nil
+		default:
+			xmlData, err := xml.Marshal(body)
+			if err != nil {
+				return err
+			}
+			env.Body = Body{Content: xmlData}
+			return nil
+		}
+	}
 }
 
-// NewEnvelopeWithBodyAndNamespace creates a new SOAP envelope with custom namespace and body content.
-func NewEnvelopeWithBodyAndNamespace(namespaceURI, prefix string, bodyContent []byte) *Envelope {
-	env := NewEnvelopeWithNamespace(namespaceURI, prefix)
-	env.Body = Body{Content: bodyContent}
-	return env
+// NewEnvelope creates a new SOAP envelope with the specified options.
+func NewEnvelope(opts ...EnvelopeOption) (*Envelope, error) {
+	var result Envelope
+	for _, opt := range opts {
+		if err := opt(&result); err != nil {
+			return nil, err
+		}
+	}
+	return &result, nil
 }

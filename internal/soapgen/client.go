@@ -216,11 +216,10 @@ func (g *Generator) generateOperationMethod(file *codegen.File, operation *wsdl.
 	if isOneWay {
 		// One-way operation: return only error
 		file.P("func (c *Client) ", methodName, "(ctx ", file.QualifiedGoIdent(codegen.ContextIdent), ", req *", inputType, ", opts ...ClientOption) ", file.QualifiedGoIdent(codegen.ErrorIdent), " {")
-		file.P("\treqXML, err := ", file.QualifiedGoIdent(codegen.XMLMarshalIdent), "(req)")
+		file.P("\treqEnvelope, err := ", file.QualifiedGoIdent(codegen.SOAPNewEnvelopeIdent), "(", file.QualifiedGoIdent(codegen.SOAPWithBodyIdent), "(req))")
 		file.P("\tif err != nil {")
-		file.P("\t\treturn ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"failed to marshal request: %w\", err)")
+		file.P("\t\treturn ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"failed to create SOAP envelope: %w\", err)")
 		file.P("\t}")
-		file.P("\treqEnvelope := ", file.QualifiedGoIdent(codegen.SOAPNewEnvelopeWithBodyIdent), "(reqXML)")
 		if soapAction != "" {
 			file.P("\t_, err = c.Call(ctx, \"", soapAction, "\", reqEnvelope, opts...)")
 		} else {
@@ -233,11 +232,10 @@ func (g *Generator) generateOperationMethod(file *codegen.File, operation *wsdl.
 	} else {
 		// Request-response operation: return response and error
 		file.P("func (c *Client) ", methodName, "(ctx ", file.QualifiedGoIdent(codegen.ContextIdent), ", req *", inputType, ", opts ...ClientOption) (*", outputType, ", ", file.QualifiedGoIdent(codegen.ErrorIdent), ") {")
-		file.P("\treqXML, err := ", file.QualifiedGoIdent(codegen.XMLMarshalIdent), "(req)")
+		file.P("\treqEnvelope, err := ", file.QualifiedGoIdent(codegen.SOAPNewEnvelopeIdent), "(", file.QualifiedGoIdent(codegen.SOAPWithBodyIdent), "(req))")
 		file.P("\tif err != nil {")
-		file.P("\t\treturn nil, ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"failed to marshal request: %w\", err)")
+		file.P("\t\treturn nil, ", file.QualifiedGoIdent(codegen.FmtErrorfIdent), "(\"failed to create SOAP envelope: %w\", err)")
 		file.P("\t}")
-		file.P("\treqEnvelope := ", file.QualifiedGoIdent(codegen.SOAPNewEnvelopeWithBodyIdent), "(reqXML)")
 		if soapAction != "" {
 			file.P("\trespEnvelope, err := c.Call(ctx, \"", soapAction, "\", reqEnvelope, opts...)")
 		} else {
