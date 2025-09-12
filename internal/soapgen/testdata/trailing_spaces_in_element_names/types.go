@@ -16,6 +16,9 @@ type ResponseType struct {
 
 // TestResponse represents the TestResponse  element
 type TestResponse struct {
-	XMLName xml.Name     `xml:"TestResponse"`
-	Value   ResponseType `xml:",chardata"`
+	XMLName     xml.Name `xml:"TestResponse"`
+	Status      string   `xml:"status"`
+	Priority    int32    `xml:"priority"`
+	Data        string   `xml:"data"`
+	NormalField string   `xml:"normalField"`
 }

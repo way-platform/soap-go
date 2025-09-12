@@ -40,6 +40,8 @@ type ResponseType struct {
 
 // Response represents the Response element
 type Response struct {
-	XMLName xml.Name     `xml:"Response"`
-	Value   ResponseType `xml:",chardata"`
+	XMLName xml.Name `xml:"Response"`
+	Status  string   `xml:"status"`
+	Data    RawXML   `xml:",innerxml"`
+	Items   []RawXML `xml:"items"`
 }

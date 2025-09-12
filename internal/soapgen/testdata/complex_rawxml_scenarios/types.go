@@ -47,8 +47,10 @@ type ValidType struct {
 
 // FlexibleDocumentWrapper represents the FlexibleDocument element
 type FlexibleDocumentWrapper struct {
-	XMLName xml.Name             `xml:"http://example.com/rawxml-scenarios FlexibleDocument"`
-	Value   FlexibleDocumentType `xml:",chardata"`
+	XMLName      xml.Name `xml:"http://example.com/rawxml-scenarios FlexibleDocument"`
+	DocumentID   string   `xml:"documentID"`
+	Version      string   `xml:"version"`
+	OtherContent RawXML   `xml:",innerxml"`
 }
 
 // DynamicContentWrapper represents the DynamicContent element
@@ -68,8 +70,10 @@ type MixedDocumentWrapper struct {
 
 // PerformanceReportWrapper represents the PerformanceReport element
 type PerformanceReportWrapper struct {
-	XMLName xml.Name            `xml:"http://example.com/rawxml-scenarios PerformanceReport"`
-	Value   PerformanceDataType `xml:",chardata"`
+	XMLName    xml.Name  `xml:"http://example.com/rawxml-scenarios PerformanceReport"`
+	Timestamp  time.Time `xml:"timestamp"`
+	Metrics    *string   `xml:"metrics,omitempty"`
+	CustomData *string   `xml:"customData,omitempty"`
 }
 
 // UntypedElementWrapper represents the UntypedElement element
@@ -87,6 +91,6 @@ type NestedDynamicDocument struct {
 
 // ValidElement represents the ValidElement element
 type ValidElement struct {
-	XMLName xml.Name  `xml:"ValidElement"`
-	Value   ValidType `xml:",chardata"`
+	XMLName      xml.Name `xml:"ValidElement"`
+	ValidElement string   `xml:"validElement"`
 }

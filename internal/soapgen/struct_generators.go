@@ -85,17 +85,19 @@ func generateStandardStructWithName(g *codegen.File, element *xsd.Element, ctx *
 
 	// Handle simple type elements (e.g., <element name="foo" type="xsd:string"/>)
 	if element.Type != "" && element.ComplexType == nil {
-		// This is a simple type element, generate a Value field
-		goType := mapXSDTypeToGoWithContext(element.Type, ctx)
-		goType = convertToQualifiedType(goType, g)
-
-		// Handle complex type references - use the Go type name for complex types only
+		// Check if this references a complex type
 		if complexType := ctx.resolveComplexType(element.Type); complexType != nil {
-			goType = toGoName(extractLocalName(element.Type))
+			// This element references a complex type - embed the complex type's fields directly
+			if embedComplexTypeFields(g, complexType, ctx, fieldRegistry, element.Name) {
+				hasFields = true
+			}
+		} else {
+			// This is a simple type element, generate a Value field
+			goType := mapXSDTypeToGoWithContext(element.Type, ctx)
+			goType = convertToQualifiedType(goType, g)
+			g.P("\tValue ", goType, " `xml:\",chardata\"`")
+			hasFields = true
 		}
-
-		g.P("\tValue ", goType, " `xml:\",chardata\"`")
-		hasFields = true
 	} else if element.SimpleType != nil && element.ComplexType == nil {
 		// Handle inline simple type elements (e.g., elements with inline enumerations)
 		// Check if this inline simple type has been generated as an enum type
@@ -281,4 +283,53 @@ func generateRawXMLWrapperTypes(g *codegen.File, ctx *SchemaContext) {
 			generated[typeName] = true
 		}
 	}
+}
+
+// embedComplexTypeFields embeds the fields from a complex type into the current struct
+func embedComplexTypeFields(g *codegen.File, complexType *xsd.ComplexType, ctx *SchemaContext, fieldRegistry *FieldRegistry, parentElementName string) bool {
+	hasFields := false
+
+	// Handle sequence elements
+	if complexType.Sequence != nil {
+		for _, field := range complexType.Sequence.Elements {
+			if generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(g, &field, ctx, 1, parentElementName, fieldRegistry) {
+				hasFields = true
+			}
+		}
+
+		// Handle xs:any elements in the sequence
+		for _, anyElement := range complexType.Sequence.Any {
+			if generateAnyFieldWithFieldRegistry(g, &anyElement, ctx, 1, fieldRegistry) {
+				hasFields = true
+			}
+		}
+	}
+
+	// Handle attributes
+	for _, attr := range complexType.Attributes {
+		if generateAttributeFieldWithParentName(g, &attr, ctx, fieldRegistry, parentElementName) {
+			hasFields = true
+		}
+	}
+
+	// Handle complex content extensions
+	if complexType.ComplexContent != nil && complexType.ComplexContent.Extension != nil {
+		ext := complexType.ComplexContent.Extension
+		if ext.Sequence != nil {
+			for _, field := range ext.Sequence.Elements {
+				if generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(g, &field, ctx, 1, parentElementName, fieldRegistry) {
+					hasFields = true
+				}
+			}
+		}
+
+		// Handle extension attributes
+		for _, attr := range ext.Attributes {
+			if generateAttributeFieldWithParentName(g, &attr, ctx, fieldRegistry, parentElementName) {
+				hasFields = true
+			}
+		}
+	}
+
+	return hasFields
 }

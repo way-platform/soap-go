@@ -42,8 +42,10 @@ type UserInfoType struct {
 
 // User represents the User element
 type User struct {
-	XMLName xml.Name     `xml:"User"`
-	Value   UserInfoType `xml:",chardata"`
+	XMLName xml.Name   `xml:"User"`
+	UserId  int64      `xml:"userId"`
+	Status  StatusType `xml:"status"`
+	Email   string     `xml:"email"`
 }
 
 // StatusCheck represents the StatusCheck element

@@ -60,6 +60,9 @@ type ProductCode struct {
 
 // Configuration represents the Configuration element
 type Configuration struct {
-	XMLName xml.Name          `xml:"Configuration"`
-	Value   ConfigurationType `xml:",chardata"`
+	XMLName       xml.Name      `xml:"Configuration"`
+	Name          string        `xml:"name"`
+	EnabledStatus EnabledStatus `xml:"EnabledStatus"`
+	Priority      Priority      `xml:"Priority"`
+	ProductCode   *ProductCode  `xml:"ProductCode,omitempty"`
 }

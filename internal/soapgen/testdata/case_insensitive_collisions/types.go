@@ -27,18 +27,21 @@ type UserRequestType struct {
 
 // UserRequestWrapper represents the UserRequest element
 type UserRequestWrapper struct {
-	XMLName xml.Name        `xml:"http://example.com/collisions UserRequest"`
-	Value   UserRequestType `xml:",chardata"`
+	XMLName     xml.Name `xml:"http://example.com/collisions UserRequest"`
+	UserID      string   `xml:"userID"`
+	RequestType string   `xml:"requestType"`
 }
 
 // GetFleetResponseWrapper represents the GetFleetResponse element
 type GetFleetResponseWrapper struct {
-	XMLName xml.Name      `xml:"http://example.com/collisions GetFleetResponse"`
-	Value   FleetDataType `xml:",chardata"`
+	XMLName      xml.Name `xml:"http://example.com/collisions GetFleetResponse"`
+	VehicleCount int32    `xml:"vehicleCount"`
+	Status       string   `xml:"status"`
 }
 
 // DataRecord represents the DataRecord element
 type DataRecord struct {
-	XMLName xml.Name   `xml:"DataRecord"`
-	Value   RecordType `xml:",chardata"`
+	XMLName   xml.Name  `xml:"DataRecord"`
+	Id        string    `xml:"id"`
+	Timestamp time.Time `xml:"timestamp"`
 }
