@@ -35,13 +35,13 @@ type GetUserResponse struct {
 
 // LogoutWrapper represents the logout element
 type LogoutWrapper struct {
-	XMLName   xml.Name `xml:"logout"`
+	XMLName   xml.Name `xml:"http://example.com/document-literal-test logout"`
 	SessionId string   `xml:"sessionId"`
 }
 
 // LogoutResponseWrapper represents the logoutResponse element
 type LogoutResponseWrapper struct {
-	XMLName xml.Name `xml:"logoutResponse"`
+	XMLName xml.Name `xml:"http://example.com/document-literal-test logoutResponse"`
 	Success bool     `xml:"success"`
 }
 
@@ -54,24 +54,24 @@ type ServerConfig struct {
 
 // LoginWrapper represents the login element
 type LoginWrapper struct {
-	XMLName      xml.Name     `xml:"login"`
+	XMLName      xml.Name     `xml:"http://example.com/document-literal-test login"`
 	LoginRequest LoginRequest `xml:"LoginRequest"`
 }
 
 // LoginResponseWrapper represents the loginResponse element
 type LoginResponseWrapper struct {
-	XMLName       xml.Name      `xml:"loginResponse"`
+	XMLName       xml.Name      `xml:"http://example.com/document-literal-test loginResponse"`
 	LoginResponse LoginResponse `xml:"LoginResponse"`
 }
 
 // GetUserWrapper represents the getUser element
 type GetUserWrapper struct {
-	XMLName  xml.Name `xml:"getUser"`
+	XMLName  xml.Name `xml:"http://example.com/document-literal-test getUser"`
 	UserInfo UserInfo `xml:"UserInfo"`
 }
 
 // GetUserResponseWrapper represents the getUserResponse element
 type GetUserResponseWrapper struct {
-	XMLName         xml.Name        `xml:"getUserResponse"`
+	XMLName         xml.Name        `xml:"http://example.com/document-literal-test getUserResponse"`
 	GetUserResponse GetUserResponse `xml:"GetUserResponse"`
 }

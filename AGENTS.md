@@ -54,3 +54,5 @@ When developing this SDK, use the WSDL and SOAP specifications in [docs](./docs)
 - Public API surfaces should be small, simple and orthogonal. Less is more.
 
 - Be permissive with XML namespaces. The generated code should be able to handle any namespace prefix and URI, even when the data returned from the server differs from the WSDL file.
+
+- When in doubt about how Go handles XML - refer to [docs/go-encoding-xml.txt](./docs/go-encoding-xml.txt).

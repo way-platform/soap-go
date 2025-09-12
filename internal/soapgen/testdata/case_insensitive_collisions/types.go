@@ -27,13 +27,13 @@ type UserRequestType struct {
 
 // UserRequestWrapper represents the UserRequest element
 type UserRequestWrapper struct {
-	XMLName xml.Name        `xml:"UserRequest"`
+	XMLName xml.Name        `xml:"http://example.com/collisions UserRequest"`
 	Value   UserRequestType `xml:",chardata"`
 }
 
 // GetFleetResponseWrapper represents the GetFleetResponse element
 type GetFleetResponseWrapper struct {
-	XMLName xml.Name      `xml:"GetFleetResponse"`
+	XMLName xml.Name      `xml:"http://example.com/collisions GetFleetResponse"`
 	Value   FleetDataType `xml:",chardata"`
 }
 

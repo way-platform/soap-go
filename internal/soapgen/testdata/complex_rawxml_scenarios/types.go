@@ -47,20 +47,20 @@ type NestedDynamicDocument_NestedDocument struct {
 
 // FlexibleDocumentWrapper represents the FlexibleDocument element
 type FlexibleDocumentWrapper struct {
-	XMLName xml.Name             `xml:"FlexibleDocument"`
+	XMLName xml.Name             `xml:"http://example.com/rawxml-scenarios FlexibleDocument"`
 	Value   FlexibleDocumentType `xml:",chardata"`
 }
 
 // DynamicContentWrapper represents the DynamicContent element
 type DynamicContentWrapper struct {
-	XMLName xml.Name `xml:"DynamicContent"`
+	XMLName xml.Name `xml:"http://example.com/rawxml-scenarios DynamicContent"`
 	Header  string   `xml:"header"`
 	Content RawXML   `xml:",innerxml"`
 }
 
 // MixedDocumentWrapper represents the MixedDocument element
 type MixedDocumentWrapper struct {
-	XMLName            xml.Name `xml:"MixedDocument"`
+	XMLName            xml.Name `xml:"http://example.com/rawxml-scenarios MixedDocument"`
 	KnownElement       string   `xml:"knownElement"`
 	UnknownTypeElement *string  `xml:"unknownTypeElement,omitempty"`
 	Content            RawXML   `xml:",innerxml"`
@@ -68,13 +68,13 @@ type MixedDocumentWrapper struct {
 
 // PerformanceReportWrapper represents the PerformanceReport element
 type PerformanceReportWrapper struct {
-	XMLName xml.Name            `xml:"PerformanceReport"`
+	XMLName xml.Name            `xml:"http://example.com/rawxml-scenarios PerformanceReport"`
 	Value   PerformanceDataType `xml:",chardata"`
 }
 
 // UntypedElementWrapper represents the UntypedElement element
 type UntypedElementWrapper struct {
-	XMLName xml.Name `xml:"UntypedElement"`
+	XMLName xml.Name `xml:"http://example.com/rawxml-scenarios UntypedElement"`
 	Value   string   `xml:",chardata"`
 }
 

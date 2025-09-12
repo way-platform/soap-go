@@ -229,14 +229,25 @@ func extractXMLTag(tag *ast.BasicLit) string {
 	}
 
 	tagValue := strings.Trim(tag.Value, "`")
-	// Extract just the xml part
-	parts := strings.Split(tagValue, " ")
-	for _, part := range parts {
-		if strings.HasPrefix(part, "xml:") {
-			return strings.Trim(part[4:], `"`)
-		}
+	// Find the xml tag using proper parsing
+	// Look for xml:"..." pattern
+	xmlStart := strings.Index(tagValue, `xml:"`)
+	if xmlStart == -1 {
+		return ""
 	}
-	return ""
+
+	// Find the content between quotes
+	start := xmlStart + 5 // Skip `xml:"`
+	end := start
+	for end < len(tagValue) && tagValue[end] != '"' {
+		end++
+	}
+
+	if end >= len(tagValue) {
+		return ""
+	}
+
+	return tagValue[start:end]
 }
 
 func generateXMLTestCases(defs *wsdl.Definitions, types map[string]typeInfo) []xmlTestCase {
@@ -279,7 +290,15 @@ func generateMinimalXML(typeInfo typeInfo) string {
 	// Find the root element name from XMLName field or use type name
 	rootElement := typeInfo.name
 	if xmlNameField, ok := typeInfo.fields["XMLName"]; ok && xmlNameField.xmlTag != "" {
-		rootElement = strings.Split(xmlNameField.xmlTag, " ")[0]
+		// Handle namespace syntax: "namespace local-name" or just "local-name"
+		parts := strings.Split(xmlNameField.xmlTag, " ")
+		if len(parts) >= 2 {
+			// Take the local name (second part) when namespace is present
+			rootElement = parts[1]
+		} else {
+			// Take the only part when no namespace
+			rootElement = parts[0]
+		}
 	}
 
 	sb.WriteString("<" + rootElement + ">")
@@ -332,7 +351,15 @@ func generateComprehensiveXML(typeInfo typeInfo) string {
 	// Find the root element name from XMLName field or use type name
 	rootElement := typeInfo.name
 	if xmlNameField, ok := typeInfo.fields["XMLName"]; ok && xmlNameField.xmlTag != "" {
-		rootElement = strings.Split(xmlNameField.xmlTag, " ")[0]
+		// Handle namespace syntax: "namespace local-name" or just "local-name"
+		parts := strings.Split(xmlNameField.xmlTag, " ")
+		if len(parts) >= 2 {
+			// Take the local name (second part) when namespace is present
+			rootElement = parts[1]
+		} else {
+			// Take the only part when no namespace
+			rootElement = parts[0]
+		}
 	}
 
 	sb.WriteString("<" + rootElement + ">")

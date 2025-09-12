@@ -121,7 +121,7 @@ type Tag struct {
 
 // KitchenSinkRequestWrapper represents the KitchenSinkRequest element
 type KitchenSinkRequestWrapper struct {
-	XMLName                 xml.Name      `xml:"KitchenSinkRequest"`
+	XMLName                 xml.Name      `xml:"http://example.com/typetest KitchenSinkRequest"`
 	StringField             string        `xml:"stringField"`
 	BooleanField            bool          `xml:"booleanField"`
 	IntField                int32         `xml:"intField"`
@@ -180,7 +180,7 @@ type KitchenSinkRequestWrapper struct {
 
 // KitchenSinkResponseWrapper represents the KitchenSinkResponse element
 type KitchenSinkResponseWrapper struct {
-	XMLName xml.Name `xml:"KitchenSinkResponse"`
+	XMLName xml.Name `xml:"http://example.com/typetest KitchenSinkResponse"`
 	Result  string   `xml:"result"`
 }
 

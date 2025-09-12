@@ -108,7 +108,6 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 // The action parameter is used to set the SOAPAction header.
 // Call-specific options can override client defaults.
 func (c *Client) Call(ctx context.Context, action string, requestEnvelope *Envelope, opts ...ClientOption) (*Envelope, error) {
-	// Copy client configuration for this call
 	config := &clientConfig{
 		httpClient:     c.httpClient,
 		endpoint:       c.endpoint,
@@ -116,123 +115,88 @@ func (c *Client) Call(ctx context.Context, action string, requestEnvelope *Envel
 		xmlDeclaration: c.xmlDeclaration,
 		headers:        make(map[string]string),
 	}
-
-	// Set SOAPAction from the action parameter
 	if action != "" {
 		config.headers["SOAPAction"] = action
 	}
-
-	// Apply call-specific options
 	for _, opt := range opts {
 		opt(config)
 	}
-
-	// Validate endpoint
 	if config.endpoint == "" {
 		return nil, fmt.Errorf("endpoint is required")
 	}
-
-	// Marshal the request envelope to XML
 	xmlData, err := xml.Marshal(requestEnvelope)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal SOAP envelope: %w", err)
 	}
-
-	// Add XML declaration if enabled
 	if config.xmlDeclaration {
 		xmlData = addXMLDeclaration(xmlData)
 	}
-
-	// Create HTTP request
 	req, err := http.NewRequestWithContext(ctx, "POST", config.endpoint, bytes.NewReader(xmlData))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
 	}
-
-	// Set default headers
 	req.Header.Set("Content-Type", "text/xml; charset=utf-8")
-
-	// Set headers from configuration
 	for key, value := range config.headers {
 		req.Header.Set(key, value)
 	}
-
-	// Debug: dump request
 	if config.debug {
 		dump, err := httputil.DumpRequestOut(req, true)
 		if err != nil {
 			return nil, fmt.Errorf("failed to dump request for debug: %w", err)
 		}
-		fmt.Fprintf(os.Stderr, "=== SOAP Request ===\n%s\n", dump)
+		var output bytes.Buffer
+		output.Grow(2 * len(dump))
+		for line := range bytes.Lines(dump) {
+			output.WriteString("> ")
+			output.Write(line)
+		}
+		output.WriteByte('\n')
+		_, _ = os.Stderr.Write(output.Bytes())
 	}
-
-	// Execute request
 	resp, err := config.httpClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute HTTP request: %w", err)
 	}
 	defer resp.Body.Close()
-
-	// Debug: dump response
 	if config.debug {
 		dump, err := httputil.DumpResponse(resp, true)
 		if err != nil {
 			return nil, fmt.Errorf("failed to dump response for debug: %w", err)
 		}
-		fmt.Fprintf(os.Stderr, "=== SOAP Response ===\n%s\n", dump)
+		var output bytes.Buffer
+		output.Grow(2 * len(dump))
+		for line := range bytes.Lines(dump) {
+			output.WriteString("< ")
+			output.Write(line)
+		}
+		output.WriteByte('\n')
+		_, _ = os.Stderr.Write(output.Bytes())
 	}
-
-	// Read response body
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
-
-	// Check for HTTP errors
 	// Note: SOAP faults are typically returned with HTTP 200 or 500, but we let the caller
 	// handle SOAP faults by examining the returned envelope
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return nil, fmt.Errorf("HTTP error %d: %s", resp.StatusCode, string(respBody))
 	}
-
-	// Parse SOAP response envelope
-	responseEnvelope, err := parseSOAPResponse(respBody)
-	if err != nil {
-		return nil, err
-	}
-
-	// Check for SOAP faults in the response
-	if fault := checkForSOAPFault(responseEnvelope); fault != nil {
-		return responseEnvelope, fault
-	}
-
-	return responseEnvelope, nil
-}
-
-// AddXMLDeclaration adds an XML declaration to the beginning of XML data if it doesn't already have one.
-// This is exported so it can be used by other packages like the CLI.
-func AddXMLDeclaration(xmlData []byte) []byte {
-	// Check if XML declaration is already present
-	if len(xmlData) > 5 && string(xmlData[:5]) == "<?xml" {
-		return xmlData
-	}
-
-	// Add standard XML declaration
-	return append([]byte(xml.Header), xmlData...)
-}
-
-// addXMLDeclaration is kept for internal use to maintain the same interface.
-func addXMLDeclaration(xmlData []byte) []byte {
-	return AddXMLDeclaration(xmlData)
-}
-
-// parseSOAPResponse parses a SOAP response, handling both prefixed and non-prefixed namespace formats.
-func parseSOAPResponse(respBody []byte) (*Envelope, error) {
 	var responseEnvelope Envelope
 	if err := xml.Unmarshal(respBody, &responseEnvelope); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal SOAP response: %w", err)
 	}
+	if fault := checkForSOAPFault(&responseEnvelope); fault != nil {
+		return &responseEnvelope, fault
+	}
 	return &responseEnvelope, nil
+}
+
+// addXMLDeclaration adds an XML declaration to the beginning of XML data if it doesn't already have one.
+func addXMLDeclaration(xmlData []byte) []byte {
+	if len(xmlData) > 5 && string(xmlData[:5]) == "<?xml" {
+		return xmlData
+	}
+	return append([]byte(xml.Header), xmlData...)
 }
 
 // checkForSOAPFault checks if the response envelope contains a SOAP fault.
@@ -241,18 +205,12 @@ func checkForSOAPFault(envelope *Envelope) error {
 	if envelope == nil || len(envelope.Body.Content) == 0 {
 		return nil
 	}
-
-	// Try to unmarshal the body content as a SOAP fault
 	var fault Fault
 	if err := xml.Unmarshal(envelope.Body.Content, &fault); err != nil {
-		// Not a fault or unmarshaling failed - not necessarily an error
 		return nil
 	}
-
-	// Check if this is actually a fault by verifying required fields
 	if fault.XMLName.Local == "Fault" && fault.FaultCode != "" && fault.FaultString != "" {
 		return &fault
 	}
-
 	return nil
 }

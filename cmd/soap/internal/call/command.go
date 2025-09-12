@@ -131,22 +131,14 @@ func run(cfg config) error {
 		// Extract body content from SOAP envelope
 		outputData = responseEnvelope.Body.Content
 	}
-
-	// Use the original data - it's already properly formatted
-	formattedOutput := outputData
-
-	// Add XML declaration to output
-	formattedOutput = soap.AddXMLDeclaration(formattedOutput)
-
 	// Write output
 	if cfg.outputFile == "-" {
-		fmt.Print(string(formattedOutput))
+		fmt.Print(string(outputData))
 	} else {
-		if err := os.WriteFile(cfg.outputFile, formattedOutput, 0o644); err != nil {
+		if err := os.WriteFile(cfg.outputFile, outputData, 0o644); err != nil {
 			return fmt.Errorf("failed to write output file %s: %w", cfg.outputFile, err)
 		}
 		fmt.Printf("Response written to %s\n", cfg.outputFile)
 	}
-
 	return nil
 }

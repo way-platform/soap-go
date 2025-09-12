@@ -79,7 +79,7 @@ func (g *Generator) generateTypesFile(schema *xsd.Schema, packageName, filename 
 	file.SetPackageName("github.com/way-platform/soap-go", "soap")
 
 	// Create schema context for reference resolution
-	ctx := newSchemaContext(schema)
+	ctx := newSchemaContext(schema, g)
 
 	// Create type registry to prevent duplicates
 	typeRegistry := newTypeRegistry()

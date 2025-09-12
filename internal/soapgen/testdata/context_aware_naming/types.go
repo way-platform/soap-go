@@ -41,18 +41,18 @@ type UserDataType struct {
 
 // UserDataWrapper represents the UserData element
 type UserDataWrapper struct {
-	XMLName xml.Name     `xml:"UserData"`
+	XMLName xml.Name     `xml:"http://example.com/context-naming UserData"`
 	Value   UserDataType `xml:",chardata"`
 }
 
 // ProcessRequestWrapper represents the ProcessRequest element
 type ProcessRequestWrapper struct {
-	XMLName xml.Name           `xml:"ProcessRequest"`
+	XMLName xml.Name           `xml:"http://example.com/context-naming ProcessRequest"`
 	Value   ProcessRequestType `xml:",chardata"`
 }
 
 // SystemInfoWrapper represents the SystemInfo element
 type SystemInfoWrapper struct {
-	XMLName xml.Name       `xml:"SystemInfo"`
+	XMLName xml.Name       `xml:"http://example.com/context-naming SystemInfo"`
 	Value   SystemInfoType `xml:",chardata"`
 }

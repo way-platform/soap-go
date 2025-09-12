@@ -50,13 +50,13 @@ type TimeRangeType struct {
 
 // DownloadRequestWrapper represents the DownloadRequest element
 type DownloadRequestWrapper struct {
-	XMLName xml.Name            `xml:"DownloadRequest"`
+	XMLName xml.Name            `xml:"http://example.com/field-collisions DownloadRequest"`
 	Value   DownloadRequestType `xml:",chardata"`
 }
 
 // ConfigDataWrapper represents the ConfigData element
 type ConfigDataWrapper struct {
-	XMLName xml.Name       `xml:"ConfigData"`
+	XMLName xml.Name       `xml:"http://example.com/field-collisions ConfigData"`
 	Value   ConfigDataType `xml:",chardata"`
 }
 

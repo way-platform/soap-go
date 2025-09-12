@@ -43,18 +43,18 @@ type LoginStats struct {
 
 // LoginWrapper represents the login element
 type LoginWrapper struct {
-	XMLName      xml.Name     `xml:"login"`
+	XMLName      xml.Name     `xml:"http://example.com/test login"`
 	LoginRequest LoginRequest `xml:"LoginRequest"`
 }
 
 // LoginResponseWrapper represents the loginResponse element
 type LoginResponseWrapper struct {
-	XMLName       xml.Name      `xml:"loginResponse"`
+	XMLName       xml.Name      `xml:"http://example.com/test loginResponse"`
 	LoginResponse LoginResponse `xml:"LoginResponse"`
 }
 
 // GetUserInfoWrapper represents the getUserInfo element
 type GetUserInfoWrapper struct {
-	XMLName  xml.Name `xml:"getUserInfo"`
+	XMLName  xml.Name `xml:"http://example.com/test getUserInfo"`
 	UserInfo UserInfo `xml:"UserInfo"`
 }

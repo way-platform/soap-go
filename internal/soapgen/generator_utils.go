@@ -22,13 +22,22 @@ func buildXMLTag(xmlName string, isOptional bool, isAttribute bool) string {
 	return strings.Join(parts, ",")
 }
 
-// generateXMLNameField generates an XMLName field for flexible namespace handling
+// generateXMLNameField generates an XMLName field with appropriate namespace handling
 func generateXMLNameField(g *codegen.File, element *xsd.Element, ctx *SchemaContext) {
-	// Use local name only for flexible namespace handling
-	// This allows the generated code to work with SOAP APIs that deviate from WSDL specs
-	// by having different namespaces than expected while still validating element names
 	elementName := element.Name
-	g.P("\tXMLName ", g.QualifiedGoIdent(codegen.XMLNameIdent), " `xml:\"", elementName, "\"`")
+
+	// For operation elements (used in SOAP messages), include the target namespace
+	// This ensures proper WSDL compliance for both requests and responses
+	if ctx.generator != nil && ctx.generator.isOperationMessageElement(elementName) {
+		if ctx.schema.TargetNamespace != "" {
+			g.P("\tXMLName ", g.QualifiedGoIdent(codegen.XMLNameIdent), " `xml:\"", ctx.schema.TargetNamespace, " ", elementName, "\"`")
+		} else {
+			g.P("\tXMLName ", g.QualifiedGoIdent(codegen.XMLNameIdent), " `xml:\"", elementName, "\"`")
+		}
+	} else {
+		// For non-operation elements, use flexible namespace handling
+		g.P("\tXMLName ", g.QualifiedGoIdent(codegen.XMLNameIdent), " `xml:\"", elementName, "\"`")
+	}
 }
 
 // convertToQualifiedType converts raw type strings to use QualifiedGoIdent for proper import management

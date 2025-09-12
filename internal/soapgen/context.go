@@ -14,6 +14,7 @@ type SchemaContext struct {
 	simpleTypes    map[string]*xsd.SimpleType
 	complexTypes   map[string]*xsd.ComplexType
 	anonymousTypes map[string]bool // Track generated anonymous types
+	generator      *Generator      // Reference to generator for operation element detection
 }
 
 // AnonymousTypeRegistry tracks generated anonymous types to prevent conflicts
@@ -150,13 +151,14 @@ func (r *AnonymousTypeRegistry) generateTypeName(parentName, fieldName string) s
 	}
 }
 
-func newSchemaContext(schema *xsd.Schema) *SchemaContext {
+func newSchemaContext(schema *xsd.Schema, generator *Generator) *SchemaContext {
 	ctx := &SchemaContext{
 		schema:         schema,
 		elementRefs:    make(map[string]*xsd.Element),
 		simpleTypes:    make(map[string]*xsd.SimpleType),
 		complexTypes:   make(map[string]*xsd.ComplexType),
 		anonymousTypes: make(map[string]bool),
+		generator:      generator,
 	}
 
 	// Build reference maps
