@@ -8,6 +8,14 @@ import (
 // RawXML captures raw XML content for untyped elements.
 type RawXML []byte
 
+// NestedDynamicDocument_NestedDocument represents an inline complex type
+type NestedDynamicDocument_NestedDocument struct {
+	InnerElement string `xml:"innerElement"`
+	Content      RawXML `xml:",innerxml"`
+}
+
+// Inline complex types
+
 // Complex types
 
 // FlexibleDocumentType represents the FlexibleDocumentType complex type
@@ -36,14 +44,6 @@ type PerformanceDataType struct {
 type ValidType struct {
 	ValidElement string `xml:"validElement"`
 }
-
-// NestedDynamicDocument_NestedDocument represents an inline complex type
-type NestedDynamicDocument_NestedDocument struct {
-	InnerElement string `xml:"innerElement"`
-	Content      RawXML `xml:",innerxml"`
-}
-
-// Inline complex types
 
 // FlexibleDocumentWrapper represents the FlexibleDocument element
 type FlexibleDocumentWrapper struct {

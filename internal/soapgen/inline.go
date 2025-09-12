@@ -1,17 +1,53 @@
 package soapgen
 
 import (
+	"sort"
+
 	"github.com/way-platform/soap-go/internal/codegen"
 	"github.com/way-platform/soap-go/xsd"
 )
 
-// generateInlineComplexTypes generates structs for all inline complex types found in elements
+// generateInlineComplexTypes generates structs for all inline complex types found in elements and named complex types
 func generateInlineComplexTypes(g *codegen.File, ctx *SchemaContext, elements []*xsd.Element) {
 	registry := newAnonymousTypeRegistry()
+
+	// FIRST PASS: Register all inline types without generating struct definitions
+	// This ensures all types are available for field generation
+
+	// Register inline types within top-level elements
+	for _, element := range elements {
+		registerInlineTypesFromElement(element, "", ctx, registry)
+	}
+
+	// Register inline types within named complex types
+	for _, complexType := range ctx.complexTypes {
+		registerInlineTypesFromComplexType(complexType, complexType.Name, ctx, registry)
+	}
+
+	// SECOND PASS: Generate the actual struct definitions
+	// Now that all types are registered, field generation can reference them
 	hasTypes := false
 
+	// Generate inline types within top-level elements
 	for _, element := range elements {
 		if generated := generateInlineTypesFromElement(g, element, "", ctx, registry); generated && !hasTypes {
+			g.P("// Inline complex types")
+			g.P()
+			hasTypes = true
+		}
+	}
+
+	// Generate inline types within named complex types
+	// Sort complex type names for deterministic output
+	var complexTypeNames []string
+	for name := range ctx.complexTypes {
+		complexTypeNames = append(complexTypeNames, name)
+	}
+	sort.Strings(complexTypeNames)
+
+	for _, name := range complexTypeNames {
+		complexType := ctx.complexTypes[name]
+		if generated := generateInlineTypesFromComplexType(g, complexType, complexType.Name, ctx, registry); generated && !hasTypes {
 			g.P("// Inline complex types")
 			g.P()
 			hasTypes = true

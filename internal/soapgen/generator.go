@@ -113,11 +113,11 @@ func (g *Generator) generateTypesFile(schema *xsd.Schema, packageName, filename 
 	// Generate inline enum types (before complex types that might reference them)
 	generateInlineEnumTypes(file, ctx)
 
+	// Generate inline complex types first (before complex types that might reference them)
+	generateInlineComplexTypes(file, ctx, dataTypes)
+
 	// Generate complex types that are referenced but not top-level elements
 	generateComplexTypes(file, ctx)
-
-	// Generate inline complex types first (before elements that use them)
-	generateInlineComplexTypes(file, ctx, dataTypes)
 
 	// Generate data types with classification-based wrapper naming
 	bindingStyle := g.getBindingStyle()

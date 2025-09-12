@@ -9,8 +9,8 @@ type RawXML []byte
 
 // Order_Customer represents an inline complex type
 type Order_Customer struct {
-	Name    string `xml:"name"`
-	Address RawXML `xml:",innerxml"`
+	Name    string                `xml:"name"`
+	Address OrderCustomer_Address `xml:"address"`
 }
 
 // OrderCustomer_Address represents an inline complex type
@@ -21,7 +21,7 @@ type OrderCustomer_Address struct {
 
 // Order_Items represents an inline complex type
 type Order_Items struct {
-	Item []RawXML `xml:"item"`
+	Item []OrderItems_Item `xml:"item"`
 }
 
 // OrderItems_Item represents an inline complex type

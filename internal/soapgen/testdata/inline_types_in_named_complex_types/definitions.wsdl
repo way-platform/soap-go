@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://example.com/test"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://example.com/test">
+
+    <types>
+        <xs:schema targetNamespace="http://example.com/test" elementFormDefault="qualified">
+
+            <!-- Test case: Inline complex types within NAMED complex types -->
+            <!-- This was the missing scenario that caused RawXML fallback -->
+
+            <xs:complexType name="ResponseType">
+                <xs:sequence>
+                    <!-- Simple field -->
+                    <xs:element name="status" type="xs:string" />
+
+                    <!-- Inline complex type within named complex type -->
+                    <xs:element name="data">
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element name="id" type="xs:string" />
+                                <xs:element name="value" type="xs:string" />
+                                <!-- Nested inline complex type -->
+                                <xs:element name="metadata">
+                                    <xs:complexType>
+                                        <xs:sequence>
+                                            <xs:element name="timestamp" type="xs:dateTime" />
+                                            <xs:element name="source" type="xs:string" />
+                                        </xs:sequence>
+                                    </xs:complexType>
+                                </xs:element>
+                            </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+
+                    <!-- Multiple inline complex types -->
+                    <xs:element name="items" maxOccurs="unbounded">
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element name="itemId" type="xs:string" />
+                                <xs:element name="itemName" type="xs:string" />
+                            </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence>
+            </xs:complexType>
+
+            <!-- Element that uses the named complex type -->
+            <xs:element name="Response" type="tns:ResponseType" />
+
+        </xs:schema>
+    </types>
+
+</definitions>
