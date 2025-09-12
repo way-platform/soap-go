@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://example.com/inlineenums"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://example.com/inlineenums">
+
+    <types>
+        <xsd:schema targetNamespace="http://example.com/inlineenums"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            elementFormDefault="qualified">
+
+            <!-- Test request with inline enum types -->
+            <xsd:element name="GetServerPropertiesRequest">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <!-- Inline enum in element -->
+                        <xsd:element name="Priority">
+                            <xsd:simpleType>
+                                <xsd:restriction base="xsd:string">
+                                    <xsd:enumeration value="HIGH" />
+                                    <xsd:enumeration value="MEDIUM" />
+                                    <xsd:enumeration value="LOW" />
+                                </xsd:restriction>
+                            </xsd:simpleType>
+                        </xsd:element>
+
+                        <!-- Another inline enum with same values (should be deduplicated) -->
+                        <xsd:element name="Urgency">
+                            <xsd:simpleType>
+                                <xsd:restriction base="xsd:string">
+                                    <xsd:enumeration value="HIGH" />
+                                    <xsd:enumeration value="MEDIUM" />
+                                    <xsd:enumeration value="LOW" />
+                                </xsd:restriction>
+                            </xsd:simpleType>
+                        </xsd:element>
+
+                        <!-- Different inline enum -->
+                        <xsd:element name="Status">
+                            <xsd:simpleType>
+                                <xsd:restriction base="xsd:string">
+                                    <xsd:enumeration value="ACTIVE" />
+                                    <xsd:enumeration value="INACTIVE" />
+                                </xsd:restriction>
+                            </xsd:simpleType>
+                        </xsd:element>
+
+                        <!-- Regular string element -->
+                        <xsd:element name="Description" type="xsd:string" />
+                    </xsd:sequence>
+
+                    <!-- Inline enum in attribute -->
+                    <xsd:attribute name="Version">
+                        <xsd:simpleType>
+                            <xsd:restriction base="xsd:string">
+                                <xsd:enumeration value="1.0" />
+                                <xsd:enumeration value="2.0" />
+                            </xsd:restriction>
+                        </xsd:simpleType>
+                    </xsd:attribute>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:element name="GetServerPropertiesResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="Success" type="xsd:boolean" />
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+        </xsd:schema>
+    </types>
+
+    <message name="GetServerPropertiesRequest">
+        <part name="parameters" element="tns:GetServerPropertiesRequest" />
+    </message>
+
+    <message name="GetServerPropertiesResponse">
+        <part name="parameters" element="tns:GetServerPropertiesResponse" />
+    </message>
+
+    <portType name="ServerPropertiesPortType">
+        <operation name="GetServerProperties">
+            <input message="tns:GetServerPropertiesRequest" />
+            <output message="tns:GetServerPropertiesResponse" />
+        </operation>
+    </portType>
+
+    <binding name="ServerPropertiesBinding" type="tns:ServerPropertiesPortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+        <operation name="GetServerProperties">
+            <soap:operation soapAction="http://example.com/inlineenums/GetServerProperties" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+        </operation>
+    </binding>
+
+    <service name="ServerPropertiesService">
+        <port name="ServerPropertiesPort" binding="tns:ServerPropertiesBinding">
+            <soap:address location="http://example.com/inlineenums" />
+        </port>
+    </service>
+
+</definitions>

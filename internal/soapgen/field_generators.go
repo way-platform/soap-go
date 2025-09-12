@@ -131,6 +131,20 @@ func generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistryIntern
 		if complexType := ctx.resolveComplexType(element.Type); complexType != nil {
 			goType = toGoName(extractLocalName(element.Type))
 		}
+	} else if element.SimpleType != nil {
+		// Check for inline enum type first
+		if ctx != nil && parentElementName != "" && ctx.hasEnumerations(element.SimpleType) {
+			enumTypeName := ctx.getInlineEnumTypeName(parentElementName, element.Name)
+			if enumTypeName != "" {
+				goType = enumTypeName
+			} else {
+				// Fallback to string for inline simple types without registered enum
+				goType = g.QualifiedGoIdent(codegen.StringIdent)
+			}
+		} else {
+			// Non-enum inline simple type, fallback to string
+			goType = g.QualifiedGoIdent(codegen.StringIdent)
+		}
 	} else if element.ComplexType != nil {
 		// Inline complex type
 		if ctx != nil && parentElementName != "" {
@@ -206,8 +220,8 @@ func generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistryIntern
 	return true
 }
 
-// generateAttributeFieldWithFieldRegistry generates a Go struct field from an XSD attribute with collision detection
-func generateAttributeFieldWithFieldRegistry(g *codegen.File, attr *xsd.Attribute, ctx *SchemaContext, fieldRegistry *FieldRegistry) bool {
+// generateAttributeFieldWithParentName generates a Go struct field from an XSD attribute with parent context for inline enums
+func generateAttributeFieldWithParentName(g *codegen.File, attr *xsd.Attribute, ctx *SchemaContext, fieldRegistry *FieldRegistry, parentName string) bool {
 	if attr.Name == "" {
 		return false
 	}
@@ -219,9 +233,30 @@ func generateAttributeFieldWithFieldRegistry(g *codegen.File, attr *xsd.Attribut
 		fieldName = toGoName(attr.Name)
 	}
 
-	// Map XSD type to Go type
-	goType := mapXSDTypeToGoWithContext(attr.Type, ctx)
-	goType = convertToQualifiedType(goType, g)
+	// Determine the Go type
+	var goType string
+	if attr.Type != "" {
+		// Map XSD type to Go type
+		goType = mapXSDTypeToGoWithContext(attr.Type, ctx)
+		goType = convertToQualifiedType(goType, g)
+	} else if attr.SimpleType != nil {
+		// Check for inline enum type first
+		if ctx != nil && parentName != "" && ctx.hasEnumerations(attr.SimpleType) {
+			enumTypeName := ctx.getInlineEnumTypeName(parentName, attr.Name)
+			if enumTypeName != "" {
+				goType = enumTypeName
+			} else {
+				// Fallback to string for inline simple types without registered enum
+				goType = g.QualifiedGoIdent(codegen.StringIdent)
+			}
+		} else {
+			// Non-enum inline simple type, fallback to string
+			goType = g.QualifiedGoIdent(codegen.StringIdent)
+		}
+	} else {
+		// No type specified, fallback to string
+		goType = g.QualifiedGoIdent(codegen.StringIdent)
+	}
 
 	// Handle optional attributes
 	if attr.Use != "required" {

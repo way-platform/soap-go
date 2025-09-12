@@ -1,7 +1,9 @@
 package soapgen
 
 import (
+	"crypto/sha256"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/way-platform/soap-go/xsd"
@@ -13,8 +15,19 @@ type SchemaContext struct {
 	elementRefs    map[string]*xsd.Element
 	simpleTypes    map[string]*xsd.SimpleType
 	complexTypes   map[string]*xsd.ComplexType
-	anonymousTypes map[string]bool // Track generated anonymous types
-	generator      *Generator      // Reference to generator for operation element detection
+	anonymousTypes map[string]bool           // Track generated anonymous types
+	inlineEnums    map[string]InlineEnumInfo // Track inline enum types
+	generator      *Generator                // Reference to generator for operation element detection
+}
+
+// InlineEnumInfo holds information about an inline enum type
+type InlineEnumInfo struct {
+	TypeName      string
+	SimpleType    *xsd.SimpleType
+	ParentName    string
+	FieldName     string
+	EnumSignature string // Hash of enum values for deduplication
+	Generated     bool
 }
 
 // AnonymousTypeRegistry tracks generated anonymous types to prevent conflicts
@@ -158,6 +171,7 @@ func newSchemaContext(schema *xsd.Schema, generator *Generator) *SchemaContext {
 		simpleTypes:    make(map[string]*xsd.SimpleType),
 		complexTypes:   make(map[string]*xsd.ComplexType),
 		anonymousTypes: make(map[string]bool),
+		inlineEnums:    make(map[string]InlineEnumInfo),
 		generator:      generator,
 	}
 
@@ -202,6 +216,137 @@ func (ctx *SchemaContext) resolveComplexType(typeName string) *xsd.ComplexType {
 		typeName = typeName[colonIdx+1:]
 	}
 	return ctx.complexTypes[typeName]
+}
+
+// getInlineEnumTypeName returns the type name for an inline enum if it exists
+func (ctx *SchemaContext) getInlineEnumTypeName(parentName, fieldName string) string {
+	typeName := toGoName(parentName) + "_" + toGoName(fieldName)
+	if enumInfo, exists := ctx.inlineEnums[typeName]; exists {
+		return enumInfo.TypeName
+	}
+	return ""
+}
+
+// collectInlineEnums traverses all elements and collects inline enum types
+func (ctx *SchemaContext) collectInlineEnums(elements []*xsd.Element) {
+	for _, element := range elements {
+		ctx.collectInlineEnumsFromElement(element, element.Name)
+	}
+}
+
+// collectInlineEnumsFromElement recursively collects inline enums from an element
+func (ctx *SchemaContext) collectInlineEnumsFromElement(element *xsd.Element, parentName string) {
+	// Check if this element has an inline simple type with enumerations
+	if element.SimpleType != nil && ctx.hasEnumerations(element.SimpleType) {
+		ctx.registerInlineEnum(parentName, element.Name, element.SimpleType)
+	}
+
+	// Recursively check complex type elements
+	if element.ComplexType != nil {
+		ctx.collectInlineEnumsFromComplexType(element.ComplexType, parentName)
+	}
+}
+
+// collectInlineEnumsFromComplexType recursively collects inline enums from a complex type
+func (ctx *SchemaContext) collectInlineEnumsFromComplexType(complexType *xsd.ComplexType, parentName string) {
+	// Check sequence elements
+	if complexType.Sequence != nil {
+		for _, elem := range complexType.Sequence.Elements {
+			ctx.collectInlineEnumsFromElement(&elem, parentName)
+		}
+	}
+
+	// Check choice elements
+	if complexType.Choice != nil {
+		for _, elem := range complexType.Choice.Elements {
+			ctx.collectInlineEnumsFromElement(&elem, parentName)
+		}
+	}
+
+	// Check all elements
+	if complexType.All != nil {
+		for _, elem := range complexType.All.Elements {
+			ctx.collectInlineEnumsFromElement(&elem, parentName)
+		}
+	}
+
+	// Check attributes with inline simple types
+	for _, attr := range complexType.Attributes {
+		if attr.SimpleType != nil && ctx.hasEnumerations(attr.SimpleType) {
+			ctx.registerInlineEnum(parentName, attr.Name, attr.SimpleType)
+		}
+	}
+}
+
+// hasEnumerations checks if a simple type has enumeration restrictions
+func (ctx *SchemaContext) hasEnumerations(simpleType *xsd.SimpleType) bool {
+	return simpleType.Restriction != nil && len(simpleType.Restriction.Enumerations) > 0
+}
+
+// registerInlineEnum registers an inline enum type with deduplication
+func (ctx *SchemaContext) registerInlineEnum(parentName, fieldName string, simpleType *xsd.SimpleType) {
+	typeName := toGoName(parentName) + "_" + toGoName(fieldName)
+
+	// Generate enum signature for deduplication
+	signature := ctx.generateEnumSignature(simpleType)
+
+	// Check if we already have an enum with the same signature
+	existingTypeName := ctx.findExistingEnumBySignature(signature)
+	if existingTypeName != "" {
+		// Reuse existing enum type
+		ctx.inlineEnums[typeName] = InlineEnumInfo{
+			TypeName:      existingTypeName,
+			SimpleType:    simpleType,
+			ParentName:    parentName,
+			FieldName:     fieldName,
+			EnumSignature: signature,
+			Generated:     false, // Will be marked true when the original is generated
+		}
+		return
+	}
+
+	// Register new enum type
+	ctx.inlineEnums[typeName] = InlineEnumInfo{
+		TypeName:      typeName,
+		SimpleType:    simpleType,
+		ParentName:    parentName,
+		FieldName:     fieldName,
+		EnumSignature: signature,
+		Generated:     false,
+	}
+}
+
+// generateEnumSignature creates a signature hash for enum values to enable deduplication
+func (ctx *SchemaContext) generateEnumSignature(simpleType *xsd.SimpleType) string {
+	if simpleType.Restriction == nil {
+		return ""
+	}
+
+	var values []string
+	for _, enum := range simpleType.Restriction.Enumerations {
+		values = append(values, enum.Value)
+	}
+
+	// Sort values for consistent signature
+	sort.Strings(values)
+
+	// Create hash
+	h := sha256.New()
+	for _, value := range values {
+		h.Write([]byte(value + "|"))
+	}
+
+	return fmt.Sprintf("%x", h.Sum(nil))[:16] // Use first 16 chars of hash
+}
+
+// findExistingEnumBySignature finds an existing enum type with the same signature
+func (ctx *SchemaContext) findExistingEnumBySignature(signature string) string {
+	for _, enumInfo := range ctx.inlineEnums {
+		if enumInfo.EnumSignature == signature && enumInfo.TypeName != "" {
+			return enumInfo.TypeName
+		}
+	}
+	return ""
 }
 
 func newTypeRegistry() *TypeRegistry {

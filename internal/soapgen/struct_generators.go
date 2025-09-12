@@ -38,7 +38,7 @@ func generateInlineComplexTypeStruct(g *codegen.File, typeName string, complexTy
 
 	// Generate fields from attributes
 	for _, attr := range complexType.Attributes {
-		if generateAttributeFieldWithFieldRegistry(g, &attr, ctx, fieldRegistry) {
+		if generateAttributeFieldWithParentName(g, &attr, ctx, fieldRegistry, typeName) {
 			hasFields = true
 		}
 	}
@@ -132,7 +132,7 @@ func generateStandardStructWithName(g *codegen.File, element *xsd.Element, ctx *
 
 		// Handle attributes
 		for _, attr := range element.ComplexType.Attributes {
-			if generateAttributeFieldWithFieldRegistry(g, &attr, ctx, fieldRegistry) {
+			if generateAttributeFieldWithParentName(g, &attr, ctx, fieldRegistry, element.Name) {
 				hasFields = true
 			}
 		}
@@ -150,7 +150,7 @@ func generateStandardStructWithName(g *codegen.File, element *xsd.Element, ctx *
 
 			// Handle extension attributes
 			for _, attr := range ext.Attributes {
-				if generateAttributeFieldWithFieldRegistry(g, &attr, ctx, fieldRegistry) {
+				if generateAttributeFieldWithParentName(g, &attr, ctx, fieldRegistry, element.Name) {
 					hasFields = true
 				}
 			}
@@ -200,7 +200,7 @@ func generateStructFromComplexType(g *codegen.File, complexType *xsd.ComplexType
 
 	// Handle attributes
 	for _, attr := range complexType.Attributes {
-		if generateAttributeFieldWithFieldRegistry(g, &attr, ctx, fieldRegistry) {
+		if generateAttributeFieldWithParentName(g, &attr, ctx, fieldRegistry, complexType.Name) {
 			hasFields = true
 		}
 	}
@@ -218,7 +218,7 @@ func generateStructFromComplexType(g *codegen.File, complexType *xsd.ComplexType
 
 		// Handle extension attributes
 		for _, attr := range ext.Attributes {
-			if generateAttributeFieldWithFieldRegistry(g, &attr, ctx, fieldRegistry) {
+			if generateAttributeFieldWithParentName(g, &attr, ctx, fieldRegistry, complexType.Name) {
 				hasFields = true
 			}
 		}

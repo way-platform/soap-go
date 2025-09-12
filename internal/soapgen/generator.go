@@ -98,10 +98,20 @@ func (g *Generator) generateTypesFile(schema *xsd.Schema, packageName, filename 
 	// Separate data types from message wrapper types
 	dataTypes, messageTypes := categorizeElements(schema.Elements)
 
+	// Collect all elements for inline enum detection
+	allElements := append([]*xsd.Element{}, dataTypes...)
+	allElements = append(allElements, messageTypes...)
+
+	// Collect inline enums from all elements first
+	ctx.collectInlineEnums(allElements)
+
 	// Import handling is now automatic via QualifiedGoIdent calls
 
 	// Generate simple type constants first (for enumerations)
 	generateSimpleTypeConstants(file, ctx)
+
+	// Generate inline enum types (before complex types that might reference them)
+	generateInlineEnumTypes(file, ctx)
 
 	// Generate complex types that are referenced but not top-level elements
 	generateComplexTypes(file, ctx)
@@ -115,8 +125,6 @@ func (g *Generator) generateTypesFile(schema *xsd.Schema, packageName, filename 
 	processedGoTypes := make(map[string]bool) // Track processed Go type names to prevent duplicates
 
 	// First pass: Generate wrapper types for operation elements
-	allElements := append([]*xsd.Element{}, dataTypes...)
-	allElements = append(allElements, messageTypes...)
 
 	for _, element := range allElements {
 		if processedElements[element.Name] {
