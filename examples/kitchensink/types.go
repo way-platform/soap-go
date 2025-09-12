@@ -223,6 +223,8 @@ type UntypedFieldsTest struct {
 
 // UserTest represents the UserTest element
 type UserTest struct {
-	XMLName xml.Name     `xml:"UserTest"`
-	Value   UserInfoType `xml:",chardata"`
+	XMLName xml.Name   `xml:"UserTest"`
+	UserId  int64      `xml:"userId"`
+	Status  StatusType `xml:"status"`
+	Email   string     `xml:"email"`
 }
