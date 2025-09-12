@@ -60,28 +60,10 @@ func (e StatusType) IsValid() bool {
 	}
 }
 
-// Complex types
-
-// AddressType represents the AddressType complex type
-type AddressType struct {
-	Street   string `xml:"street"`
-	City     string `xml:"city"`
-	ZipCode  string `xml:"zipCode"`
-	Country  string `xml:"country,attr"`
-	Verified *bool  `xml:"verified,attr,omitempty"`
-}
-
-// UserInfoType represents the UserInfoType complex type
-type UserInfoType struct {
-	UserId int64      `xml:"userId"`
-	Status StatusType `xml:"status"`
-	Email  string     `xml:"email"`
-}
-
 // InlineTypesTest_Customer represents an inline complex type
 type InlineTypesTest_Customer struct {
-	Name    string `xml:"name"`
-	Address RawXML `xml:",innerxml"`
+	Name    string                          `xml:"name"`
+	Address InlinetypestestCustomer_Address `xml:"address"`
 }
 
 // InlinetypestestCustomer_Address represents an inline complex type
@@ -92,7 +74,7 @@ type InlinetypestestCustomer_Address struct {
 
 // InlineTypesTest_Items represents an inline complex type
 type InlineTypesTest_Items struct {
-	Item []RawXML `xml:"item"`
+	Item []InlinetypestestItems_Item `xml:"item"`
 }
 
 // InlinetypestestItems_Item represents an inline complex type
@@ -111,6 +93,24 @@ type UntypedFieldsTest_ComplexData struct {
 // UntypedFieldsTest_MultipleComplexData represents an inline complex type
 type UntypedFieldsTest_MultipleComplexData struct {
 	InnerField int32 `xml:"innerField"`
+}
+
+// Complex types
+
+// AddressType represents the AddressType complex type
+type AddressType struct {
+	Street   string `xml:"street"`
+	City     string `xml:"city"`
+	ZipCode  string `xml:"zipCode"`
+	Country  string `xml:"country,attr"`
+	Verified *bool  `xml:"verified,attr,omitempty"`
+}
+
+// UserInfoType represents the UserInfoType complex type
+type UserInfoType struct {
+	UserId int64      `xml:"userId"`
+	Status StatusType `xml:"status"`
+	Email  string     `xml:"email"`
 }
 
 // Tag represents the Tag element
