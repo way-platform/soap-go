@@ -484,6 +484,9 @@ func categorizeElements(elements []xsd.Element) ([]*xsd.Element, []*xsd.Element)
 		} else if elem.Type != "" {
 			// Elements with simple types should also be processed as data types
 			dataTypes = append(dataTypes, elem)
+		} else if elem.SimpleType != nil {
+			// Elements with inline simple types should also be processed as data types
+			dataTypes = append(dataTypes, elem)
 		}
 	}
 

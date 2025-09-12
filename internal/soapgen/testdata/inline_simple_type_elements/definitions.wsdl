@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://example.com/test"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://example.com/test">
+
+    <types>
+        <xs:schema targetNamespace="http://example.com/test" elementFormDefault="qualified">
+
+            <!-- Test case: Top-level elements with inline simple types -->
+            <!-- This was the missing scenario that caused build failures -->
+            
+            <!-- Element with inline enumeration (like ContainsVehicleDataSetList) -->
+            <xs:element name="EnabledStatus">
+                <xs:annotation>
+                    <xs:documentation>Defines whether a feature is enabled or disabled</xs:documentation>
+                </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="ENABLED" />
+                        <xs:enumeration value="DISABLED" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!-- Element with inline restriction on numeric type -->
+            <xs:element name="Priority">
+                <xs:simpleType>
+                    <xs:restriction base="xs:int">
+                        <xs:minInclusive value="1" />
+                        <xs:maxInclusive value="10" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!-- Element with inline string restriction -->
+            <xs:element name="ProductCode">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:pattern value="[A-Z]{3}-[0-9]{4}" />
+                        <xs:length value="8" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!-- Complex type that references these inline simple type elements -->
+            <xs:complexType name="ConfigurationType">
+                <xs:sequence>
+                    <xs:element name="name" type="xs:string" />
+                    <!-- Reference to inline simple type elements -->
+                    <xs:element ref="tns:EnabledStatus" />
+                    <xs:element ref="tns:Priority" />
+                    <xs:element ref="tns:ProductCode" minOccurs="0" />
+                </xs:sequence>
+            </xs:complexType>
+
+            <!-- Element that uses the complex type -->
+            <xs:element name="Configuration" type="tns:ConfigurationType" />
+
+        </xs:schema>
+    </types>
+
+</definitions>

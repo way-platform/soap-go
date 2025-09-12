@@ -96,6 +96,23 @@ func generateStandardStructWithName(g *codegen.File, element *xsd.Element, ctx *
 
 		g.P("\tValue ", goType, " `xml:\",chardata\"`")
 		hasFields = true
+	} else if element.SimpleType != nil && element.ComplexType == nil {
+		// Handle inline simple type elements (e.g., elements with inline enumerations)
+		// Check if this inline simple type has been generated as an enum type
+		inlineEnumTypeName := ctx.getInlineEnumTypeName(element.Name, element.Name)
+		if inlineEnumTypeName != "" {
+			// Use the generated inline enum type
+			g.P("\tValue ", inlineEnumTypeName, " `xml:\",chardata\"`")
+		} else {
+			// Fallback to mapping the base type
+			baseType := "string" // Default fallback
+			if element.SimpleType.Restriction != nil && element.SimpleType.Restriction.Base != "" {
+				baseType = mapXSDTypeToGoWithContext(element.SimpleType.Restriction.Base, ctx)
+				baseType = convertToQualifiedType(baseType, g)
+			}
+			g.P("\tValue ", baseType, " `xml:\",chardata\"`")
+		}
+		hasFields = true
 	}
 
 	if element.ComplexType != nil {
