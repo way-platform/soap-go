@@ -12,6 +12,9 @@ func toGoName(name string) string {
 		return ""
 	}
 
+	// Trim spaces to avoid issues with malformed XML element names
+	name = strings.TrimSpace(name)
+
 	// Split on common separators and capitalize each part
 	parts := strings.FieldsFunc(name, func(r rune) bool {
 		return r == '_' || r == '-' || r == '.'

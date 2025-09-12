@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://example.com/test"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://example.com/test">
+
+    <types>
+        <xs:schema targetNamespace="http://example.com/test" elementFormDefault="qualified">
+
+            <!-- Test case: Elements with trailing spaces in names -->
+            <!-- This was causing "suspicious space in struct tag value" warnings -->
+
+            <xs:complexType name="ResponseType">
+                <xs:sequence>
+                    <!-- Element with trailing space in name -->
+                    <xs:element name="status " type="xs:string" />
+
+                    <!-- Element with leading space in name -->
+                    <xs:element name=" priority" type="xs:int" />
+
+                    <!-- Element with both leading and trailing spaces -->
+                    <xs:element name=" data " type="xs:string" />
+
+                    <!-- Normal element for comparison -->
+                    <xs:element name="normalField" type="xs:string" />
+                </xs:sequence>
+            </xs:complexType>
+
+            <!-- Element with trailing space in name -->
+            <xs:element name="TestResponse " type="tns:ResponseType" />
+
+        </xs:schema>
+    </types>
+
+</definitions>

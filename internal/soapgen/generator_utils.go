@@ -9,6 +9,8 @@ import (
 
 // buildXMLTag constructs an XML struct tag with appropriate omitempty behavior
 func buildXMLTag(xmlName string, isOptional bool, isAttribute bool) string {
+	// Trim spaces from XML name to avoid suspicious struct tag warnings
+	xmlName = strings.TrimSpace(xmlName)
 	parts := []string{xmlName}
 
 	if isAttribute {
@@ -24,7 +26,8 @@ func buildXMLTag(xmlName string, isOptional bool, isAttribute bool) string {
 
 // generateXMLNameField generates an XMLName field with appropriate namespace handling
 func generateXMLNameField(g *codegen.File, element *xsd.Element, ctx *SchemaContext) {
-	elementName := element.Name
+	// Trim spaces from element name to avoid suspicious struct tag warnings
+	elementName := strings.TrimSpace(element.Name)
 
 	// For operation elements (used in SOAP messages), include the target namespace
 	// This ensures proper WSDL compliance for both requests and responses
