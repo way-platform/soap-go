@@ -149,7 +149,8 @@ func generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistryIntern
 		// Inline complex type
 		if ctx != nil && parentElementName != "" {
 			// Check if this inline complex type should be RawXML (contains xs:any)
-			if shouldUseRawXMLForComplexType(element.ComplexType) {
+			shouldUseRawXML := shouldUseRawXMLForComplexType(element.ComplexType)
+			if shouldUseRawXML {
 				goType = "RawXML"
 			} else {
 				// Use same naming convention as registry.generateTypeName
@@ -164,6 +165,7 @@ func generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistryIntern
 					if ctx.anonymousTypes[altInlineTypeName] {
 						goType = altInlineTypeName
 					} else {
+						// DEBUG: Print available types for debugging
 						goType = "RawXML"
 					}
 				}

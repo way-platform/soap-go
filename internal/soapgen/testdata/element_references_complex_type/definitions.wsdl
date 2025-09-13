@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:tns="http://example.com/test"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://example.com/test">
+
+    <types>
+        <xs:schema elementFormDefault="qualified" targetNamespace="http://example.com/test">
+
+            <!-- Complex type with inline complex type in sequence -->
+            <xs:complexType name="ResponseType">
+                <xs:sequence>
+                    <xs:element minOccurs="0" maxOccurs="unbounded" name="Items">
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element name="ID" type="xs:long" />
+                                <xs:element name="Name" type="xs:string" />
+                                <xs:element name="Value" type="xs:string" />
+                            </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence>
+                <xs:attribute name="total" type="xs:int" />
+            </xs:complexType>
+
+            <!-- Element that references the complex type -->
+            <xs:element name="Response" type="tns:ResponseType" />
+
+            <!-- Operation wrapper elements -->
+            <xs:element name="getItems">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="request" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="getItemsResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="tns:Response" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+        </xs:schema>
+    </types>
+
+    <message name="GetItemsRequest">
+        <part element="tns:getItems" name="body" />
+    </message>
+
+    <message name="GetItemsResponse">
+        <part element="tns:getItemsResponse" name="body" />
+    </message>
+
+    <portType name="TestService">
+        <operation name="getItems">
+            <input message="tns:GetItemsRequest" />
+            <output message="tns:GetItemsResponse" />
+        </operation>
+    </portType>
+
+    <binding name="TestServiceBinding" type="tns:TestService">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+        <operation name="getItems">
+            <soap:operation soapAction="getItems" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+            <output>
+                <soap:body use="literal" />
+            </output>
+        </operation>
+    </binding>
+
+    <service name="TestService">
+        <port binding="tns:TestServiceBinding" name="TestService">
+            <soap:address location="http://example.com/test" />
+        </port>
+    </service>
+
+</definitions>

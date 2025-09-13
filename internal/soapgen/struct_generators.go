@@ -291,15 +291,35 @@ func embedComplexTypeFields(g *codegen.File, complexType *xsd.ComplexType, ctx *
 
 	// Handle sequence elements
 	if complexType.Sequence != nil {
+		// Count RawXML fields to determine XML tag behavior
+		rawXMLCount := 0
 		for _, field := range complexType.Sequence.Elements {
-			if generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(g, &field, ctx, 1, parentElementName, fieldRegistry) {
+			if field.Type == "" && field.ComplexType != nil {
+				// Only count if this inline complex type will actually become RawXML
+				if shouldUseRawXMLForComplexType(field.ComplexType) {
+					rawXMLCount++
+				}
+			}
+		}
+		for range complexType.Sequence.Any {
+			rawXMLCount++
+		}
+
+		// Generate fields
+		for _, field := range complexType.Sequence.Elements {
+			// Use the complex type name as parent for anonymous type lookups
+			complexTypeName := complexType.Name
+			if complexTypeName == "" {
+				complexTypeName = parentElementName
+			}
+			if generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(g, &field, ctx, rawXMLCount, complexTypeName, fieldRegistry) {
 				hasFields = true
 			}
 		}
 
 		// Handle xs:any elements in the sequence
 		for _, anyElement := range complexType.Sequence.Any {
-			if generateAnyFieldWithFieldRegistry(g, &anyElement, ctx, 1, fieldRegistry) {
+			if generateAnyFieldWithFieldRegistry(g, &anyElement, ctx, rawXMLCount, fieldRegistry) {
 				hasFields = true
 			}
 		}
@@ -316,8 +336,27 @@ func embedComplexTypeFields(g *codegen.File, complexType *xsd.ComplexType, ctx *
 	if complexType.ComplexContent != nil && complexType.ComplexContent.Extension != nil {
 		ext := complexType.ComplexContent.Extension
 		if ext.Sequence != nil {
+			// Count RawXML fields in extension
+			rawXMLCount := 0
 			for _, field := range ext.Sequence.Elements {
-				if generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(g, &field, ctx, 1, parentElementName, fieldRegistry) {
+				if field.Type == "" && field.ComplexType != nil {
+					// Only count if this inline complex type will actually become RawXML
+					if shouldUseRawXMLForComplexType(field.ComplexType) {
+						rawXMLCount++
+					}
+				}
+			}
+			for range ext.Sequence.Any {
+				rawXMLCount++
+			}
+
+			for _, field := range ext.Sequence.Elements {
+				// Use the complex type name as parent for anonymous type lookups
+				complexTypeName := complexType.Name
+				if complexTypeName == "" {
+					complexTypeName = parentElementName
+				}
+				if generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(g, &field, ctx, rawXMLCount, complexTypeName, fieldRegistry) {
 					hasFields = true
 				}
 			}
