@@ -79,7 +79,7 @@ func mapXSDTypeToGoWithContext(xsdType string, ctx *SchemaContext) string {
 	// Try standard XSD type parsing
 	parsedType := xsd.ParseType(xsdType)
 	if !parsedType.IsCustomType() {
-		return parsedType.ToGoType()
+		return mapXSDTypeToGo(parsedType)
 	}
 
 	// For truly unknown/custom types, use []byte to capture raw XML
@@ -134,7 +134,7 @@ func inferGoTypeFromCustomTypeName(typeName string) string {
 	}
 
 	// Default to generating a proper Go type name for complex types
-	return xsd.ToGoTypeName(typeName)
+	return toGoTypeName(typeName)
 }
 
 // extractLocalName removes namespace prefix from a type name
