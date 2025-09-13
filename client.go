@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"os"
+	"runtime/debug"
 	"time"
 )
 
@@ -118,6 +119,7 @@ func (c *Client) Call(ctx context.Context, action string, requestEnvelope *Envel
 	if action != "" {
 		req.Header.Set("SOAPAction", action)
 	}
+	req.Header.Set("User-Agent", getUserAgent())
 	req.Header.Set("Content-Type", "text/xml; charset=utf-8")
 	if config.debug {
 		dump, err := httputil.DumpRequestOut(req, true)
@@ -193,4 +195,12 @@ func checkForSOAPFault(envelope *Envelope) error {
 		return &fault
 	}
 	return nil
+}
+
+func getUserAgent() string {
+	userAgent := "WayPlatformSOAPGo"
+	if info, ok := debug.ReadBuildInfo(); ok && info.Main.Version != "" {
+		userAgent += "/" + info.Main.Version
+	}
+	return userAgent
 }
