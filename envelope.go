@@ -3,6 +3,7 @@ package soap
 import (
 	"encoding/xml"
 	"fmt"
+	"strings"
 )
 
 // Namespace is the standard SOAP 1.1 envelope namespace
@@ -73,8 +74,6 @@ type Body struct {
 }
 
 // Fault represents a SOAP fault element as per SOAP 1.1 spec section 4.4.
-// Used for error reporting within SOAP messages.
-// It implements the error interface to allow SOAP faults to be used as Go errors.
 type Fault struct {
 	XMLName xml.Name
 
@@ -91,16 +90,22 @@ type Fault struct {
 	Detail *Detail `xml:"detail,omitempty"`
 }
 
-// Error implements the error interface for Fault.
-// Returns the fault string as the error message.
-func (f *Fault) Error() string {
-	return fmt.Sprintf("SOAP fault %s: %s", f.FaultString, f.FaultCode)
+// String returns a comprehensive string representation of the SOAP fault for logging.
+func (f *Fault) String() string {
+	var b strings.Builder
+	fmt.Fprintf(&b, "SOAP fault [%s]: %s", f.FaultCode, f.FaultString)
+	if f.FaultActor != "" {
+		fmt.Fprintf(&b, " (actor: %s)", f.FaultActor)
+	}
+	if f.Detail != nil && len(f.Detail.Content) > 0 {
+		fmt.Fprintf(&b, " - detail: %s", string(f.Detail.Content))
+	}
+	return b.String()
 }
 
-// Detail represents fault detail information.
-// Contains application-specific error data as per SOAP 1.1 spec section 4.4.
+// Detail represents application-specific fault detail information.
 type Detail struct {
-	// Content as raw XML to accommodate any application-specific error data
+	// Content as raw XML to accommodate any application-specific fault data
 	Content []byte `xml:",innerxml"`
 
 	// Additional attributes for extensibility

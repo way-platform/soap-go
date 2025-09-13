@@ -2,8 +2,6 @@ package soap
 
 import (
 	"encoding/xml"
-	"errors"
-	"fmt"
 	"strings"
 	"testing"
 
@@ -191,7 +189,7 @@ func TestFaultHandling(t *testing.T) {
 	}
 }
 
-func TestFaultErrorInterface(t *testing.T) {
+func TestFaultStringInterface(t *testing.T) {
 	// Test fault with all fields
 	fault := &Fault{
 		FaultCode:   "Client",
@@ -202,10 +200,10 @@ func TestFaultErrorInterface(t *testing.T) {
 		},
 	}
 
-	// Test error interface implementation
-	expectedError := "SOAP fault Invalid request: Client"
-	if fault.Error() != expectedError {
-		t.Errorf("Expected error message %q, got: %s", expectedError, fault.Error())
+	// Test string representation
+	expectedString := "SOAP fault [Client]: Invalid request (actor: http://example.com/service) - detail: <errorcode>E001</errorcode>"
+	if fault.String() != expectedString {
+		t.Errorf("Expected string representation %q, got: %s", expectedString, fault.String())
 	}
 
 	// Test direct field access
@@ -224,42 +222,15 @@ func TestFaultErrorInterface(t *testing.T) {
 		FaultCode:   "Server",
 		FaultString: "",
 	}
-	expectedMinimalError := "SOAP fault : Server"
-	if minimalFault.Error() != expectedMinimalError {
-		t.Errorf("Expected error message %q, got: %s", expectedMinimalError, minimalFault.Error())
+	expectedMinimalString := "SOAP fault [Server]: "
+	if minimalFault.String() != expectedMinimalString {
+		t.Errorf("Expected string representation %q, got: %s", expectedMinimalString, minimalFault.String())
 	}
 	if minimalFault.FaultActor != "" {
 		t.Errorf("Expected empty actor, got: %s", minimalFault.FaultActor)
 	}
 	if minimalFault.Detail != nil {
 		t.Errorf("Expected nil detail, got: %v", minimalFault.Detail)
-	}
-}
-
-func TestSOAPFaultErrorsAs(t *testing.T) {
-	fault := &Fault{
-		FaultCode:   "Client",
-		FaultString: "Invalid request",
-	}
-
-	// Test errors.As with SOAP fault
-	var err error = fault
-	var extractedFault *Fault
-	if !errors.As(err, &extractedFault) {
-		t.Error("errors.As should return true for *Fault")
-	}
-	if extractedFault != fault {
-		t.Error("errors.As should return the same fault instance")
-	}
-
-	// Test errors.As with non-fault error
-	nonFaultErr := fmt.Errorf("regular error")
-	var nonFault *Fault
-	if errors.As(nonFaultErr, &nonFault) {
-		t.Error("errors.As should return false for regular error")
-	}
-	if nonFault != nil {
-		t.Error("errors.As should not set the target for non-matching error")
 	}
 }
 
