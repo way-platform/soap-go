@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://example.com/floatingpoint"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://example.com/floatingpoint">
+    <types>
+        <xsd:schema targetNamespace="http://example.com/floatingpoint">
+            <!-- Test all three floating-point XSD types -->
+            <xsd:element name="FloatElement" type="xsd:float" />
+            <xsd:element name="DoubleElement" type="xsd:double" />
+            <xsd:element name="DecimalElement" type="xsd:decimal" />
+
+            <!-- Test floating-point types in complex types -->
+            <xsd:complexType name="FloatingPointContainer">
+                <xsd:sequence>
+                    <xsd:element name="FloatValue" type="xsd:float" />
+                    <xsd:element name="DoubleValue" type="xsd:double" />
+                    <xsd:element name="DecimalValue" type="xsd:decimal" />
+                    <xsd:element name="OptionalFloatValue" type="xsd:float" minOccurs="0" />
+                    <xsd:element name="OptionalDoubleValue" type="xsd:double" minOccurs="0" />
+                    <xsd:element name="OptionalDecimalValue" type="xsd:decimal" minOccurs="0" />
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <!-- Test floating-point types as attributes -->
+            <xsd:complexType name="FloatingPointAttributes">
+                <xsd:attribute name="floatAttr" type="xsd:float" />
+                <xsd:attribute name="doubleAttr" type="xsd:double" />
+                <xsd:attribute name="decimalAttr" type="xsd:decimal" />
+                <xsd:attribute name="optionalFloatAttr" type="xsd:float" use="optional" />
+                <xsd:attribute name="optionalDoubleAttr" type="xsd:double" use="optional" />
+                <xsd:attribute name="optionalDecimalAttr" type="xsd:decimal" use="optional" />
+            </xsd:complexType>
+
+            <xsd:element name="FloatingPointContainer" type="tns:FloatingPointContainer" />
+            <xsd:element name="FloatingPointAttributes" type="tns:FloatingPointAttributes" />
+        </xsd:schema>
+    </types>
+</definitions>
