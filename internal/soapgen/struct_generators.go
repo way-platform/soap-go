@@ -43,6 +43,24 @@ func generateInlineComplexTypeStruct(g *codegen.File, typeName string, complexTy
 		}
 	}
 
+	// Handle simple content extensions
+	if complexType.SimpleContent != nil && complexType.SimpleContent.Extension != nil {
+		ext := complexType.SimpleContent.Extension
+
+		// Generate a Value field for the text content based on the extension base
+		baseType := mapXSDTypeToGoWithContext(ext.Base, ctx)
+		baseType = convertToQualifiedType(baseType, g)
+		g.P("\tValue ", baseType, " `xml:\",chardata\"`")
+		hasFields = true
+
+		// Handle extension attributes
+		for _, attr := range ext.Attributes {
+			if generateAttributeFieldWithParentName(g, &attr, ctx, fieldRegistry, typeName) {
+				hasFields = true
+			}
+		}
+	}
+
 	// If no fields were generated, add a placeholder comment
 	if !hasFields {
 		g.P("\t// No fields defined")
@@ -156,6 +174,24 @@ func generateStandardStructWithName(g *codegen.File, element *xsd.Element, ctx *
 			}
 		}
 
+		// Handle simple content extensions
+		if element.ComplexType.SimpleContent != nil && element.ComplexType.SimpleContent.Extension != nil {
+			ext := element.ComplexType.SimpleContent.Extension
+
+			// Generate a Value field for the text content based on the extension base
+			baseType := mapXSDTypeToGoWithContext(ext.Base, ctx)
+			baseType = convertToQualifiedType(baseType, g)
+			g.P("\tValue ", baseType, " `xml:\",chardata\"`")
+			hasFields = true
+
+			// Handle extension attributes
+			for _, attr := range ext.Attributes {
+				if generateAttributeFieldWithParentName(g, &attr, ctx, fieldRegistry, element.Name) {
+					hasFields = true
+				}
+			}
+		}
+
 		// Handle complex content extensions
 		if element.ComplexType.ComplexContent != nil && element.ComplexType.ComplexContent.Extension != nil {
 			ext := element.ComplexType.ComplexContent.Extension
@@ -221,6 +257,24 @@ func generateStructFromComplexType(g *codegen.File, complexType *xsd.ComplexType
 	for _, attr := range complexType.Attributes {
 		if generateAttributeFieldWithParentName(g, &attr, ctx, fieldRegistry, complexType.Name) {
 			hasFields = true
+		}
+	}
+
+	// Handle simple content extensions
+	if complexType.SimpleContent != nil && complexType.SimpleContent.Extension != nil {
+		ext := complexType.SimpleContent.Extension
+
+		// Generate a Value field for the text content based on the extension base
+		baseType := mapXSDTypeToGoWithContext(ext.Base, ctx)
+		baseType = convertToQualifiedType(baseType, g)
+		g.P("\tValue ", baseType, " `xml:\",chardata\"`")
+		hasFields = true
+
+		// Handle extension attributes
+		for _, attr := range ext.Attributes {
+			if generateAttributeFieldWithParentName(g, &attr, ctx, fieldRegistry, complexType.Name) {
+				hasFields = true
+			}
 		}
 	}
 
@@ -329,6 +383,24 @@ func embedComplexTypeFields(g *codegen.File, complexType *xsd.ComplexType, ctx *
 	for _, attr := range complexType.Attributes {
 		if generateAttributeFieldWithParentName(g, &attr, ctx, fieldRegistry, parentElementName) {
 			hasFields = true
+		}
+	}
+
+	// Handle simple content extensions
+	if complexType.SimpleContent != nil && complexType.SimpleContent.Extension != nil {
+		ext := complexType.SimpleContent.Extension
+
+		// Generate a Value field for the text content based on the extension base
+		baseType := mapXSDTypeToGoWithContext(ext.Base, ctx)
+		baseType = convertToQualifiedType(baseType, g)
+		g.P("\tValue ", baseType, " `xml:\",chardata\"`")
+		hasFields = true
+
+		// Handle extension attributes
+		for _, attr := range ext.Attributes {
+			if generateAttributeFieldWithParentName(g, &attr, ctx, fieldRegistry, parentElementName) {
+				hasFields = true
+			}
 		}
 	}
 

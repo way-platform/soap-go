@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://tempuri.org/"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://tempuri.org/"
+    elementFormDefault="qualified">
+    <types>
+        <xs:schema targetNamespace="http://tempuri.org/">
+
+            <!-- Simple content extension with attributes - this is the pattern that's failing -->
+            <xs:element name="StateElement">
+                <xs:complexType>
+                    <xs:simpleContent>
+                        <xs:extension base="xs:string">
+                            <xs:attribute name="name" type="xs:string" use="required" />
+                            <xs:attribute name="timestamp" type="xs:dateTime" />
+                        </xs:extension>
+                    </xs:simpleContent>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- Test with different base types -->
+            <xs:element name="ValueElement">
+                <xs:complexType>
+                    <xs:simpleContent>
+                        <xs:extension base="xs:double">
+                            <xs:attribute name="unit" type="xs:string" />
+                            <xs:attribute name="precision" type="xs:int" />
+                        </xs:extension>
+                    </xs:simpleContent>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- Container element to test multiple states -->
+            <xs:element name="StatesContainer">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="tns:StateElement" minOccurs="0" maxOccurs="unbounded" />
+                        <xs:element ref="tns:ValueElement" minOccurs="0" maxOccurs="unbounded" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+        </xs:schema>
+    </types>
+
+    <message name="TestMessage">
+        <part name="container" element="tns:StatesContainer" />
+    </message>
+
+    <portType name="TestPortType">
+        <operation name="TestOperation">
+            <input message="tns:TestMessage" />
+        </operation>
+    </portType>
+
+    <binding name="TestBinding" type="tns:TestPortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+        <operation name="TestOperation">
+            <soap:operation soapAction="http://tempuri.org/TestOperation" />
+            <input>
+                <soap:body use="literal" />
+            </input>
+        </operation>
+    </binding>
+
+    <service name="TestService">
+        <port name="TestPort" binding="tns:TestBinding">
+            <soap:address location="http://localhost/TestService" />
+        </port>
+    </service>
+
+</definitions>
