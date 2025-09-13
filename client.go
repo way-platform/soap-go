@@ -9,15 +9,13 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"os"
+	"time"
 )
 
 // Client represents a generic SOAP HTTP client that can handle any type of SOAP request.
 // It works with Envelope types and provides a clean abstraction over HTTP transport.
 type Client struct {
-	httpClient     *http.Client
-	endpoint       string
-	debug          bool
-	xmlDeclaration bool
+	config clientConfig
 }
 
 // ClientOption configures a Client using the functional options pattern.
@@ -26,18 +24,29 @@ type ClientOption func(*clientConfig)
 
 // clientConfig holds the configuration for a Client.
 type clientConfig struct {
-	httpClient     *http.Client
-	endpoint       string
-	debug          bool
-	xmlDeclaration bool
-	headers        map[string]string
+	httpClient        http.Client
+	endpoint          string
+	timeout           time.Duration
+	debug             bool
+	addXMLDeclaration bool
+}
+
+// newClientConfig creates a new clientConfig with default values.
+func newClientConfig() clientConfig {
+	return clientConfig{
+		httpClient:        http.Client{},
+		endpoint:          "",
+		timeout:           10 * time.Second,
+		debug:             false,
+		addXMLDeclaration: true,
+	}
 }
 
 // WithHTTPClient sets a custom HTTP client for the SOAP client.
 // If not provided, http.DefaultClient is used.
 func WithHTTPClient(client *http.Client) ClientOption {
 	return func(c *clientConfig) {
-		c.httpClient = client
+		c.httpClient = *client
 	}
 }
 
@@ -61,46 +70,26 @@ func WithDebug(debug bool) ClientOption {
 // Defaults to true. Set to false if your SOAP service doesn't expect or allow XML declarations.
 func WithXMLDeclaration(include bool) ClientOption {
 	return func(c *clientConfig) {
-		c.xmlDeclaration = include
+		c.addXMLDeclaration = include
 	}
 }
 
-// WithHeader sets a custom header for requests.
-// Can be used for SOAPAction or any other custom headers.
-func WithHeader(key, value string) ClientOption {
+// WithTimeout sets the timeout for the SOAP client.
+func WithTimeout(timeout time.Duration) ClientOption {
 	return func(c *clientConfig) {
-		if c.headers == nil {
-			c.headers = make(map[string]string)
-		}
-		c.headers[key] = value
+		c.timeout = timeout
 	}
-}
-
-// WithSOAPAction is a convenience function for setting the SOAPAction header.
-func WithSOAPAction(action string) ClientOption {
-	return WithHeader("SOAPAction", action)
 }
 
 // NewClient creates a new SOAP client with the specified options.
 // Returns an error if the configuration is invalid.
 func NewClient(opts ...ClientOption) (*Client, error) {
-	config := &clientConfig{
-		httpClient:     http.DefaultClient,
-		endpoint:       "",
-		debug:          false,
-		xmlDeclaration: true, // Default to including XML declaration
-		headers:        make(map[string]string),
-	}
-
+	config := newClientConfig()
 	for _, opt := range opts {
-		opt(config)
+		opt(&config)
 	}
-
 	return &Client{
-		httpClient:     config.httpClient,
-		endpoint:       config.endpoint,
-		debug:          config.debug,
-		xmlDeclaration: config.xmlDeclaration,
+		config: config,
 	}, nil
 }
 
@@ -108,18 +97,9 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 // The action parameter is used to set the SOAPAction header.
 // Call-specific options can override client defaults.
 func (c *Client) Call(ctx context.Context, action string, requestEnvelope *Envelope, opts ...ClientOption) (*Envelope, error) {
-	config := &clientConfig{
-		httpClient:     c.httpClient,
-		endpoint:       c.endpoint,
-		debug:          c.debug,
-		xmlDeclaration: c.xmlDeclaration,
-		headers:        make(map[string]string),
-	}
-	if action != "" {
-		config.headers["SOAPAction"] = action
-	}
+	config := c.config
 	for _, opt := range opts {
-		opt(config)
+		opt(&config)
 	}
 	if config.endpoint == "" {
 		return nil, fmt.Errorf("endpoint is required")
@@ -128,17 +108,17 @@ func (c *Client) Call(ctx context.Context, action string, requestEnvelope *Envel
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal SOAP envelope: %w", err)
 	}
-	if config.xmlDeclaration {
+	if config.addXMLDeclaration {
 		xmlData = addXMLDeclaration(xmlData)
 	}
 	req, err := http.NewRequestWithContext(ctx, "POST", config.endpoint, bytes.NewReader(xmlData))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
 	}
-	req.Header.Set("Content-Type", "text/xml; charset=utf-8")
-	for key, value := range config.headers {
-		req.Header.Set(key, value)
+	if action != "" {
+		req.Header.Set("SOAPAction", action)
 	}
+	req.Header.Set("Content-Type", "text/xml; charset=utf-8")
 	if config.debug {
 		dump, err := httputil.DumpRequestOut(req, true)
 		if err != nil {

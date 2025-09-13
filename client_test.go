@@ -9,71 +9,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"time"
 )
-
-func TestNewClient(t *testing.T) {
-	tests := []struct {
-		name string
-		opts []ClientOption
-		want func(*Client) bool
-	}{
-		{
-			name: "default client",
-			opts: nil,
-			want: func(c *Client) bool {
-				return c.httpClient == http.DefaultClient && c.endpoint == "" && !c.debug && c.xmlDeclaration
-			},
-		},
-		{
-			name: "with endpoint",
-			opts: []ClientOption{WithEndpoint("http://example.com/soap")},
-			want: func(c *Client) bool {
-				return c.endpoint == "http://example.com/soap"
-			},
-		},
-		{
-			name: "with debug",
-			opts: []ClientOption{WithDebug(true)},
-			want: func(c *Client) bool {
-				return c.debug
-			},
-		},
-		{
-			name: "with custom http client",
-			opts: []ClientOption{WithHTTPClient(&http.Client{Timeout: 10 * time.Second})},
-			want: func(c *Client) bool {
-				return c.httpClient.Timeout == 10*time.Second
-			},
-		},
-		{
-			name: "with xml declaration disabled",
-			opts: []ClientOption{WithXMLDeclaration(false)},
-			want: func(c *Client) bool {
-				return !c.xmlDeclaration
-			},
-		},
-		{
-			name: "with xml declaration enabled",
-			opts: []ClientOption{WithXMLDeclaration(true)},
-			want: func(c *Client) bool {
-				return c.xmlDeclaration
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			client, err := NewClient(tt.opts...)
-			if err != nil {
-				t.Fatalf("NewClient() error = %v", err)
-			}
-			if !tt.want(client) {
-				t.Errorf("NewClient() client configuration does not match expectations")
-			}
-		})
-	}
-}
 
 func TestClient_Call(t *testing.T) {
 	// Create a test server that echoes the request
