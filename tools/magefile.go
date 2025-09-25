@@ -38,7 +38,7 @@ func Test() error {
 	if err := os.MkdirAll("build", 0o700); err != nil {
 		return err
 	}
-	return cmd(root(), "go", "test", "-v", "-cover", "-tags=synctest", "./...", "-coverprofile", "build/cover.out").Run()
+	return cmd(root(), "go", "test", "-cover", "-tags=synctest", "./...", "-coverprofile", "build/cover.out").Run()
 }
 
 // IntegrationTest runs the Go integration tests.

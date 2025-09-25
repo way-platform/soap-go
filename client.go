@@ -4,17 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/xml"
-	"errors"
 	"fmt"
 	"io"
-	"math"
-	"math/rand"
-	"net"
 	"net/http"
-	"net/http/httputil"
-	"os"
 	"runtime/debug"
-	"strconv"
 	"time"
 )
 
@@ -30,25 +23,23 @@ type ClientOption func(*clientConfig)
 
 // clientConfig holds the configuration for a Client.
 type clientConfig struct {
-	httpClient        http.Client
 	endpoint          string
 	debug             bool
 	addXMLDeclaration bool
 	maxRetries        int
-	retryDelay        time.Duration
+	timeout           time.Duration
+	interceptors      []func(http.RoundTripper) http.RoundTripper
+	checkRetry        func(error, *http.Request, *http.Response) bool
 }
 
 // newClientConfig creates a new clientConfig with default values.
 func newClientConfig() clientConfig {
 	return clientConfig{
-		httpClient: http.Client{
-			Timeout: 10 * time.Second,
-		},
 		endpoint:          "",
 		debug:             false,
 		addXMLDeclaration: true,
 		maxRetries:        3,
-		retryDelay:        2 * time.Second,
+		timeout:           30 * time.Second,
 	}
 }
 
@@ -79,7 +70,7 @@ func WithXMLDeclaration(include bool) ClientOption {
 // WithTimeout sets the timeout for the SOAP client.
 func WithTimeout(timeout time.Duration) ClientOption {
 	return func(c *clientConfig) {
-		c.httpClient.Timeout = timeout
+		c.timeout = timeout
 	}
 }
 
@@ -91,12 +82,28 @@ func WithMaxRetries(retries int) ClientOption {
 	}
 }
 
-// WithRetryDelay sets the initial delay for the exponential backoff strategy.
-// Defaults to 2 seconds.
-func WithRetryDelay(delay time.Duration) ClientOption {
+// WithInterceptor adds a request interceptor for the Client.
+func WithInterceptor(interceptor func(http.RoundTripper) http.RoundTripper) ClientOption {
 	return func(c *clientConfig) {
-		c.retryDelay = delay
+		c.interceptors = append(c.interceptors, interceptor)
 	}
+}
+
+// WithCheckRetry sets a custom retry check function.
+// If not provided, uses DefaultCheckRetry for generic HTTP retry logic.
+func WithCheckRetry(checkRetry func(error, *http.Request, *http.Response) bool) ClientOption {
+	return func(c *clientConfig) {
+		c.checkRetry = checkRetry
+	}
+}
+
+// with returns a new clientConfig with the given options applied.
+// This enables per-request configuration overrides.
+func (c clientConfig) with(opts ...ClientOption) clientConfig {
+	for _, opt := range opts {
+		opt(&c)
+	}
+	return c
 }
 
 // NewClient creates a new SOAP client with the specified options.
@@ -106,18 +113,12 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 	for _, opt := range opts {
 		opt(&config)
 	}
-	return &Client{
-			config: config,
-		},
-		nil
+	return &Client{config: config}, nil
 }
 
 // Call executes a SOAP request with the provided action, envelope, and call-specific options.
 func (c *Client) Call(ctx context.Context, action string, requestEnvelope *Envelope, opts ...ClientOption) (*Envelope, error) {
-	config := c.config
-	for _, opt := range opts {
-		opt(&config)
-	}
+	config := c.config.with(opts...)
 	xmlData, err := xml.Marshal(requestEnvelope)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal SOAP envelope: %w", err)
@@ -125,147 +126,80 @@ func (c *Client) Call(ctx context.Context, action string, requestEnvelope *Envel
 	if config.addXMLDeclaration {
 		xmlData = addXMLDeclaration(xmlData)
 	}
-	var lastErr error
-	var responseEnvelope *Envelope
-	for i := 0; i <= config.maxRetries; i++ {
-		if ctx.Err() != nil {
-			return nil, ctx.Err()
-		}
-		bodyReader := bytes.NewReader(xmlData)
-		var resp *http.Response
-		responseEnvelope, resp, err = c.doRequest(ctx, action, bodyReader, &config)
-		if err == nil {
-			return responseEnvelope, nil
-		}
-		if !checkRetry(err) {
-			return nil, err
-		}
-		lastErr = err
-		wait := backoff(config.retryDelay, config.retryDelay*10, i, resp)
-		if err := sleepWithContext(ctx, wait); err != nil {
-			return nil, err
-		}
-	}
-	return nil, fmt.Errorf("request failed after %d retries: %w", config.maxRetries, lastErr)
-}
-
-// doRequest performs a single SOAP request.
-func (c *Client) doRequest(ctx context.Context, action string, body io.Reader, config *clientConfig) (*Envelope, *http.Response, error) {
+	bodyReader := bytes.NewReader(xmlData)
 	if config.endpoint == "" {
-		return nil, nil, fmt.Errorf("endpoint is required")
+		return nil, fmt.Errorf("endpoint is required")
 	}
-	req, err := http.NewRequestWithContext(ctx, "POST", config.endpoint, body)
+	req, err := http.NewRequestWithContext(ctx, "POST", config.endpoint, bodyReader)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to create HTTP request: %w", err)
+		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
 	}
 	if action != "" {
 		req.Header.Set("SOAPAction", action)
 	}
 	req.Header.Set("User-Agent", getUserAgent())
 	req.Header.Set("Content-Type", "text/xml; charset=utf-8")
-	if config.debug {
-		dump, err := httputil.DumpRequestOut(req, true)
-		if err != nil {
-			return nil, nil, fmt.Errorf("failed to dump request for debug: %w", err)
-		}
-		var output bytes.Buffer
-		output.Grow(len(dump) * 2)
-		for _, line := range bytes.Split(dump, []byte("\n")) {
-			output.WriteString("> ")
-			output.Write(line)
-			output.WriteByte('\n')
-		}
-		_, _ = os.Stderr.Write(output.Bytes())
-	}
-	resp, err := config.httpClient.Do(req)
+	httpClient := c.httpClient(config)
+	resp, err := httpClient.Do(req)
 	if err != nil {
-		return nil, resp, fmt.Errorf("failed to execute HTTP request: %w", err)
+		return nil, fmt.Errorf("failed to execute HTTP request: %w", err)
 	}
 	defer resp.Body.Close()
-	if config.debug {
-		dump, err := httputil.DumpResponse(resp, true)
-		if err != nil {
-			return nil, resp, fmt.Errorf("failed to dump response for debug: %w", err)
-		}
-		var output bytes.Buffer
-		output.Grow(len(dump) * 2)
-		for _, line := range bytes.Split(dump, []byte("\n")) {
-			output.WriteString("< ")
-			output.Write(line)
-			output.WriteByte('\n')
-		}
-		_, _ = os.Stderr.Write(output.Bytes())
-	}
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, resp, fmt.Errorf("failed to read response body: %w", err)
+		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 	var env Envelope
 	if xmlErr := xml.Unmarshal(respBody, &env); xmlErr != nil {
 		// Not a valid SOAP envelope, but we might still have a useful HTTP error
 		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-			return nil, resp, &Error{
+			return nil, &Error{
 				StatusCode:   resp.StatusCode,
 				ResponseBody: respBody,
 			}
 		}
-		return nil, resp, fmt.Errorf("failed to unmarshal SOAP response: %w", xmlErr)
+		return nil, fmt.Errorf("failed to unmarshal SOAP response: %w", xmlErr)
 	}
 	fault := checkForSOAPFault(&env)
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 || fault != nil {
-		return &env, resp, &Error{
+		return nil, &Error{
 			StatusCode:   resp.StatusCode,
 			ResponseBody: respBody,
 			Envelope:     &env,
 			Fault:        fault,
 		}
 	}
-	return &env, resp, nil
+	return &env, nil
 }
 
-// checkRetry determines if an error should be retried.
-func checkRetry(err error) bool {
-	if err == nil {
-		return false
-	}
-	var soapErr *Error
-	if errors.As(err, &soapErr) {
-		// Retry on 5xx server errors
-		if soapErr.StatusCode >= 500 && soapErr.StatusCode <= 599 {
-			return true
-		}
-		// Retry on specific 4xx codes that indicate temporary issues
-		if soapErr.StatusCode == http.StatusTooManyRequests || // 429
-			soapErr.StatusCode == 420 { // 420 Enhance Your Calm
-			return true
-		}
-		return false
-	}
-	var netErr net.Error
-	return errors.As(err, &netErr)
-}
-
-// backoff calculates the time to wait before the next retry, with exponential backoff and jitter.
-func backoff(min, max time.Duration, attemptNum int, resp *http.Response) time.Duration {
-	if resp != nil {
-		if resp.StatusCode == http.StatusTooManyRequests || resp.StatusCode == http.StatusServiceUnavailable {
-			if retryAfter := resp.Header.Get("Retry-After"); retryAfter != "" {
-				if seconds, err := strconv.Atoi(retryAfter); err == nil {
-					return time.Duration(seconds) * time.Second
-				}
-				if retryTime, err := time.Parse(time.RFC1123, retryAfter); err == nil {
-					return time.Until(retryTime)
-				}
-			}
+// httpClient creates a new HTTP client with the given configuration.
+func (c *Client) httpClient(cfg clientConfig) *http.Client {
+	transport := http.DefaultTransport
+	// Add debug transport if debug is enabled.
+	if cfg.debug {
+		transport = &debugTransport{
+			next: transport,
 		}
 	}
-	mult := math.Pow(2, float64(attemptNum)) * float64(min)
-	sleep := time.Duration(mult)
-	if float64(sleep) != mult || sleep > max {
-		sleep = max
+	// Add middleware transport if middlewares are configured.
+	if len(cfg.interceptors) > 0 {
+		transport = &interceptorTransport{
+			interceptors: cfg.interceptors,
+			next:         transport,
+		}
 	}
-	jitter := time.Duration(rand.Intn(1000)) * time.Millisecond
-	return sleep + jitter
+	// Add retry transport if retry count > 0.
+	if cfg.maxRetries > 0 {
+		transport = &retryTransport{
+			maxRetries:  cfg.maxRetries,
+			next:        transport,
+			shouldRetry: cfg.checkRetry,
+		}
+	}
+	return &http.Client{
+		Timeout:   cfg.timeout,
+		Transport: transport,
+	}
 }
 
 // addXMLDeclaration adds an XML declaration to the beginning of XML data if it doesn't already have one.
@@ -297,16 +231,4 @@ func getUserAgent() string {
 		userAgent += "/" + info.Main.Version
 	}
 	return userAgent
-}
-
-// sleepWithContext sleeps for the specified duration, but can be interrupted by context cancellation.
-func sleepWithContext(ctx context.Context, duration time.Duration) error {
-	timer := time.NewTimer(duration)
-	defer timer.Stop()
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	case <-timer.C:
-		return nil
-	}
 }
