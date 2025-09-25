@@ -58,7 +58,7 @@ func TestDefaultShouldRetry(t *testing.T) {
 				resp = &http.Response{StatusCode: tt.statusCode, Header: make(http.Header)}
 			}
 
-			result := DefaultCheckRetry(tt.err, req, resp)
+			result := DefaultCheckRetry(context.Background(), tt.err, req, resp)
 			if result != tt.expected {
 				t.Errorf("defaultShouldRetry() = %v, want %v", result, tt.expected)
 			}
@@ -299,15 +299,15 @@ func TestClient_WithCheckRetry(t *testing.T) {
 	defer server.Close()
 
 	// Test with custom retry logic
-	customRetry := func(err error, req *http.Request, resp *http.Response) bool {
+	customRetry := func(ctx context.Context, err error, req *http.Request, resp *http.Response) bool {
 		// Custom retry logic that always retries 5xx errors (more aggressive than DefaultCheckRetry)
 		if err != nil {
-			return DefaultCheckRetry(err, req, resp)
+			return DefaultCheckRetry(ctx, err, req, resp)
 		}
 		if resp.StatusCode >= 500 && resp.StatusCode < 600 {
 			return true // Always retry 5xx errors
 		}
-		return DefaultCheckRetry(err, req, resp)
+		return DefaultCheckRetry(ctx, err, req, resp)
 	}
 
 	client, err := NewClient(

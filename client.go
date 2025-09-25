@@ -29,7 +29,7 @@ type clientConfig struct {
 	maxRetries        int
 	timeout           time.Duration
 	interceptors      []func(http.RoundTripper) http.RoundTripper
-	checkRetry        func(error, *http.Request, *http.Response) bool
+	checkRetry        func(context.Context, error, *http.Request, *http.Response) bool
 }
 
 // newClientConfig creates a new clientConfig with default values.
@@ -91,7 +91,7 @@ func WithInterceptor(interceptor func(http.RoundTripper) http.RoundTripper) Clie
 
 // WithCheckRetry sets a custom retry check function.
 // If not provided, uses DefaultCheckRetry for generic HTTP retry logic.
-func WithCheckRetry(checkRetry func(error, *http.Request, *http.Response) bool) ClientOption {
+func WithCheckRetry(checkRetry func(context.Context, error, *http.Request, *http.Response) bool) ClientOption {
 	return func(c *clientConfig) {
 		c.checkRetry = checkRetry
 	}
