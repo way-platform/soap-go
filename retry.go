@@ -17,7 +17,7 @@ import (
 type retryTransport struct {
 	maxRetries  int
 	next        http.RoundTripper
-	shouldRetry func(error, *http.Request, *http.Response) bool
+	shouldRetry func(context.Context, error, *http.Request, *http.Response) bool
 }
 
 func (t *retryTransport) RoundTrip(req *http.Request) (*http.Response, error) {
@@ -43,9 +43,9 @@ func (t *retryTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 		}
 		var shouldRetryResult bool
 		if t.shouldRetry != nil {
-			shouldRetryResult = t.shouldRetry(err, req, res)
+			shouldRetryResult = t.shouldRetry(req.Context(), err, req, res)
 		} else {
-			shouldRetryResult = DefaultCheckRetry(err, req, res)
+			shouldRetryResult = DefaultCheckRetry(req.Context(), err, req, res)
 		}
 		if !shouldRetryResult {
 			return res, err
@@ -78,7 +78,12 @@ func isTimeoutErr(err error) bool {
 }
 
 // DefaultCheckRetry implements the default retry logic for HTTP requests.
-func DefaultCheckRetry(err error, request *http.Request, response *http.Response) bool {
+func DefaultCheckRetry(ctx context.Context, err error, request *http.Request, response *http.Response) bool {
+	select {
+	case <-ctx.Done():
+		return false
+	default: // continue with default retry logic
+	}
 	if err != nil {
 		return isDNSErr(err) || (isIdempotent(request) && isTimeoutErr(err))
 	}
