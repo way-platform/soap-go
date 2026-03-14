@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
@@ -107,16 +108,28 @@ func forEachGoMod(f func(dir string) error) error {
 }
 
 func cmd(dir string, command string, args ...string) *exec.Cmd {
-	cmd := exec.Command(command, args...)
-	cmd.Dir = dir
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	return cmd
+	c := exec.Command(command, args...)
+	c.Dir = dir
+	c.Stdout = os.Stdout
+	c.Stderr = os.Stderr
+	// Strip GOWORK=off inherited from the mage bootstrap script so that go
+	// commands in targets auto-detect the go.work workspace file.
+	env := make([]string, 0, len(os.Environ()))
+	for _, e := range os.Environ() {
+		if !strings.HasPrefix(e, "GOWORK=") {
+			env = append(env, e)
+		}
+	}
+	c.Env = env
+	return c
 }
 
 func tool(dir string, tool string, args ...string) *exec.Cmd {
 	cmdArgs := []string{"tool", "-modfile", filepath.Join(root(), "tools", "go.mod"), tool}
-	return cmd(dir, "go", append(cmdArgs, args...)...)
+	c := cmd(dir, "go", append(cmdArgs, args...)...)
+	// -modfile is incompatible with workspace mode; restore GOWORK=off.
+	c.Env = append(c.Env, "GOWORK=off")
+	return c
 }
 
 func root(subdirs ...string) string {
