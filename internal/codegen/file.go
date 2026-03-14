@@ -99,7 +99,7 @@ func cleanPackageName(name string) string {
 	name = strings.ReplaceAll(name, ".", "")
 
 	// Ensure it starts with a letter
-	if len(name) == 0 || !((name[0] >= 'a' && name[0] <= 'z') || (name[0] >= 'A' && name[0] <= 'Z')) {
+	if len(name) == 0 || (name[0] < 'a' || name[0] > 'z') && (name[0] < 'A' || name[0] > 'Z') {
 		name = "pkg" + name
 	}
 
@@ -186,7 +186,11 @@ func (g *File) Content() ([]byte, error) {
 		file.Decls = append([]ast.Decl{impDecl}, file.Decls...)
 	}
 	var out bytes.Buffer
-	if err = (&printer.Config{Mode: printer.TabIndent | printer.UseSpaces, Tabwidth: 8}).Fprint(&out, fset, file); err != nil {
+	if err = (&printer.Config{Mode: printer.TabIndent | printer.UseSpaces, Tabwidth: 8}).Fprint(
+		&out,
+		fset,
+		file,
+	); err != nil {
 		return nil, fmt.Errorf("%v: can not reformat Go source: %v", g.filename, err)
 	}
 	return out.Bytes(), nil

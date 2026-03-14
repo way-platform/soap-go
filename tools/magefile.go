@@ -29,7 +29,7 @@ func Build() {
 // Lint runs the Go linter.
 func Lint() error {
 	return forEachGoMod(func(dir string) error {
-		return tool(dir, "golangci-lint", "run", "--path-prefix", dir, "--build-tags", "mage").Run()
+		return tool(dir, "golangci-lint", "run", "--fix", "--path-prefix", dir, "--build-tags", "mage").Run()
 	})
 }
 
@@ -38,7 +38,16 @@ func Test() error {
 	if err := os.MkdirAll("build", 0o700); err != nil {
 		return err
 	}
-	return cmd(root(), "go", "test", "-cover", "-tags=synctest", "./...", "-coverprofile", "build/cover.out").Run()
+	return cmd(
+		root(),
+		"go",
+		"test",
+		"-cover",
+		"-tags=synctest",
+		"./...",
+		"-coverprofile",
+		"build/cover.out",
+	).Run()
 }
 
 // IntegrationTest runs the Go integration tests.
@@ -46,7 +55,17 @@ func IntegrationTest() error {
 	if err := os.MkdirAll("build", 0o700); err != nil {
 		return err
 	}
-	return cmd(root(), "go", "test", "-v", "-tags", "integration,synctest", "./...", "-coverprofile", "build/integration-cover.out").Run()
+	return cmd(
+		root(),
+		"go",
+		"test",
+		"-v",
+		"-tags",
+		"integration,synctest",
+		"./...",
+		"-coverprofile",
+		"build/integration-cover.out",
+	).Run()
 }
 
 // Download downloads the Go dependencies.

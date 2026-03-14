@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://golangci-lint.run/jsonschema/golangci.jsonschema.json
+version: "2"
+
+formatters:
+  enable:
+    - gci
+    - gofumpt
+    - goimports
+    - golines
+  settings:
+    golines:
+      max-len: 120
+
+linters:
+  enable:
+    - gomodguard
+    - paralleltest
+  settings:
+    gomodguard:
+      blocked:
+        modules:
+          - github.com/stretchr/testify:
+              reason: use the Go standard library and github.com/google/go-cmp
+    paralleltest:
+      ignore-missing: false
+      ignore-missing-subtests: true

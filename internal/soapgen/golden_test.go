@@ -16,6 +16,7 @@ import (
 var update = flag.Bool("update", false, "update golden files")
 
 func TestGoldenFiles(t *testing.T) {
+	t.Parallel()
 	testdataDir := "testdata"
 
 	// Discover all test cases by walking the testdata directory
@@ -197,7 +198,7 @@ func cleanGoFiles(dir string) error {
 	return nil
 }
 
-func compareWithGolden(t *testing.T, dir string, generatedFiles map[string]string) error {
+func compareWithGolden(_ *testing.T, dir string, generatedFiles map[string]string) error {
 	// Read existing golden files
 	goldenFiles := make(map[string]string)
 
@@ -243,7 +244,7 @@ func validateGeneratedCode(t *testing.T, tc testCase, generatedFiles map[string]
 }
 
 // validateGoFileContent validates the content of a generated Go file
-func validateGoFileContent(t *testing.T, testCaseName, filename, content string) error {
+func validateGoFileContent(_ *testing.T, testCaseName, filename, content string) error {
 	// Basic syntax validation - check that the file has proper Go syntax
 	if !strings.HasPrefix(content, "package "+testCaseName) {
 		return fmt.Errorf("file %s does not start with correct package declaration", filename)

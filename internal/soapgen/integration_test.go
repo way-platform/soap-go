@@ -12,6 +12,7 @@ import (
 
 // TestIntegrationWithKnownTypes tests parsing with specific known generated types
 func TestIntegrationWithKnownTypes(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		name        string
 		testDataDir string
@@ -184,7 +185,7 @@ func runIntegrationTest(t *testing.T, testDataDir string, xmlTests []xmlParsingT
 			}
 
 			// Test that we can at least parse it as generic XML
-			var result interface{}
+			var result any
 			err := xml.Unmarshal([]byte(xmlTest.xml), &result)
 
 			if xmlTest.expectSuccess {
@@ -209,6 +210,7 @@ func runIntegrationTest(t *testing.T, testDataDir string, xmlTests []xmlParsingT
 
 // TestRealWorldXMLScenarios tests scenarios based on the original examples_test.go
 func TestRealWorldXMLScenarios(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		name        string
 		description string
@@ -303,7 +305,7 @@ func TestRealWorldXMLScenarios(t *testing.T) {
 			}
 
 			// Also test generic unmarshaling
-			var result interface{}
+			var result any
 			err := xml.Unmarshal([]byte(tc.xml), &result)
 
 			if tc.expectValid && err != nil {
@@ -319,6 +321,7 @@ func TestRealWorldXMLScenarios(t *testing.T) {
 
 // TestTimestampHandling tests specific timestamp parsing scenarios
 func TestTimestampHandling(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		name        string
 		timestamp   string
@@ -412,6 +415,7 @@ func TestTimestampHandling(t *testing.T) {
 
 // TestBinaryDataHandling tests base64 and hex binary data scenarios
 func TestBinaryDataHandling(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		name        string
 		data        string
@@ -472,7 +476,7 @@ func TestBinaryDataHandling(t *testing.T) {
 			}
 
 			// Test generic unmarshaling
-			var result interface{}
+			var result any
 			err := xml.Unmarshal([]byte(xmlContent), &result)
 			if err != nil {
 				t.Errorf("XML unmarshaling failed: %v", err)

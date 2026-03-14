@@ -9,6 +9,7 @@ import (
 )
 
 func TestNewEnvelope(t *testing.T) {
+	t.Parallel()
 	type testCase struct {
 		name string
 		opts []EnvelopeOption
@@ -68,6 +69,7 @@ func TestNewEnvelope(t *testing.T) {
 }
 
 func TestEnvelopeMarshalUnmarshal(t *testing.T) {
+	t.Parallel()
 	// Create envelope with header and body
 	mustUnderstand := true
 	headerEntry := HeaderEntry{
@@ -132,6 +134,7 @@ func TestEnvelopeMarshalUnmarshal(t *testing.T) {
 }
 
 func TestFaultHandling(t *testing.T) {
+	t.Parallel()
 	// Test fault marshaling - create a fault structure
 	fault := &Fault{
 		FaultCode:   "Client",
@@ -190,6 +193,7 @@ func TestFaultHandling(t *testing.T) {
 }
 
 func TestFaultStringInterface(t *testing.T) {
+	t.Parallel()
 	// Test fault with all fields
 	fault := &Fault{
 		FaultCode:   "Client",
@@ -235,6 +239,7 @@ func TestFaultStringInterface(t *testing.T) {
 }
 
 func TestHeaderEntryMustUnderstand(t *testing.T) {
+	t.Parallel()
 	// Test mustUnderstand true
 	mustUnderstand := true
 	headerEntry := HeaderEntry{
@@ -270,6 +275,7 @@ func TestHeaderEntryMustUnderstand(t *testing.T) {
 }
 
 func TestEnvelopeExtensibility(t *testing.T) {
+	t.Parallel()
 	// Test custom attributes on envelope
 	envelope, err := NewEnvelope(WithBody([]byte("<test>content</test>")))
 	if err != nil {

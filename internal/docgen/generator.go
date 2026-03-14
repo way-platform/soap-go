@@ -5,12 +5,11 @@ import (
 	"sort"
 	"strings"
 
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
-
 	"github.com/way-platform/soap-go/internal/codegen"
 	"github.com/way-platform/soap-go/wsdl"
 	"github.com/way-platform/soap-go/xsd"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 // Generator generates Markdown documentation from WSDL definitions.
@@ -290,7 +289,11 @@ func normalizeDocumentation(doc string) string {
 }
 
 // generateServiceDoc generates documentation for a single service
-func (g *Generator) generateServiceDoc(service *wsdl.Service, schemaMap map[string]*xsd.Element, customTypesMap map[string]bool) error {
+func (g *Generator) generateServiceDoc(
+	service *wsdl.Service,
+	schemaMap map[string]*xsd.Element,
+	customTypesMap map[string]bool,
+) error {
 	// Find the corresponding PortType for this service
 	portType := g.findPortTypeForService(service)
 
@@ -311,7 +314,12 @@ func (g *Generator) generateServiceDoc(service *wsdl.Service, schemaMap map[stri
 }
 
 // generateOperationDoc generates documentation for a single operation
-func (g *Generator) generateOperationDoc(operation *wsdl.Operation, service *wsdl.Service, schemaMap map[string]*xsd.Element, customTypesMap map[string]bool) error {
+func (g *Generator) generateOperationDoc(
+	operation *wsdl.Operation,
+	service *wsdl.Service,
+	schemaMap map[string]*xsd.Element,
+	customTypesMap map[string]bool,
+) error {
 	// Create GitHub-compatible anchor for the operation
 	g.output.P("### ", operation.Name)
 	g.output.P()
@@ -384,7 +392,11 @@ func (g *Generator) getSOAPActionForOperation(operationName string, service *wsd
 }
 
 // generateMessageDoc generates documentation for a request or response message
-func (g *Generator) generateMessageDoc(messageType, messageName string, schemaMap map[string]*xsd.Element, customTypesMap map[string]bool) error {
+func (g *Generator) generateMessageDoc(
+	messageType, messageName string,
+	schemaMap map[string]*xsd.Element,
+	customTypesMap map[string]bool,
+) error {
 	doc := g.definitions
 
 	g.output.P("#### ", messageType)
@@ -515,8 +527,7 @@ func (g *Generator) formatTypeWithHyperlink(typeName string, customTypesMap map[
 	// Also check if this matches an inline type
 	if !isCustomType {
 		// Check if baseTypeName ends with " (inline)" and we have that inline type
-		if strings.HasSuffix(baseTypeName, " (inline)") {
-			elementName := strings.TrimSuffix(baseTypeName, " (inline)")
+		if elementName, ok := strings.CutSuffix(baseTypeName, " (inline)"); ok {
 			for _, inlineType := range g.inlineSimpleTypes {
 				if inlineType.ElementName == elementName {
 					isCustomType = true
@@ -584,7 +595,14 @@ func (g *Generator) collectElementFields(element *xsd.Element, prefix string, fi
 }
 
 // collectElementFieldsWithSchema recursively collects field information from an element with schema context
-func (g *Generator) collectElementFieldsWithSchema(element *xsd.Element, prefix string, fields *[]fieldInfo, schemaMap map[string]*xsd.Element, visited map[string]bool, level int) {
+func (g *Generator) collectElementFieldsWithSchema(
+	element *xsd.Element,
+	prefix string,
+	fields *[]fieldInfo,
+	schemaMap map[string]*xsd.Element,
+	visited map[string]bool,
+	level int,
+) {
 	// Handle element references first
 	if element.Ref != "" {
 		// This is an element reference, resolve it
@@ -862,7 +880,7 @@ func (g *Generator) createInlineTypeDedupeKey(inlineType *inlineSimpleTypeInfo) 
 	// Create a signature from restrictions
 	var restrictionSig strings.Builder
 	for _, restriction := range restrictions {
-		restrictionSig.WriteString(fmt.Sprintf("%s:%s;", restriction.Type, restriction.Value))
+		fmt.Fprintf(&restrictionSig, "%s:%s;", restriction.Type, restriction.Value)
 	}
 
 	return fmt.Sprintf("%s::%s::%s", inlineType.ElementName, baseType, restrictionSig.String())
@@ -931,7 +949,14 @@ func (g *Generator) findComplexTypeByName(typeName string) *xsd.ComplexType {
 }
 
 // collectComplexTypeFieldsWithSchema collects fields from a complex type with schema context
-func (g *Generator) collectComplexTypeFieldsWithSchema(complexType *xsd.ComplexType, prefix string, fields *[]fieldInfo, schemaMap map[string]*xsd.Element, visited map[string]bool, level int) {
+func (g *Generator) collectComplexTypeFieldsWithSchema(
+	complexType *xsd.ComplexType,
+	prefix string,
+	fields *[]fieldInfo,
+	schemaMap map[string]*xsd.Element,
+	visited map[string]bool,
+	level int,
+) {
 	// Collect attributes first
 	for _, attr := range complexType.Attributes {
 		required := "No"
@@ -962,7 +987,14 @@ func (g *Generator) collectComplexTypeFieldsWithSchema(complexType *xsd.ComplexT
 }
 
 // collectSequenceFieldsWithSchema collects fields from a sequence with schema context
-func (g *Generator) collectSequenceFieldsWithSchema(sequence *xsd.Sequence, prefix string, fields *[]fieldInfo, schemaMap map[string]*xsd.Element, visited map[string]bool, level int) {
+func (g *Generator) collectSequenceFieldsWithSchema(
+	sequence *xsd.Sequence,
+	prefix string,
+	fields *[]fieldInfo,
+	schemaMap map[string]*xsd.Element,
+	visited map[string]bool,
+	level int,
+) {
 	for i := range sequence.Elements {
 		g.collectElementFieldsWithSchema(&sequence.Elements[i], prefix, fields, schemaMap, visited, level)
 	}
@@ -975,7 +1007,14 @@ func (g *Generator) collectSequenceFieldsWithSchema(sequence *xsd.Sequence, pref
 }
 
 // collectChoiceFieldsWithSchema collects fields from a choice with schema context
-func (g *Generator) collectChoiceFieldsWithSchema(choice *xsd.Choice, prefix string, fields *[]fieldInfo, schemaMap map[string]*xsd.Element, visited map[string]bool, level int) {
+func (g *Generator) collectChoiceFieldsWithSchema(
+	choice *xsd.Choice,
+	prefix string,
+	fields *[]fieldInfo,
+	schemaMap map[string]*xsd.Element,
+	visited map[string]bool,
+	level int,
+) {
 	// Add a note about choice
 	*fields = append(*fields, fieldInfo{
 		Name:        prefix + " (choice)",
@@ -998,7 +1037,14 @@ func (g *Generator) collectChoiceFieldsWithSchema(choice *xsd.Choice, prefix str
 }
 
 // collectAllFieldsWithSchema collects fields from an all group with schema context
-func (g *Generator) collectAllFieldsWithSchema(all *xsd.All, prefix string, fields *[]fieldInfo, schemaMap map[string]*xsd.Element, visited map[string]bool, level int) {
+func (g *Generator) collectAllFieldsWithSchema(
+	all *xsd.All,
+	prefix string,
+	fields *[]fieldInfo,
+	schemaMap map[string]*xsd.Element,
+	visited map[string]bool,
+	level int,
+) {
 	for i := range all.Elements {
 		g.collectElementFieldsWithSchema(&all.Elements[i], prefix, fields, schemaMap, visited, level)
 	}

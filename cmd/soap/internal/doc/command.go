@@ -34,7 +34,7 @@ func NewCommand() *cobra.Command {
 	return cmd
 }
 
-func run(ctx context.Context, inputFile, outputFile string, usePager bool) error {
+func run(_ context.Context, inputFile, outputFile string, usePager bool) error {
 	doc, err := wsdl.ParseFromFile(inputFile)
 	if err != nil {
 		return err
@@ -62,7 +62,7 @@ func run(ctx context.Context, inputFile, outputFile string, usePager bool) error
 			out, err := glamour.Render(string(content), "auto")
 			if err != nil {
 				// Fallback to plain text if glamour fails
-				fmt.Fprintf(os.Stdout, "%s", string(content))
+				_, _ = fmt.Fprintf(os.Stdout, "%s", string(content))
 			} else {
 				fmt.Print(out)
 			}
@@ -156,13 +156,6 @@ func (m pagerModel) footerView() string {
 	info := infoStyle.Render(fmt.Sprintf("%3.f%% • q/esc to quit", m.viewport.ScrollPercent()*100))
 	line := strings.Repeat("─", max(0, m.viewport.Width-lipgloss.Width(info)))
 	return lipgloss.JoinHorizontal(lipgloss.Center, line, info)
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
 }
 
 // showInPager displays the markdown content in an interactive pager

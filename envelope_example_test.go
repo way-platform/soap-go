@@ -86,7 +86,11 @@ func ExampleEnvelope_withEncodingStyle() {
 // ExampleEnvelope_realWorld demonstrates creating a SOAP envelope for real-world use.
 func ExampleEnvelope_realWorld() {
 	// Create a SOAP envelope for a weather service request using the new API
-	envelope, err := soap.NewEnvelope(soap.WithBody([]byte(`<GetTemperature xmlns="http://weather.example.com/"><city>Paris</city></GetTemperature>`)))
+	envelope, err := soap.NewEnvelope(
+		soap.WithBody(
+			[]byte(`<GetTemperature xmlns="http://weather.example.com/"><city>Paris</city></GetTemperature>`),
+		),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -175,7 +179,9 @@ func ExampleHeaderEntry_mustUnderstand() {
 		// MustUnderstand is nil, so it's optional
 	}
 
-	envelope, err := soap.NewEnvelope(soap.WithBody([]byte(`<SecureOperation><data>sensitive</data></SecureOperation>`)))
+	envelope, err := soap.NewEnvelope(
+		soap.WithBody([]byte(`<SecureOperation><data>sensitive</data></SecureOperation>`)),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -117,7 +117,12 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 }
 
 // Call executes a SOAP request with the provided action, envelope, and call-specific options.
-func (c *Client) Call(ctx context.Context, action string, requestEnvelope *Envelope, opts ...ClientOption) (*Envelope, error) {
+func (c *Client) Call(
+	ctx context.Context,
+	action string,
+	requestEnvelope *Envelope,
+	opts ...ClientOption,
+) (*Envelope, error) {
 	config := c.config.with(opts...)
 	xmlData, err := xml.Marshal(requestEnvelope)
 	if err != nil {
@@ -127,10 +132,20 @@ func (c *Client) Call(ctx context.Context, action string, requestEnvelope *Envel
 		xmlData = addXMLDeclaration(xmlData)
 	}
 	bodyReader := bytes.NewReader(xmlData)
+	return c.doRequest(ctx, action, bodyReader, config)
+}
+
+// doRequest performs a single SOAP request.
+func (c *Client) doRequest(
+	ctx context.Context,
+	action string,
+	body io.Reader,
+	config clientConfig,
+) (*Envelope, error) {
 	if config.endpoint == "" {
 		return nil, fmt.Errorf("endpoint is required")
 	}
-	req, err := http.NewRequestWithContext(ctx, "POST", config.endpoint, bodyReader)
+	req, err := http.NewRequestWithContext(ctx, "POST", config.endpoint, body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create HTTP request: %w", err)
 	}
@@ -144,7 +159,7 @@ func (c *Client) Call(ctx context.Context, action string, requestEnvelope *Envel
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute HTTP request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read response body: %w", err)
