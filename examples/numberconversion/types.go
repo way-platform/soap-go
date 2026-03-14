@@ -19,7 +19,7 @@ type NumberToWordsResponseWrapper struct {
 // NumberToDollarsWrapper represents the NumberToDollars element
 type NumberToDollarsWrapper struct {
 	XMLName xml.Name `xml:"http://www.dataaccess.com/webservicesserver/ NumberToDollars"`
-	DNum    float64  `xml:"dNum"`
+	DNum    string   `xml:"dNum"`
 }
 
 // NumberToDollarsResponseWrapper represents the NumberToDollarsResponse element

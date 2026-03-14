@@ -27,10 +27,11 @@ func TestMapXSDTypeToGo(t *testing.T) {
 		// Boolean
 		{xsd.Boolean, "bool"},
 
-		// Floating point - all map to float64 for precision
+		// IEEE 754 floating point types
 		{xsd.Float, "float64"},
 		{xsd.Double, "float64"},
-		{xsd.Decimal, "float64"},
+		// Arbitrary-precision decimal maps to string
+		{xsd.Decimal, "string"},
 
 		// Signed integers
 		{xsd.Byte, "int8"},
@@ -127,17 +128,19 @@ func TestToGoTypeName(t *testing.T) {
 	}
 }
 
-// Test that float types specifically map to float64 (addressing precision issues)
+// Test that IEEE 754 float types map to float64, and decimal maps to string.
 func TestFloatingPointPrecision(t *testing.T) {
 	t.Parallel()
-	floatTypes := []xsd.Type{xsd.Float, xsd.Double, xsd.Decimal}
-
-	for _, typ := range floatTypes {
+	for _, typ := range []xsd.Type{xsd.Float, xsd.Double} {
 		t.Run(string(typ), func(t *testing.T) {
-			goType := mapXSDTypeToGo(typ)
-			if goType != "float64" {
-				t.Errorf("Expected all floating point types to map to float64, but %s maps to %s", typ, goType)
+			if got := mapXSDTypeToGo(typ); got != "float64" {
+				t.Errorf("Expected IEEE 754 type %s to map to float64, got %s", typ, got)
 			}
 		})
 	}
+	t.Run(string(xsd.Decimal), func(t *testing.T) {
+		if got := mapXSDTypeToGo(xsd.Decimal); got != "string" {
+			t.Errorf("Expected xs:decimal to map to string (arbitrary precision), got %s", got)
+		}
+	})
 }
