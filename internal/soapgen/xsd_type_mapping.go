@@ -22,9 +22,13 @@ func mapXSDTypeToGo(xsdType xsd.Type) string {
 	case xsd.Boolean:
 		return "bool"
 
-	// Floating point types - all map to float64 for precision
-	case xsd.Float, xsd.Double, xsd.Decimal:
+	// IEEE 754 floating point types
+	case xsd.Float, xsd.Double:
 		return "float64"
+
+	// Arbitrary-precision decimal - requires custom parsing
+	case xsd.Decimal:
+		return "string"
 
 	// Signed integer types
 	case xsd.Byte:

@@ -133,7 +133,8 @@ Built into `Client.Call` — retries 5xx, 429, 420, and network errors with expo
 | ------------------------------------------- | ------------------- | -------------------------------------------- |
 | `string`, `token`, `normalizedString`, etc. | `string`            |                                              |
 | `boolean`                                   | `bool`              |                                              |
-| `float`, `double`, `decimal`                | `float64`           | Unified for simplicity                       |
+| `float`, `double`                           | `float64`           | IEEE 754 types                               |
+| `decimal`                                   | `string`            | Arbitrary precision, requires custom parsing |
 | `int`, `integer` / `long`                   | `int32` / `int64`   | Sized per spec                               |
 | `unsignedInt` / `unsignedLong`              | `uint32` / `uint64` |                                              |
 | `dateTime`, `date`, `time`                  | `time.Time`         |                                              |

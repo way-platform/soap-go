@@ -130,7 +130,7 @@ type KitchenSinkRequestWrapper struct {
 	ByteField               int8         `xml:"byteField"`
 	FloatField              float64      `xml:"floatField"`
 	DoubleField             float64      `xml:"doubleField"`
-	DecimalField            float64      `xml:"decimalField"`
+	DecimalField            string       `xml:"decimalField"`
 	DateTimeField           time.Time    `xml:"dateTimeField"`
 	DateField               time.Time    `xml:"dateField"`
 	TimeField               time.Time    `xml:"timeField"`
