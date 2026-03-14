@@ -129,18 +129,18 @@ Built into `Client.Call` — retries 5xx, 429, 420, and network errors with expo
 
 ### XSD → Go type mapping
 
-| XSD                                         | Go                  | Notes                  |
-| ------------------------------------------- | ------------------- | ---------------------- |
-| `string`, `token`, `normalizedString`, etc. | `string`            |                        |
-| `boolean`                                   | `bool`              |                        |
-| `float`, `double`, `decimal`                | `float64`           | Unified for simplicity |
-| `int`, `integer` / `long`                   | `int32` / `int64`   | Sized per spec         |
-| `unsignedInt` / `unsignedLong`              | `uint32` / `uint64` |                        |
-| `dateTime`, `date`, `time`                  | `time.Time`         |                        |
-| `duration`                                  | `time.Duration`     |                        |
-| `hexBinary`, `base64Binary`                 | `[]byte`            |                        |
-| `QName`                                     | `xml.Name`          |                        |
-| Unknown / `xs:any`                          | `[]byte` (RawXML)   | Fallback               |
+| XSD                                         | Go                  | Notes                                        |
+| ------------------------------------------- | ------------------- | -------------------------------------------- |
+| `string`, `token`, `normalizedString`, etc. | `string`            |                                              |
+| `boolean`                                   | `bool`              |                                              |
+| `float`, `double`, `decimal`                | `float64`           | Unified for simplicity                       |
+| `int`, `integer` / `long`                   | `int32` / `int64`   | Sized per spec                               |
+| `unsignedInt` / `unsignedLong`              | `uint32` / `uint64` |                                              |
+| `dateTime`, `date`, `time`                  | `time.Time`         |                                              |
+| `duration`                                  | `string`            | ISO 8601, requires custom parsing            |
+| `hexBinary`, `base64Binary`                 | `[]byte`            |                                              |
+| `QName`                                     | `xml.Name`          |                                              |
+| Unknown / `xs:any`                          | `[]byte` (RawXML)   | Fallback                                     |
 
 ### Generated struct conventions
 

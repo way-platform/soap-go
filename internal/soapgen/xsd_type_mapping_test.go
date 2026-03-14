@@ -49,7 +49,7 @@ func TestMapXSDTypeToGo(t *testing.T) {
 		{xsd.DateTime, "time.Time"},
 		{xsd.Time, "time.Time"},
 		{xsd.Date, "time.Time"},
-		{xsd.Duration, "time.Duration"},
+		{xsd.Duration, "string"},
 		{xsd.GYear, "string"},
 
 		// Binary types
@@ -82,7 +82,7 @@ func TestGetRequiredImports(t *testing.T) {
 		{xsd.DateTime, []string{"time"}},
 		{xsd.Time, []string{"time"}},
 		{xsd.Date, []string{"time"}},
-		{xsd.Duration, []string{"time"}},
+		{xsd.Duration, nil},
 		{xsd.QName, []string{"encoding/xml"}},
 		{xsd.HexBinary, nil},
 	}

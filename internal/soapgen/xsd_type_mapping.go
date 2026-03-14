@@ -49,10 +49,8 @@ func mapXSDTypeToGo(xsdType xsd.Type) string {
 	// Time types
 	case xsd.DateTime, xsd.Time, xsd.Date:
 		return "time.Time"
-	case xsd.Duration:
-		return "time.Duration"
-	case xsd.GYearMonth, xsd.GYear, xsd.GMonthDay, xsd.GDay, xsd.GMonth:
-		return "string" // These require custom parsing
+	case xsd.Duration, xsd.GYearMonth, xsd.GYear, xsd.GMonthDay, xsd.GDay, xsd.GMonth:
+		return "string" // These require custom parsing (ISO 8601 / calendar-dependent)
 
 	// Binary types
 	case xsd.HexBinary, xsd.Base64Binary:
@@ -73,7 +71,7 @@ func mapXSDTypeToGo(xsdType xsd.Type) string {
 // getRequiredImports returns the import paths required for this XSD type.
 func getRequiredImports(xsdType xsd.Type) []string {
 	switch xsdType {
-	case xsd.DateTime, xsd.Time, xsd.Date, xsd.Duration:
+	case xsd.DateTime, xsd.Time, xsd.Date:
 		return []string{"time"}
 	case xsd.QName:
 		return []string{"encoding/xml"}
