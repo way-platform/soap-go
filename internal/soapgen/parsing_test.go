@@ -16,6 +16,7 @@ import (
 
 // TestParsingWithGeneratedTypes tests XML parsing using types generated from testdata
 func TestParsingWithGeneratedTypes(t *testing.T) {
+	t.Parallel()
 	testdataDir := "testdata"
 
 	// Discover all test cases that have generated types
@@ -250,7 +251,7 @@ func extractXMLTag(tag *ast.BasicLit) string {
 	return tagValue[start:end]
 }
 
-func generateXMLTestCases(defs *wsdl.Definitions, types map[string]typeInfo) []xmlTestCase {
+func generateXMLTestCases(_ *wsdl.Definitions, types map[string]typeInfo) []xmlTestCase {
 	var testCases []xmlTestCase
 
 	// Generate basic test cases for each struct type
@@ -473,12 +474,12 @@ func generateAlternativeValue(typeName string) string {
 	}
 }
 
-func runXMLParsingTest(t *testing.T, xmlTC xmlTestCase, packageName string) {
+func runXMLParsingTest(t *testing.T, xmlTC xmlTestCase, _ string) {
 	// This is a simplified version - in practice we'd need to dynamically
 	// create instances of the types and test unmarshaling
 	// For now, we'll just verify the XML is well-formed
 
-	var result interface{}
+	var result any
 	err := xml.Unmarshal([]byte(xmlTC.xmlContent), &result)
 
 	// We expect this to fail since we're not using the actual type,
@@ -497,6 +498,7 @@ func runXMLParsingTest(t *testing.T, xmlTC xmlTestCase, packageName string) {
 
 // TestEnumerationValues tests that enumeration constants are properly generated
 func TestEnumerationValues(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		name         string
 		testDataDir  string
@@ -552,6 +554,7 @@ func TestEnumerationValues(t *testing.T) {
 
 // TestXMLNameGeneration tests that XMLName fields are properly generated
 func TestXMLNameGeneration(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		name          string
 		testDataDir   string

@@ -8,7 +8,12 @@ import (
 )
 
 // generateInlineComplexTypeStruct generates a struct for an inline complex type
-func generateInlineComplexTypeStruct(g *codegen.File, typeName string, complexType *xsd.ComplexType, ctx *SchemaContext) {
+func generateInlineComplexTypeStruct(
+	g *codegen.File,
+	typeName string,
+	complexType *xsd.ComplexType,
+	ctx *SchemaContext,
+) {
 	// Add comment
 	g.P("// ", typeName, " represents an inline complex type")
 
@@ -23,7 +28,14 @@ func generateInlineComplexTypeStruct(g *codegen.File, typeName string, complexTy
 	// Generate fields from the sequence
 	if complexType.Sequence != nil {
 		for _, field := range complexType.Sequence.Elements {
-			if generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(g, &field, ctx, 1, typeName, fieldRegistry) {
+			if generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(
+				g,
+				&field,
+				ctx,
+				1,
+				typeName,
+				fieldRegistry,
+			) {
 				hasFields = true
 			}
 		}
@@ -72,13 +84,18 @@ func generateInlineComplexTypeStruct(g *codegen.File, typeName string, complexTy
 }
 
 // generateStructFromElement generates a Go struct from an XSD element
-func generateStructFromElement(g *codegen.File, element *xsd.Element, ctx *SchemaContext, registry *TypeRegistry) {
+func generateStructFromElement(g *codegen.File, element *xsd.Element, ctx *SchemaContext, _ *TypeRegistry) {
 	structName := toGoName(element.Name)
 	generateStandardStructWithName(g, element, ctx, structName)
 }
 
 // generateStructFromElementWithWrapper generates a Go struct from an XSD element with wrapper naming
-func generateStructFromElementWithWrapper(g *codegen.File, element *xsd.Element, ctx *SchemaContext, registry *TypeRegistry) {
+func generateStructFromElementWithWrapper(
+	g *codegen.File,
+	element *xsd.Element,
+	ctx *SchemaContext,
+	_ *TypeRegistry,
+) {
 	// Generate wrapper-style name
 	structName := toGoName(element.Name) + "Wrapper"
 	generateStandardStructWithName(g, element, ctx, structName)
@@ -154,7 +171,14 @@ func generateStandardStructWithName(g *codegen.File, element *xsd.Element, ctx *
 
 			// Generate fields
 			for _, field := range element.ComplexType.Sequence.Elements {
-				if generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(g, &field, ctx, rawXMLCount, element.Name, fieldRegistry) {
+				if generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(
+					g,
+					&field,
+					ctx,
+					rawXMLCount,
+					element.Name,
+					fieldRegistry,
+				) {
 					hasFields = true
 				}
 			}
@@ -197,7 +221,14 @@ func generateStandardStructWithName(g *codegen.File, element *xsd.Element, ctx *
 			ext := element.ComplexType.ComplexContent.Extension
 			if ext.Sequence != nil {
 				for _, field := range ext.Sequence.Elements {
-					if generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(g, &field, ctx, 1, element.Name, fieldRegistry) {
+					if generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(
+						g,
+						&field,
+						ctx,
+						1,
+						element.Name,
+						fieldRegistry,
+					) {
 						hasFields = true
 					}
 				}
@@ -240,7 +271,14 @@ func generateStructFromComplexType(g *codegen.File, complexType *xsd.ComplexType
 	// Handle sequence elements
 	if complexType.Sequence != nil {
 		for _, field := range complexType.Sequence.Elements {
-			if generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(g, &field, ctx, 1, complexType.Name, fieldRegistry) {
+			if generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(
+				g,
+				&field,
+				ctx,
+				1,
+				complexType.Name,
+				fieldRegistry,
+			) {
 				hasFields = true
 			}
 		}
@@ -283,7 +321,14 @@ func generateStructFromComplexType(g *codegen.File, complexType *xsd.ComplexType
 		ext := complexType.ComplexContent.Extension
 		if ext.Sequence != nil {
 			for _, field := range ext.Sequence.Elements {
-				if generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(g, &field, ctx, 1, complexType.Name, fieldRegistry) {
+				if generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(
+					g,
+					&field,
+					ctx,
+					1,
+					complexType.Name,
+					fieldRegistry,
+				) {
 					hasFields = true
 				}
 			}
@@ -340,7 +385,13 @@ func generateRawXMLWrapperTypes(g *codegen.File, ctx *SchemaContext) {
 }
 
 // embedComplexTypeFields embeds the fields from a complex type into the current struct
-func embedComplexTypeFields(g *codegen.File, complexType *xsd.ComplexType, ctx *SchemaContext, fieldRegistry *FieldRegistry, parentElementName string) bool {
+func embedComplexTypeFields(
+	g *codegen.File,
+	complexType *xsd.ComplexType,
+	ctx *SchemaContext,
+	fieldRegistry *FieldRegistry,
+	parentElementName string,
+) bool {
 	hasFields := false
 
 	// Handle sequence elements
@@ -366,7 +417,14 @@ func embedComplexTypeFields(g *codegen.File, complexType *xsd.ComplexType, ctx *
 			if complexTypeName == "" {
 				complexTypeName = parentElementName
 			}
-			if generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(g, &field, ctx, rawXMLCount, complexTypeName, fieldRegistry) {
+			if generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(
+				g,
+				&field,
+				ctx,
+				rawXMLCount,
+				complexTypeName,
+				fieldRegistry,
+			) {
 				hasFields = true
 			}
 		}
@@ -428,7 +486,14 @@ func embedComplexTypeFields(g *codegen.File, complexType *xsd.ComplexType, ctx *
 				if complexTypeName == "" {
 					complexTypeName = parentElementName
 				}
-				if generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(g, &field, ctx, rawXMLCount, complexTypeName, fieldRegistry) {
+				if generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(
+					g,
+					&field,
+					ctx,
+					rawXMLCount,
+					complexTypeName,
+					fieldRegistry,
+				) {
 					hasFields = true
 				}
 			}

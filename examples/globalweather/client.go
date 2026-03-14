@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/xml"
 	"fmt"
+
 	soap "github.com/way-platform/soap-go"
 )
 
@@ -30,7 +31,11 @@ func NewClient(opts ...ClientOption) (*Client, error) {
 }
 
 // GetWeather Get weather report for all major cities around the world.
-func (c *Client) GetWeather(ctx context.Context, req *GetWeatherWrapper, opts ...ClientOption) (*GetWeatherResponseWrapper, error) {
+func (c *Client) GetWeather(
+	ctx context.Context,
+	req *GetWeatherWrapper,
+	opts ...ClientOption,
+) (*GetWeatherResponseWrapper, error) {
 	reqEnvelope, err := soap.NewEnvelope(soap.WithBody(req))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create SOAP envelope: %w", err)
@@ -47,7 +52,11 @@ func (c *Client) GetWeather(ctx context.Context, req *GetWeatherWrapper, opts ..
 }
 
 // GetCitiesByCountry Get all major                 cities by country name(full / part).
-func (c *Client) GetCitiesByCountry(ctx context.Context, req *GetCitiesByCountryWrapper, opts ...ClientOption) (*GetCitiesByCountryResponseWrapper, error) {
+func (c *Client) GetCitiesByCountry(
+	ctx context.Context,
+	req *GetCitiesByCountryWrapper,
+	opts ...ClientOption,
+) (*GetCitiesByCountryResponseWrapper, error) {
 	reqEnvelope, err := soap.NewEnvelope(soap.WithBody(req))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create SOAP envelope: %w", err)

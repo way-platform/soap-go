@@ -11,6 +11,7 @@ import (
 // TestComprehensiveXMLParsing tests comprehensive XML parsing scenarios
 // based on the original examples_test.go but using generated types directly
 func TestComprehensiveXMLParsing(t *testing.T) {
+	t.Parallel()
 	// Test comprehensive parsing scenarios that mirror the original examples_test.go
 	testCases := []struct {
 		name        string
@@ -600,6 +601,7 @@ func testInlineTypes(t *testing.T) {
 
 // TestRoundTripMarshaling tests that types can be marshaled and unmarshaled correctly
 func TestRoundTripMarshaling(t *testing.T) {
+	t.Parallel()
 	type TestStruct struct {
 		XMLName   xml.Name  `xml:"TestStruct"`
 		StringVal string    `xml:"stringVal"`

@@ -33,7 +33,15 @@ func generateXMLNameField(g *codegen.File, element *xsd.Element, ctx *SchemaCont
 	// This ensures proper WSDL compliance for both requests and responses
 	if ctx.generator != nil && ctx.generator.isOperationMessageElement(elementName) {
 		if ctx.schema.TargetNamespace != "" {
-			g.P("\tXMLName ", g.QualifiedGoIdent(codegen.XMLNameIdent), " `xml:\"", ctx.schema.TargetNamespace, " ", elementName, "\"`")
+			g.P(
+				"\tXMLName ",
+				g.QualifiedGoIdent(codegen.XMLNameIdent),
+				" `xml:\"",
+				ctx.schema.TargetNamespace,
+				" ",
+				elementName,
+				"\"`",
+			)
 		} else {
 			g.P("\tXMLName ", g.QualifiedGoIdent(codegen.XMLNameIdent), " `xml:\"", elementName, "\"`")
 		}

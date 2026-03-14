@@ -9,6 +9,7 @@ import (
 )
 
 func TestParseSoapEnvelope(t *testing.T) {
+	t.Parallel()
 	// Read the SOAP envelope XSD file
 	data, err := os.ReadFile("testdata/soap-envelope.xsd")
 	if err != nil {
@@ -23,7 +24,10 @@ func TestParseSoapEnvelope(t *testing.T) {
 
 	// Validate the parsed schema
 	if schema.TargetNamespace != "http://schemas.xmlsoap.org/soap/envelope/" {
-		t.Errorf("expected targetNamespace to be 'http://schemas.xmlsoap.org/soap/envelope/', got %q", schema.TargetNamespace)
+		t.Errorf(
+			"expected targetNamespace to be 'http://schemas.xmlsoap.org/soap/envelope/', got %q",
+			schema.TargetNamespace,
+		)
 	}
 
 	// Check that we have the expected elements
@@ -112,6 +116,7 @@ func TestParseSoapEnvelope(t *testing.T) {
 }
 
 func TestParseIBM(t *testing.T) {
+	t.Parallel()
 	// Read the IBM XSD file
 	data, err := os.ReadFile("testdata/ibm.xsd")
 	if err != nil {
@@ -126,7 +131,10 @@ func TestParseIBM(t *testing.T) {
 
 	// Validate the parsed schema
 	if schema.TargetNamespace != "http://com.ibm.wbit.comptest.controller" {
-		t.Errorf("expected targetNamespace to be 'http://com.ibm.wbit.comptest.controller', got %q", schema.TargetNamespace)
+		t.Errorf(
+			"expected targetNamespace to be 'http://com.ibm.wbit.comptest.controller', got %q",
+			schema.TargetNamespace,
+		)
 	}
 
 	// Check complex types
@@ -215,11 +223,15 @@ func TestParseIBM(t *testing.T) {
 	}
 
 	if len(testSuiteRunType.ComplexContent.Extension.Attributes) != 1 {
-		t.Errorf("expected 1 attribute in TestSuiteRun extension, got %d", len(testSuiteRunType.ComplexContent.Extension.Attributes))
+		t.Errorf(
+			"expected 1 attribute in TestSuiteRun extension, got %d",
+			len(testSuiteRunType.ComplexContent.Extension.Attributes),
+		)
 	}
 }
 
 func TestParseInvalidXSD(t *testing.T) {
+	t.Parallel()
 	invalidXSD := `<?xml version="1.0"?>
 <invalid>not an XSD</invalid>`
 
@@ -230,6 +242,7 @@ func TestParseInvalidXSD(t *testing.T) {
 }
 
 func TestParseEmptySchema(t *testing.T) {
+	t.Parallel()
 	emptySchema := `<?xml version="1.0"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 </xs:schema>`
@@ -253,6 +266,7 @@ func TestParseEmptySchema(t *testing.T) {
 }
 
 func TestParseSchemaWithAnnotations(t *testing.T) {
+	t.Parallel()
 	schemaWithAnnotations := `<?xml version="1.0"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 	<xs:element name="test">
@@ -290,6 +304,9 @@ func TestParseSchemaWithAnnotations(t *testing.T) {
 	}
 
 	if element.Annotation.Documentation[0].Content != "This is a test element" {
-		t.Errorf("expected documentation content 'This is a test element', got %q", element.Annotation.Documentation[0].Content)
+		t.Errorf(
+			"expected documentation content 'This is a test element', got %q",
+			element.Annotation.Documentation[0].Content,
+		)
 	}
 }

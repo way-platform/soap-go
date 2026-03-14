@@ -11,6 +11,7 @@ import (
 
 // TestDocumentationValidation tests that generated documentation contains expected content
 func TestDocumentationValidation(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		name        string
 		testDataDir string
@@ -189,6 +190,7 @@ func validateWSDLInfo(t *testing.T, testDataDir string, docContent string) {
 
 // TestDocumentationGeneration tests the documentation generation process
 func TestDocumentationGeneration(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		name         string
 		testDataDir  string
@@ -274,6 +276,7 @@ func runGenerationTest(t *testing.T, testDataDir string, expectTables, expectTyp
 
 // TestDocumentationConsistency tests that documentation is consistent with golden files
 func TestDocumentationConsistency(t *testing.T) {
+	t.Parallel()
 	testdataDir := "testdata"
 
 	// Get all test cases

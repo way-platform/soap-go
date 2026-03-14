@@ -16,6 +16,7 @@ import (
 var update = flag.Bool("update", false, "update golden files")
 
 func TestGoldenFiles(t *testing.T) {
+	t.Parallel()
 	testdataDir := "testdata"
 
 	// Discover all test cases by walking the testdata directory
@@ -184,7 +185,7 @@ func cleanMarkdownFiles(dir string) error {
 	return nil
 }
 
-func compareWithGolden(t *testing.T, dir, filename, generatedContent string) error {
+func compareWithGolden(_ *testing.T, dir, filename, generatedContent string) error {
 	// Read existing golden file
 	goldenFilePath := filepath.Join(dir, filename)
 	goldenContent, err := os.ReadFile(goldenFilePath)

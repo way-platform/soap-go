@@ -7,6 +7,7 @@ import (
 )
 
 func TestMapXSDTypeToGo(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		typ      xsd.Type
 		expected string
@@ -70,6 +71,7 @@ func TestMapXSDTypeToGo(t *testing.T) {
 }
 
 func TestGetRequiredImports(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		typ      xsd.Type
 		expected []string
@@ -102,6 +104,7 @@ func TestGetRequiredImports(t *testing.T) {
 }
 
 func TestToGoTypeName(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		input    string
 		expected string
@@ -126,6 +129,7 @@ func TestToGoTypeName(t *testing.T) {
 
 // Test that float types specifically map to float64 (addressing precision issues)
 func TestFloatingPointPrecision(t *testing.T) {
+	t.Parallel()
 	floatTypes := []xsd.Type{xsd.Float, xsd.Double, xsd.Decimal}
 
 	for _, typ := range floatTypes {

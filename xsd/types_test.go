@@ -7,6 +7,7 @@ import (
 )
 
 func TestType_IsPrimitive(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		typ      xsd.Type
 		expected bool
@@ -34,6 +35,7 @@ func TestType_IsPrimitive(t *testing.T) {
 }
 
 func TestType_IsDerived(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		typ      xsd.Type
 		expected bool
@@ -57,6 +59,7 @@ func TestType_IsDerived(t *testing.T) {
 }
 
 func TestType_IsNumeric(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		typ      xsd.Type
 		expected bool
@@ -89,6 +92,7 @@ func TestType_IsNumeric(t *testing.T) {
 }
 
 func TestType_IsString(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		typ      xsd.Type
 		expected bool
@@ -114,6 +118,7 @@ func TestType_IsString(t *testing.T) {
 }
 
 func TestType_IsTemporal(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		typ      xsd.Type
 		expected bool
@@ -140,6 +145,7 @@ func TestType_IsTemporal(t *testing.T) {
 }
 
 func TestType_IsBinary(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		typ      xsd.Type
 		expected bool
@@ -161,6 +167,7 @@ func TestType_IsBinary(t *testing.T) {
 }
 
 func TestParseType(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		input    string
 		expected xsd.Type
@@ -193,6 +200,7 @@ func TestParseType(t *testing.T) {
 }
 
 func TestType_String(t *testing.T) {
+	t.Parallel()
 	typ := xsd.String
 	if got := typ.String(); got != "string" {
 		t.Errorf("String() = %v, want %v", got, "string")

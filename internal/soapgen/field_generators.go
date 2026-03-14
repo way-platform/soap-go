@@ -8,13 +8,19 @@ import (
 )
 
 // generateAnyFieldWithFieldRegistry generates a RawXML field for xs:any elements with collision detection
-func generateAnyFieldWithFieldRegistry(g *codegen.File, anyElement *xsd.Any, ctx *SchemaContext, singleRawXMLCount int, fieldRegistry *FieldRegistry) bool {
+func generateAnyFieldWithFieldRegistry(
+	g *codegen.File,
+	anyElement *xsd.Any,
+	_ *SchemaContext,
+	singleRawXMLCount int,
+	fieldRegistry *FieldRegistry,
+) bool {
 	// Generate a field name based on namespace or use a generic name
 	fieldName := "Content"
 	if anyElement.Namespace != "" && anyElement.Namespace != "##any" {
 		// Use namespace-specific field name, handling special namespace prefixes
 		ns := anyElement.Namespace
-		if strings.HasPrefix(ns, "##") {
+		if rest, ok := strings.CutPrefix(ns, "##"); ok {
 			// Handle special namespace values like ##other, ##local, ##targetNamespace
 			switch ns {
 			case "##other":
@@ -25,7 +31,7 @@ func generateAnyFieldWithFieldRegistry(g *codegen.File, anyElement *xsd.Any, ctx
 				fieldName = "TargetNamespaceContent"
 			default:
 				// Strip ## prefix and use the rest
-				fieldName = toGoName(strings.TrimPrefix(ns, "##")) + "Content"
+				fieldName = toGoName(rest) + "Content"
 			}
 		} else {
 			fieldName = toGoName(ns) + "Content"
@@ -66,12 +72,35 @@ func generateAnyFieldWithFieldRegistry(g *codegen.File, anyElement *xsd.Any, ctx
 }
 
 // generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry generates a Go struct field with support for inline complex types and field collision detection
-func generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(g *codegen.File, element *xsd.Element, ctx *SchemaContext, singleRawXMLCount int, parentElementName string, fieldRegistry *FieldRegistry) bool {
-	return generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistryInternal(g, element, ctx, singleRawXMLCount, parentElementName, fieldRegistry, false)
+func generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistry(
+	g *codegen.File,
+	element *xsd.Element,
+	ctx *SchemaContext,
+	singleRawXMLCount int,
+	parentElementName string,
+	fieldRegistry *FieldRegistry,
+) bool {
+	return generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistryInternal(
+		g,
+		element,
+		ctx,
+		singleRawXMLCount,
+		parentElementName,
+		fieldRegistry,
+		false,
+	)
 }
 
 // generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistryInternal is the internal implementation
-func generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistryInternal(g *codegen.File, element *xsd.Element, ctx *SchemaContext, singleRawXMLCount int, parentElementName string, fieldRegistry *FieldRegistry, isAttribute bool) bool {
+func generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistryInternal(
+	g *codegen.File,
+	element *xsd.Element,
+	ctx *SchemaContext,
+	singleRawXMLCount int,
+	parentElementName string,
+	fieldRegistry *FieldRegistry,
+	isAttribute bool,
+) bool {
 	// Handle element references
 	if element.Ref != "" {
 		if referencedElement := ctx.resolveElementRef(element.Ref); referencedElement != nil {
@@ -231,7 +260,13 @@ func generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistryIntern
 }
 
 // generateAttributeFieldWithParentName generates a Go struct field from an XSD attribute with parent context for inline enums
-func generateAttributeFieldWithParentName(g *codegen.File, attr *xsd.Attribute, ctx *SchemaContext, fieldRegistry *FieldRegistry, parentName string) bool {
+func generateAttributeFieldWithParentName(
+	g *codegen.File,
+	attr *xsd.Attribute,
+	ctx *SchemaContext,
+	fieldRegistry *FieldRegistry,
+	parentName string,
+) bool {
 	if attr.Name == "" {
 		return false
 	}

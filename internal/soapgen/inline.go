@@ -47,7 +47,14 @@ func generateInlineComplexTypes(g *codegen.File, ctx *SchemaContext, elements []
 
 	for _, name := range complexTypeNames {
 		complexType := ctx.complexTypes[name]
-		if generated := generateInlineTypesFromComplexType(g, complexType, complexType.Name, ctx, registry); generated && !hasTypes {
+		if generated := generateInlineTypesFromComplexType(
+			g,
+			complexType,
+			complexType.Name,
+			ctx,
+			registry,
+		); generated &&
+			!hasTypes {
 			g.P("// Inline complex types")
 			g.P()
 			hasTypes = true
@@ -63,7 +70,13 @@ func generateInlineComplexTypes(g *codegen.File, ctx *SchemaContext, elements []
 }
 
 // generateInlineTypesFromElement recursively generates inline complex types from an element
-func generateInlineTypesFromElement(g *codegen.File, element *xsd.Element, parentName string, ctx *SchemaContext, registry *AnonymousTypeRegistry) bool {
+func generateInlineTypesFromElement(
+	g *codegen.File,
+	element *xsd.Element,
+	_ string,
+	ctx *SchemaContext,
+	registry *AnonymousTypeRegistry,
+) bool {
 	generated := false
 
 	if element.ComplexType != nil && element.ComplexType.Sequence != nil {
@@ -89,7 +102,13 @@ func generateInlineTypesFromElement(g *codegen.File, element *xsd.Element, paren
 }
 
 // generateInlineTypesFromComplexType recursively generates inline complex types from a complex type
-func generateInlineTypesFromComplexType(g *codegen.File, complexType *xsd.ComplexType, parentName string, ctx *SchemaContext, registry *AnonymousTypeRegistry) bool {
+func generateInlineTypesFromComplexType(
+	g *codegen.File,
+	complexType *xsd.ComplexType,
+	parentName string,
+	ctx *SchemaContext,
+	registry *AnonymousTypeRegistry,
+) bool {
 	generated := false
 
 	if complexType.Sequence != nil {

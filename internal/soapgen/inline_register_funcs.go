@@ -5,7 +5,12 @@ import (
 )
 
 // registerInlineTypesFromElement recursively registers inline complex types from an element without generating struct definitions
-func registerInlineTypesFromElement(element *xsd.Element, parentName string, ctx *SchemaContext, registry *AnonymousTypeRegistry) {
+func registerInlineTypesFromElement(
+	element *xsd.Element,
+	_ string,
+	ctx *SchemaContext,
+	registry *AnonymousTypeRegistry,
+) {
 	if element.ComplexType != nil && element.ComplexType.Sequence != nil {
 		for _, field := range element.ComplexType.Sequence.Elements {
 			if field.ComplexType != nil {
@@ -22,7 +27,12 @@ func registerInlineTypesFromElement(element *xsd.Element, parentName string, ctx
 }
 
 // registerInlineTypesFromComplexType recursively registers inline complex types from a complex type without generating struct definitions
-func registerInlineTypesFromComplexType(complexType *xsd.ComplexType, parentName string, ctx *SchemaContext, registry *AnonymousTypeRegistry) {
+func registerInlineTypesFromComplexType(
+	complexType *xsd.ComplexType,
+	parentName string,
+	ctx *SchemaContext,
+	registry *AnonymousTypeRegistry,
+) {
 	if complexType.Sequence != nil {
 		for _, field := range complexType.Sequence.Elements {
 			if field.ComplexType != nil {

@@ -8,6 +8,7 @@ import (
 )
 
 func TestNewFile(t *testing.T) {
+	t.Parallel()
 	file := codegen.NewFile("test.go", "example.com/test")
 	if file == nil {
 		t.Fatal("NewFile should not return nil")
@@ -15,6 +16,7 @@ func TestNewFile(t *testing.T) {
 }
 
 func TestFile_P(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		setup    func(*codegen.File)
@@ -68,6 +70,7 @@ func TestFile_P(t *testing.T) {
 }
 
 func TestFile_P_Empty(t *testing.T) {
+	t.Parallel()
 	// Test P method with empty content using non-Go file
 	file := codegen.NewFile("test.txt", "")
 	file.P()
@@ -84,6 +87,7 @@ func TestFile_P_Empty(t *testing.T) {
 }
 
 func TestFile_Import(t *testing.T) {
+	t.Parallel()
 	file := codegen.NewFile("test.go", "example.com/test")
 	file.P("package main")
 	file.P("func main() {}")
@@ -120,6 +124,7 @@ func TestFile_Import(t *testing.T) {
 }
 
 func TestFile_ImportSorting(t *testing.T) {
+	t.Parallel()
 	file := codegen.NewFile("test.go", "example.com/test")
 	file.P("package main")
 	file.P("func main() {}")
@@ -148,13 +153,14 @@ func TestFile_ImportSorting(t *testing.T) {
 	}
 
 	// Check alphabetical order
-	if !(bufioPos < fmtPos && fmtPos < osPos && osPos < stringsPos) {
+	if bufioPos >= fmtPos || fmtPos >= osPos || osPos >= stringsPos {
 		t.Errorf("Imports should be sorted alphabetically. Order: bufio=%d, fmt=%d, os=%d, strings=%d",
 			bufioPos, fmtPos, osPos, stringsPos)
 	}
 }
 
 func TestFile_Write(t *testing.T) {
+	t.Parallel()
 	// Test with non-Go file to avoid parsing issues
 	file := codegen.NewFile("test.txt", "")
 
@@ -190,6 +196,7 @@ func TestFile_Write(t *testing.T) {
 }
 
 func TestFile_ContentGoFile(t *testing.T) {
+	t.Parallel()
 	file := codegen.NewFile("test.go", "example.com/test")
 	file.Import("fmt")
 	file.P("package main")
@@ -223,6 +230,7 @@ func TestFile_ContentGoFile(t *testing.T) {
 }
 
 func TestFile_ContentNonGoFile(t *testing.T) {
+	t.Parallel()
 	file := codegen.NewFile("test.txt", "")
 	file.P("This is a text file")
 	file.P("with multiple lines")
@@ -239,6 +247,7 @@ func TestFile_ContentNonGoFile(t *testing.T) {
 }
 
 func TestFile_ContentInvalidGoCode(t *testing.T) {
+	t.Parallel()
 	file := codegen.NewFile("test.go", "example.com/test")
 	file.P("package main")
 	file.P("func main() {")
@@ -261,6 +270,7 @@ func TestFile_ContentInvalidGoCode(t *testing.T) {
 }
 
 func TestFile_ContentWithComments(t *testing.T) {
+	t.Parallel()
 	file := codegen.NewFile("test.go", "example.com/test")
 	file.Import("fmt")
 	file.P("// Package main provides a simple example")
@@ -295,12 +305,13 @@ func TestFile_ContentWithComments(t *testing.T) {
 		t.Fatal("Package, import, and function declarations should all be present")
 	}
 
-	if !(packagePos < importPos && importPos < funcPos) {
+	if packagePos >= importPos || importPos >= funcPos {
 		t.Error("Expected order: package, import, function")
 	}
 }
 
 func TestFile_MultipleOperations(t *testing.T) {
+	t.Parallel()
 	file := codegen.NewFile("complex.go", "example.com/test")
 
 	// Test io.Writer interface
@@ -352,6 +363,7 @@ func TestFile_MultipleOperations(t *testing.T) {
 }
 
 func TestFile_EmptyFile(t *testing.T) {
+	t.Parallel()
 	// Test with non-Go file since empty Go files are invalid
 	file := codegen.NewFile("empty.txt", "")
 
@@ -366,6 +378,7 @@ func TestFile_EmptyFile(t *testing.T) {
 }
 
 func TestFile_OnlyPackage(t *testing.T) {
+	t.Parallel()
 	file := codegen.NewFile("package.go", "example.com/test")
 	file.P("package test")
 
@@ -381,6 +394,7 @@ func TestFile_OnlyPackage(t *testing.T) {
 }
 
 func TestFile_ImportWithoutCode(t *testing.T) {
+	t.Parallel()
 	file := codegen.NewFile("imports.go", "example.com/test")
 	file.Import("fmt")
 	file.Import("os")
@@ -393,43 +407,44 @@ func TestFile_ImportWithoutCode(t *testing.T) {
 }
 
 func TestFile_QualifiedGoIdent(t *testing.T) {
+	t.Parallel()
 	file := codegen.NewFile("test.go", "example.com/test")
-	
+
 	// Test same package - should return just the name
 	samePackageIdent := codegen.GoIdent{GoImportPath: "example.com/test", GoName: "MyType"}
 	result := file.QualifiedGoIdent(samePackageIdent)
 	if result != "MyType" {
 		t.Errorf("Expected 'MyType', got '%s'", result)
 	}
-	
+
 	// Test built-in type - should return just the name
 	builtinIdent := codegen.GoIdent{GoImportPath: "", GoName: "string"}
 	result = file.QualifiedGoIdent(builtinIdent)
 	if result != "string" {
 		t.Errorf("Expected 'string', got '%s'", result)
 	}
-	
+
 	// Test different package - should return qualified name and add import
 	xmlIdent := codegen.GoIdent{GoImportPath: "encoding/xml", GoName: "Name"}
 	result = file.QualifiedGoIdent(xmlIdent)
 	if result != "xml.Name" {
 		t.Errorf("Expected 'xml.Name', got '%s'", result)
 	}
-	
+
 	// Test package name collision handling
 	timeIdent := codegen.GoIdent{GoImportPath: "time", GoName: "Time"}
 	result = file.QualifiedGoIdent(timeIdent)
 	if result != "time.Time" {
 		t.Errorf("Expected 'time.Time', got '%s'", result)
 	}
-	
+
 	// Test that imports were added
 	file.P("package test")
 	content, err := file.Content()
 	if err != nil {
 		t.Fatalf("Content() should not fail: %v", err)
 	}
-	
+
 	contentStr := string(content)
 	if !strings.Contains(contentStr, `"encoding/xml"`) {
 		t.Error("Expected xml import to be added")
@@ -440,20 +455,21 @@ func TestFile_QualifiedGoIdent(t *testing.T) {
 }
 
 func TestFile_QualifiedGoIdent_PackageNameCollision(t *testing.T) {
+	t.Parallel()
 	file := codegen.NewFile("test.go", "example.com/test")
-	
+
 	// Create two packages that would have the same base name
 	pkg1Ident := codegen.GoIdent{GoImportPath: "example.com/foo/xml", GoName: "Parser"}
 	pkg2Ident := codegen.GoIdent{GoImportPath: "encoding/xml", GoName: "Name"}
-	
+
 	result1 := file.QualifiedGoIdent(pkg1Ident)
 	result2 := file.QualifiedGoIdent(pkg2Ident)
-	
+
 	// Both should be qualified but with different package names
 	if result1 == result2 {
 		t.Errorf("Expected different qualifications, got same: %s", result1)
 	}
-	
+
 	// Should contain the type names
 	if !strings.Contains(result1, "Parser") {
 		t.Errorf("Expected result1 to contain 'Parser', got '%s'", result1)
@@ -464,13 +480,14 @@ func TestFile_QualifiedGoIdent_PackageNameCollision(t *testing.T) {
 }
 
 func TestFile_CommonIdents(t *testing.T) {
+	t.Parallel()
 	file := codegen.NewFile("test.go", "example.com/test")
-	
+
 	// Test using common identifiers
 	xmlNameResult := file.QualifiedGoIdent(codegen.XMLNameIdent)
 	contextResult := file.QualifiedGoIdent(codegen.ContextIdent)
 	stringResult := file.QualifiedGoIdent(codegen.StringIdent)
-	
+
 	if xmlNameResult != "xml.Name" {
 		t.Errorf("Expected 'xml.Name', got '%s'", xmlNameResult)
 	}
