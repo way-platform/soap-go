@@ -56,8 +56,6 @@ func convertToQualifiedType(rawType string, g *codegen.File) string {
 	switch rawType {
 	case "time.Time":
 		return g.QualifiedGoIdent(codegen.TimeIdent)
-	case "time.Duration":
-		return g.QualifiedGoIdent(codegen.GoIdent{GoImportPath: "time", GoName: "Duration"})
 	case "string":
 		return g.QualifiedGoIdent(codegen.StringIdent)
 	case "bool":
