@@ -447,7 +447,6 @@ func TestClient_Integration(t *testing.T) {
 	// Create client with various options
 	client, err := NewClient(
 		WithEndpoint(server.URL),
-		WithDebug(false), // Set to true to see debug output during testing
 		WithMaxRetries(0),
 	)
 	if err != nil {

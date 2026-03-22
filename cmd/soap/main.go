@@ -46,7 +46,6 @@ func newRootCommand() *cobra.Command {
 		Use:   "soap",
 		Short: "Multi-tool for SOAP APIs",
 	}
-	cmd.PersistentFlags().Bool("debug", false, "Enable debug logging")
 	cmd.AddGroup(gen.NewGroup())
 	cmd.AddCommand(gen.NewCommand())
 	cmd.AddGroup(doc.NewGroup())

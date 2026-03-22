@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/xml"
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -50,8 +51,10 @@ to include the full SOAP envelope in the response.`,
 	outputEnvelope := cmd.Flags().Bool("output-envelope", false, "include SOAP envelope in response output")
 	output := cmd.Flags().StringP("output", "o", "-", "output file path (default: stdout)")
 
+	var debug bool
+	cmd.Flags().BoolVar(&debug, "debug", false, "dump HTTP requests and responses to stderr")
+
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		debug, _ := cmd.Root().PersistentFlags().GetBool("debug")
 		return run(config{
 			endpoint:       *endpoint,
 			action:         *action,
@@ -59,7 +62,12 @@ to include the full SOAP envelope in the response.`,
 			fullEnvelope:   *fullEnvelope,
 			outputEnvelope: *outputEnvelope,
 			outputFile:     *output,
-			debug:          debug,
+			httpClient: &http.Client{
+				Transport: &soap.DebugTransport{
+					Enabled: &debug,
+					Next:    http.DefaultTransport,
+				},
+			},
 		})
 	}
 
@@ -73,7 +81,7 @@ type config struct {
 	fullEnvelope   bool
 	outputEnvelope bool
 	outputFile     string
-	debug          bool
+	httpClient     *http.Client
 }
 
 func run(cfg config) error {
@@ -88,10 +96,12 @@ func run(cfg config) error {
 	// No custom headers parsing needed - action will be handled by the Call method
 
 	// Create SOAP client
-	client, err := soap.NewClient(
-		soap.WithEndpoint(cfg.endpoint),
-		soap.WithDebug(cfg.debug),
-	)
+	var opts []soap.ClientOption
+	opts = append(opts, soap.WithEndpoint(cfg.endpoint))
+	if cfg.httpClient != nil {
+		opts = append(opts, soap.WithHTTPClient(cfg.httpClient))
+	}
+	client, err := soap.NewClient(opts...)
 	if err != nil {
 		return fmt.Errorf("failed to create SOAP client: %w", err)
 	}

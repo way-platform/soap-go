@@ -24,7 +24,7 @@ type ClientOption func(*clientConfig)
 // clientConfig holds the configuration for a Client.
 type clientConfig struct {
 	endpoint          string
-	debug             bool
+	httpClient        *http.Client
 	addXMLDeclaration bool
 	maxRetries        int
 	timeout           time.Duration
@@ -36,7 +36,6 @@ type clientConfig struct {
 func newClientConfig() clientConfig {
 	return clientConfig{
 		endpoint:          "",
-		debug:             false,
 		addXMLDeclaration: true,
 		maxRetries:        3,
 		timeout:           30 * time.Second,
@@ -51,12 +50,33 @@ func WithEndpoint(endpoint string) ClientOption {
 	}
 }
 
-// WithDebug enables debug mode, which will dump HTTP requests and responses to stderr.
-// This works the same as the debug mode in the soapcall package.
-func WithDebug(debug bool) ClientOption {
+// WithHTTPClient sets the base HTTP client whose transport is used as the
+// innermost layer of the transport chain (interceptors and retry wrap it).
+// If the client has no Transport, [http.DefaultTransport] is used.
+// The client's Timeout is ignored — use [WithTimeout] instead.
+func WithHTTPClient(client *http.Client) ClientOption {
 	return func(c *clientConfig) {
-		c.debug = debug
+		c.httpClient = client
 	}
+}
+
+// WithDebug enables debug output, dumping HTTP requests and responses to
+// stderr. This is a convenience shorthand for:
+//
+//	soap.WithHTTPClient(&http.Client{
+//	    Transport: &soap.DebugTransport{Enabled: &alwaysTrue, Next: http.DefaultTransport},
+//	})
+//
+// For lazy evaluation (e.g. a --debug flag parsed after client construction),
+// use [WithHTTPClient] with a [DebugTransport] directly.
+func WithDebug() ClientOption {
+	enabled := true
+	return WithHTTPClient(&http.Client{
+		Transport: &DebugTransport{
+			Enabled: &enabled,
+			Next:    http.DefaultTransport,
+		},
+	})
 }
 
 // WithXMLDeclaration controls whether XML declaration is automatically added to requests.
@@ -189,12 +209,13 @@ func (c *Client) doRequest(
 
 // httpClient creates a new HTTP client with the given configuration.
 func (c *Client) httpClient(cfg clientConfig) *http.Client {
-	transport := http.DefaultTransport
-	// Add debug transport if debug is enabled.
-	if cfg.debug {
-		transport = &debugTransport{
-			next: transport,
-		}
+	// Use injected client's transport as the base, falling back to default.
+	var transport http.RoundTripper
+	if cfg.httpClient != nil {
+		transport = cfg.httpClient.Transport
+	}
+	if transport == nil {
+		transport = http.DefaultTransport
 	}
 	// Add middleware transport if middlewares are configured.
 	if len(cfg.interceptors) > 0 {
