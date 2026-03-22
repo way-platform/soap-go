@@ -51,3 +51,5 @@ require (
 	golang.org/x/term v0.31.0 // indirect
 	golang.org/x/text v0.28.0 // indirect
 )
+
+replace github.com/way-platform/soap-go => ../../
