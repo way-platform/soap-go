@@ -117,20 +117,24 @@ func (g *Generator) shouldUseWrapperForElement(elementName string, bindingStyle 
 	return false
 }
 
-// elementNameCollidesWithType checks if an element name matches any
-// simpleType or complexType name defined in the WSDL schemas.
+// elementNameCollidesWithType checks if an element's Go type name would
+// collide with any simpleType or complexType Go type name in the WSDL schemas.
+// Comparison is done on Go names (after toGoName) because different XSD names
+// can produce the same Go identifier (e.g., "addPolicy_Request" and
+// "addPolicyRequest" both become "AddPolicyRequest").
 func (g *Generator) elementNameCollidesWithType(elementName string) bool {
 	if g.definitions.Types == nil {
 		return false
 	}
+	goName := toGoName(elementName)
 	for _, schema := range g.definitions.Types.Schemas {
 		for _, st := range schema.SimpleTypes {
-			if st.Name == elementName {
+			if toGoName(st.Name) == goName {
 				return true
 			}
 		}
 		for _, ct := range schema.ComplexTypes {
-			if ct.Name == elementName {
+			if toGoName(ct.Name) == goName {
 				return true
 			}
 		}
