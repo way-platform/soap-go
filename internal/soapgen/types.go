@@ -2,44 +2,58 @@ package soapgen
 
 import (
 	"strings"
+	"unicode"
 
 	"github.com/way-platform/soap-go/xsd"
 )
 
-// toGoName converts an XML name to a Go identifier (PascalCase)
+// toGoName converts an XML name to a valid Go identifier (PascalCase).
+//
+// XSD names and enumeration values can contain characters that are not valid
+// in Go identifiers (spaces, slashes, colons, plus signs, asterisks, etc.).
+// This function splits on any non-letter, non-digit character, capitalizes
+// the first letter of each part, and preserves the rest of each part's casing
+// to maintain camelCase names like "GetWeather" or "DownloadRequest".
 func toGoName(name string) string {
 	if name == "" {
 		return ""
 	}
 
-	// Trim spaces to avoid issues with malformed XML element names
 	name = strings.TrimSpace(name)
 
-	// Split on common separators and capitalize each part
+	// Split on any character that is not a letter or digit.
+	// This handles spaces, slashes, colons, plus signs, asterisks, dots,
+	// hyphens, underscores, and any other non-identifier characters.
 	parts := strings.FieldsFunc(name, func(r rune) bool {
-		return r == '_' || r == '-' || r == '.'
+		return !unicode.IsLetter(r) && !unicode.IsDigit(r)
 	})
+
+	if len(parts) == 0 {
+		return "Value"
+	}
 
 	var result strings.Builder
 	for _, part := range parts {
-		if len(part) > 0 {
-			result.WriteString(strings.ToUpper(part[:1]))
-			if len(part) > 1 {
-				result.WriteString(strings.ToLower(part[1:]))
-			}
+		if len(part) == 0 {
+			continue
+		}
+		// Capitalize first letter, preserve the rest of the casing.
+		// This maintains camelCase names (e.g. "DownloadRequest" stays as-is)
+		// while still capitalizing words from split values
+		// (e.g. "EIR Sync Error" → "EIR" + "Sync" + "Error").
+		result.WriteString(strings.ToUpper(part[:1]))
+		if len(part) > 1 {
+			result.WriteString(part[1:])
 		}
 	}
 
-	// Handle the case where name doesn't need splitting
-	if len(parts) <= 1 {
-		result.Reset()
-		result.WriteString(strings.ToUpper(name[:1]))
-		if len(name) > 1 {
-			result.WriteString(name[1:])
-		}
+	// If the result starts with a digit, prefix to make it a valid Go identifier.
+	s := result.String()
+	if len(s) > 0 && unicode.IsDigit(rune(s[0])) {
+		return "V" + s
 	}
 
-	return result.String()
+	return s
 }
 
 // mapXSDTypeToGoWithContext maps XSD types to Go types using schema context for better resolution

@@ -63,8 +63,8 @@ type GetServerPropertiesRequest_Version string
 
 // GetServerPropertiesRequest_Version enumeration values
 const (
-	GetServerPropertiesRequest_Version10 GetServerPropertiesRequest_Version = "1.0"
-	GetServerPropertiesRequest_Version20 GetServerPropertiesRequest_Version = "2.0"
+	GetServerPropertiesRequest_VersionV10 GetServerPropertiesRequest_Version = "1.0"
+	GetServerPropertiesRequest_VersionV20 GetServerPropertiesRequest_Version = "2.0"
 )
 
 // String returns the string representation of GetServerPropertiesRequest_Version
@@ -75,7 +75,7 @@ func (e GetServerPropertiesRequest_Version) String() string {
 // IsValid returns true if the GetServerPropertiesRequest_Version value is valid
 func (e GetServerPropertiesRequest_Version) IsValid() bool {
 	switch e {
-	case GetServerPropertiesRequest_Version10, GetServerPropertiesRequest_Version20:
+	case GetServerPropertiesRequest_VersionV10, GetServerPropertiesRequest_VersionV20:
 		return true
 	default:
 		return false
