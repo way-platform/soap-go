@@ -40,16 +40,16 @@ type UserInfoType struct {
 	Email  string     `xml:"email"`
 }
 
-// User represents the User element
-type User struct {
+// UserWrapper represents the User element
+type UserWrapper struct {
 	XMLName xml.Name   `xml:"User"`
 	UserId  int64      `xml:"userId"`
 	Status  StatusType `xml:"status"`
 	Email   string     `xml:"email"`
 }
 
-// StatusCheck represents the StatusCheck element
-type StatusCheck struct {
+// StatusCheckWrapper represents the StatusCheck element
+type StatusCheckWrapper struct {
 	XMLName       xml.Name   `xml:"StatusCheck"`
 	CurrentStatus StatusType `xml:"currentStatus"`
 	TargetStatus  StatusType `xml:"targetStatus"`

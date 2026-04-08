@@ -4,8 +4,8 @@ import (
 	"encoding/xml"
 )
 
-// TestElement represents the TestElement element
-type TestElement struct {
+// TestElementWrapper represents the TestElement element
+type TestElementWrapper struct {
 	XMLName xml.Name `xml:"TestElement"`
 	Value   string   `xml:",chardata"`
 }

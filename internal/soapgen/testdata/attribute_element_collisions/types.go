@@ -73,8 +73,8 @@ type ConfigDataWrapper struct {
 	Enabled      *bool    `xml:"enabled,attr,omitempty"`
 }
 
-// MetadataInfo represents the MetadataInfo element
-type MetadataInfo struct {
+// MetadataInfoWrapper represents the MetadataInfo element
+type MetadataInfoWrapper struct {
 	XMLName     xml.Name `xml:"MetadataInfo"`
 	Name        string   `xml:"Name"`
 	Type        string   `xml:"Type"`

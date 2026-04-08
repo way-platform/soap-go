@@ -53,29 +53,36 @@ type REQUESTWrapper struct {
 	Type    string   `xml:"type"`
 }
 
-// RequestElement represents the requestElement element
-type RequestElement struct {
+// RequestElementWrapper represents the requestElement element
+type RequestElementWrapper struct {
 	XMLName xml.Name `xml:"requestElement"`
 	Id      string   `xml:"id"`
 	Type    string   `xml:"type"`
 }
 
-// RequestOperation represents the requestOperation element
-type RequestOperation struct {
+// RequestWrapperWrapper represents the requestWrapper element
+type RequestWrapperWrapper struct {
+	XMLName xml.Name `xml:"requestWrapper"`
+	Id      string   `xml:"id"`
+	Type    string   `xml:"type"`
+}
+
+// RequestOperationWrapper represents the requestOperation element
+type RequestOperationWrapper struct {
 	XMLName xml.Name `xml:"requestOperation"`
 	Id      string   `xml:"id"`
 	Type    string   `xml:"type"`
 }
 
-// Request1 represents the Request1 element
-type Request1 struct {
+// Request1Wrapper represents the Request1 element
+type Request1Wrapper struct {
 	XMLName xml.Name `xml:"Request1"`
 	Id      string   `xml:"id"`
 	Type    string   `xml:"type"`
 }
 
-// Request2 represents the Request2 element
-type Request2 struct {
+// Request2Wrapper represents the Request2 element
+type Request2Wrapper struct {
 	XMLName xml.Name `xml:"Request2"`
 	Id      string   `xml:"id"`
 	Type    string   `xml:"type"`
@@ -95,36 +102,43 @@ type DATAWrapper struct {
 	Format  string   `xml:"format"`
 }
 
-// DataElement represents the dataElement element
-type DataElement struct {
+// DataElementWrapper represents the dataElement element
+type DataElementWrapper struct {
 	XMLName xml.Name `xml:"dataElement"`
 	Content string   `xml:"content"`
 	Format  string   `xml:"format"`
 }
 
-// DataOperation represents the dataOperation element
-type DataOperation struct {
+// DataWrapperWrapper represents the dataWrapper element
+type DataWrapperWrapper struct {
+	XMLName xml.Name `xml:"dataWrapper"`
+	Content string   `xml:"content"`
+	Format  string   `xml:"format"`
+}
+
+// DataOperationWrapper represents the dataOperation element
+type DataOperationWrapper struct {
 	XMLName xml.Name `xml:"dataOperation"`
 	Content string   `xml:"content"`
 	Format  string   `xml:"format"`
 }
 
-// Data1 represents the Data1 element
-type Data1 struct {
+// Data1Wrapper represents the Data1 element
+type Data1Wrapper struct {
 	XMLName xml.Name `xml:"Data1"`
 	Content string   `xml:"content"`
 	Format  string   `xml:"format"`
 }
 
-// Data2 represents the Data2 element
-type Data2 struct {
+// Data2Wrapper represents the Data2 element
+type Data2Wrapper struct {
 	XMLName xml.Name `xml:"Data2"`
 	Content string   `xml:"content"`
 	Format  string   `xml:"format"`
 }
 
-// Data3 represents the Data3 element
-type Data3 struct {
+// Data3Wrapper represents the Data3 element
+type Data3Wrapper struct {
 	XMLName xml.Name `xml:"Data3"`
 	Content string   `xml:"content"`
 	Format  string   `xml:"format"`

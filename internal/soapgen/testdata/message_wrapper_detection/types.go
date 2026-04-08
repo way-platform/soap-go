@@ -4,35 +4,35 @@ import (
 	"encoding/xml"
 )
 
-// LoginRequest represents the LoginRequest element
-type LoginRequest struct {
+// LoginRequestWrapper represents the LoginRequest element
+type LoginRequestWrapper struct {
 	XMLName  xml.Name `xml:"LoginRequest"`
 	Username string   `xml:"username"`
 	Password string   `xml:"password"`
 }
 
-// LoginResponse represents the LoginResponse element
-type LoginResponse struct {
+// LoginResponseWrapper represents the LoginResponse element
+type LoginResponseWrapper struct {
 	XMLName   xml.Name `xml:"LoginResponse"`
 	SessionId string   `xml:"sessionId"`
 	Success   bool     `xml:"success"`
 }
 
-// UserData represents the UserData element
-type UserData struct {
+// UserDataWrapper represents the UserData element
+type UserDataWrapper struct {
 	XMLName  xml.Name `xml:"UserData"`
 	UserId   int64    `xml:"userId"`
 	UserData string   `xml:"userData"`
 }
 
-// Login represents the login element
-type Login struct {
-	XMLName      xml.Name     `xml:"login"`
-	LoginRequest LoginRequest `xml:"LoginRequest"`
+// LoginWrapper represents the login element
+type LoginWrapper struct {
+	XMLName      xml.Name            `xml:"login"`
+	LoginRequest LoginRequestWrapper `xml:"LoginRequest"`
 }
 
-// GetUserData represents the getUserData element
-type GetUserData struct {
-	XMLName  xml.Name `xml:"getUserData"`
-	UserData UserData `xml:"UserData"`
+// GetUserDataWrapper represents the getUserData element
+type GetUserDataWrapper struct {
+	XMLName  xml.Name        `xml:"getUserData"`
+	UserData UserDataWrapper `xml:"UserData"`
 }

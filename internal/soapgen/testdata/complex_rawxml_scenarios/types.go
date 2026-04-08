@@ -82,15 +82,15 @@ type UntypedElementWrapper struct {
 	Value   string   `xml:",chardata"`
 }
 
-// NestedDynamicDocument represents the NestedDynamicDocument element
-type NestedDynamicDocument struct {
+// NestedDynamicDocumentWrapper represents the NestedDynamicDocument element
+type NestedDynamicDocumentWrapper struct {
 	XMLName        xml.Name `xml:"NestedDynamicDocument"`
 	OuterElement   string   `xml:"outerElement"`
 	NestedDocument RawXML   `xml:",innerxml"`
 }
 
-// ValidElement represents the ValidElement element
-type ValidElement struct {
+// ValidElementWrapper represents the ValidElement element
+type ValidElementWrapper struct {
 	XMLName      xml.Name `xml:"ValidElement"`
 	ValidElement string   `xml:"validElement"`
 }

@@ -24,24 +24,24 @@ type DocumentWithMultipleRawContent_Body struct {
 	Content RawXML `xml:",innerxml"`
 }
 
-// DocumentWithRawContent represents the DocumentWithRawContent element
-type DocumentWithRawContent struct {
+// DocumentWithRawContentWrapper represents the DocumentWithRawContent element
+type DocumentWithRawContentWrapper struct {
 	XMLName        xml.Name `xml:"DocumentWithRawContent"`
 	Title          string   `xml:"title"`
 	Version        string   `xml:"version"`
 	DynamicContent RawXML   `xml:",innerxml"`
 }
 
-// DocumentWithMultipleRawContent represents the DocumentWithMultipleRawContent element
-type DocumentWithMultipleRawContent struct {
+// DocumentWithMultipleRawContentWrapper represents the DocumentWithMultipleRawContent element
+type DocumentWithMultipleRawContentWrapper struct {
 	XMLName xml.Name                              `xml:"DocumentWithMultipleRawContent"`
 	Title   string                                `xml:"title"`
 	Header  DocumentWithMultipleRawContent_Header `xml:"header"`
 	Body    DocumentWithMultipleRawContent_Body   `xml:"body"`
 }
 
-// PureUntypedDocument represents the PureUntypedDocument element
-type PureUntypedDocument struct {
+// PureUntypedDocumentWrapper represents the PureUntypedDocument element
+type PureUntypedDocumentWrapper struct {
 	XMLName xml.Name `xml:"PureUntypedDocument"`
 	Content RawXML   `xml:",innerxml"`
 }

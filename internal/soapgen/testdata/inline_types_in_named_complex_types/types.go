@@ -38,8 +38,8 @@ type ResponseType struct {
 	Items  []ResponseType_Items `xml:"items"`
 }
 
-// Response represents the Response element
-type Response struct {
+// ResponseWrapper represents the Response element
+type ResponseWrapper struct {
 	XMLName xml.Name             `xml:"Response"`
 	Status  string               `xml:"status"`
 	Data    ResponseType_Data    `xml:"data"`

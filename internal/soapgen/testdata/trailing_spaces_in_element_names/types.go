@@ -14,8 +14,8 @@ type ResponseType struct {
 	NormalField string `xml:"normalField"`
 }
 
-// TestResponse represents the TestResponse  element
-type TestResponse struct {
+// TestResponseWrapper represents the TestResponse  element
+type TestResponseWrapper struct {
 	XMLName     xml.Name `xml:"TestResponse"`
 	Status      string   `xml:"status"`
 	Priority    int32    `xml:"priority"`

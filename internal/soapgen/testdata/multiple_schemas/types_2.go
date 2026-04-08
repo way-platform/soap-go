@@ -4,8 +4,8 @@ import (
 	"encoding/xml"
 )
 
-// Element2 represents the Element2 element
-type Element2 struct {
+// Element2Wrapper represents the Element2 element
+type Element2Wrapper struct {
 	XMLName xml.Name `xml:"Element2"`
 	Value   int32    `xml:",chardata"`
 }
