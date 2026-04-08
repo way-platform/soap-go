@@ -84,6 +84,10 @@ func generateInlineTypesFromElement(
 			if field.ComplexType != nil {
 				// Generate inline complex type using Outer_Inner naming
 				typeName := registry.generateTypeName(element.Name, field.Name)
+				// Apply namespace prefix if scoping is enabled
+				if prefix := ctx.currentNsPrefix(); prefix != "" {
+					typeName = prefix + "_" + typeName
+				}
 				generateInlineComplexTypeStruct(g, typeName, field.ComplexType, ctx)
 				generated = true
 
@@ -116,6 +120,10 @@ func generateInlineTypesFromComplexType(
 			if field.ComplexType != nil {
 				// Generate inline complex type using Outer_Inner naming
 				typeName := registry.generateTypeName(parentName, field.Name)
+				// Apply namespace prefix if scoping is enabled
+				if prefix := ctx.currentNsPrefix(); prefix != "" {
+					typeName = prefix + "_" + typeName
+				}
 				generateInlineComplexTypeStruct(g, typeName, field.ComplexType, ctx)
 				generated = true
 

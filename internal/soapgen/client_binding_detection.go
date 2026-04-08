@@ -59,6 +59,14 @@ func (g *Generator) getBindingStyle() BindingStyle {
 func (g *Generator) getConsistentTypeName(xmlElementName string, bindingStyle BindingStyle) string {
 	baseName := toGoName(xmlElementName)
 
+	// Apply namespace prefix if scoping is enabled.
+	// Operation message elements belong to the WSDL's target namespace.
+	if g.namespaceScopingEnabled() && g.definitions.TargetNamespace != "" {
+		if prefix := g.nsPrefix(g.definitions.TargetNamespace); prefix != "" {
+			baseName = prefix + "_" + baseName
+		}
+	}
+
 	// Use the same logic as type generation for consistency
 	if g.shouldUseWrapperForElement(xmlElementName, bindingStyle) {
 		return baseName + "Wrapper"

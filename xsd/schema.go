@@ -5,6 +5,19 @@ import (
 	"io"
 )
 
+// NamespacePrefixMap returns a mapping of XML namespace prefixes to URIs
+// from the xmlns:* declarations on the schema element.
+// For example, xmlns:ns3="http://example.com/types" yields {"ns3": "http://example.com/types"}.
+func (s *Schema) NamespacePrefixMap() map[string]string {
+	m := make(map[string]string)
+	for _, attr := range s.ExtraAttrs {
+		if attr.Name.Space == "xmlns" {
+			m[attr.Name.Local] = attr.Value
+		}
+	}
+	return m
+}
+
 // Parse reads an XSD schema from an io.Reader and unmarshals it.
 func Parse(r io.Reader) (*Schema, error) {
 	var schema Schema
@@ -36,10 +49,11 @@ func (s *Schema) ResolveComplexType(typeName string) *ComplexType {
 
 // Schema represents an <xsd:schema> element.
 type Schema struct {
-	XMLName              xml.Name `xml:"schema"`
-	TargetNamespace      string   `xml:"targetNamespace,attr"`
-	ElementFormDefault   string   `xml:"elementFormDefault,attr"`
-	AttributeFormDefault string   `xml:"attributeFormDefault,attr"`
+	XMLName              xml.Name   `xml:"schema"`
+	TargetNamespace      string     `xml:"targetNamespace,attr"`
+	ElementFormDefault   string     `xml:"elementFormDefault,attr"`
+	AttributeFormDefault string     `xml:"attributeFormDefault,attr"`
+	ExtraAttrs           []xml.Attr `xml:",any,attr"` // Captures xmlns:* namespace declarations
 
 	Imports         []Import         `xml:"import"`
 	Includes        []Include        `xml:"include"`
