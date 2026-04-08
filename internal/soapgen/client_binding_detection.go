@@ -88,20 +88,52 @@ func (g *Generator) isOperationMessageElement(xmlElementName string) bool {
 	return false
 }
 
-// shouldUseWrapperForElement determines if a specific element should use wrapper naming
-// based on binding style and whether it's used in SOAP operations
+// shouldUseWrapperForElement determines if a specific element should use wrapper naming.
+// An element gets the Wrapper suffix when:
+//   - it is used as a SOAP operation message element (existing behaviour), OR
+//   - its name collides with a simpleType or complexType in the same WSDL,
+//     which would otherwise produce duplicate Go type declarations.
 func (g *Generator) shouldUseWrapperForElement(elementName string, bindingStyle BindingStyle) bool {
 	// Classification-based approach: Use wrapper naming for operation elements in appropriate binding styles
 	if bindingStyle.Style == "rpc" {
-		// RPC style: ALL operation elements use wrappers
-		return g.isOperationMessageElement(elementName)
+		if g.isOperationMessageElement(elementName) {
+			return true
+		}
 	}
 
 	if bindingStyle.Style == "document" && bindingStyle.Use == "literal" {
-		// Document/Literal: Use wrapper naming for ALL operation elements for consistency
-		return g.isOperationMessageElement(elementName)
+		if g.isOperationMessageElement(elementName) {
+			return true
+		}
 	}
 
-	// Other binding styles: no wrapper naming
+	// Use wrapper naming when the element name collides with an existing
+	// simpleType or complexType definition. In XSD these are separate symbol
+	// spaces, but in Go they would produce duplicate type declarations.
+	if g.elementNameCollidesWithType(elementName) {
+		return true
+	}
+
+	return false
+}
+
+// elementNameCollidesWithType checks if an element name matches any
+// simpleType or complexType name defined in the WSDL schemas.
+func (g *Generator) elementNameCollidesWithType(elementName string) bool {
+	if g.definitions.Types == nil {
+		return false
+	}
+	for _, schema := range g.definitions.Types.Schemas {
+		for _, st := range schema.SimpleTypes {
+			if st.Name == elementName {
+				return true
+			}
+		}
+		for _, ct := range schema.ComplexTypes {
+			if ct.Name == elementName {
+				return true
+			}
+		}
+	}
 	return false
 }
