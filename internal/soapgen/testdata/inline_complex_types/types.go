@@ -32,8 +32,8 @@ type OrderItems_Item struct {
 
 // Inline complex types
 
-// Order represents the Order element
-type Order struct {
+// OrderWrapper represents the Order element
+type OrderWrapper struct {
 	XMLName  xml.Name       `xml:"Order"`
 	Customer Order_Customer `xml:"customer"`
 	Items    Order_Items    `xml:"items"`

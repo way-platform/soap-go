@@ -88,56 +88,10 @@ func (g *Generator) isOperationMessageElement(xmlElementName string) bool {
 	return false
 }
 
-// shouldUseWrapperForElement determines if a specific element should use wrapper naming.
-// An element gets the Wrapper suffix when:
-//   - it is used as a SOAP operation message element (existing behaviour), OR
-//   - its name collides with a simpleType or complexType in the same WSDL,
-//     which would otherwise produce duplicate Go type declarations.
-func (g *Generator) shouldUseWrapperForElement(elementName string, bindingStyle BindingStyle) bool {
-	// Classification-based approach: Use wrapper naming for operation elements in appropriate binding styles
-	if bindingStyle.Style == "rpc" {
-		if g.isOperationMessageElement(elementName) {
-			return true
-		}
-	}
-
-	if bindingStyle.Style == "document" && bindingStyle.Use == "literal" {
-		if g.isOperationMessageElement(elementName) {
-			return true
-		}
-	}
-
-	// Use wrapper naming when the element name collides with an existing
-	// simpleType or complexType definition. In XSD these are separate symbol
-	// spaces, but in Go they would produce duplicate type declarations.
-	if g.elementNameCollidesWithType(elementName) {
-		return true
-	}
-
-	return false
-}
-
-// elementNameCollidesWithType checks if an element's Go type name would
-// collide with any simpleType or complexType Go type name in the WSDL schemas.
-// Comparison is done on Go names (after toGoName) because different XSD names
-// can produce the same Go identifier (e.g., "addPolicy_Request" and
-// "addPolicyRequest" both become "AddPolicyRequest").
-func (g *Generator) elementNameCollidesWithType(elementName string) bool {
-	if g.definitions.Types == nil {
-		return false
-	}
-	goName := toGoName(elementName)
-	for _, schema := range g.definitions.Types.Schemas {
-		for _, st := range schema.SimpleTypes {
-			if toGoName(st.Name) == goName {
-				return true
-			}
-		}
-		for _, ct := range schema.ComplexTypes {
-			if toGoName(ct.Name) == goName {
-				return true
-			}
-		}
-	}
-	return false
+// shouldUseWrapperForElement returns true for all elements.
+// In XSD, elements and types occupy separate symbol spaces. In Go, they don't.
+// To avoid any possibility of collision, all element-derived structs get a
+// Wrapper suffix, while type-derived structs keep their plain name.
+func (g *Generator) shouldUseWrapperForElement(_ string, _ BindingStyle) bool {
+	return true
 }

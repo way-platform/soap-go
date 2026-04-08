@@ -33,8 +33,8 @@ type FetchDataResponseWrapper struct {
 	LastModified time.Time `xml:"lastModified"`
 }
 
-// SystemStatus represents the SystemStatus element
-type SystemStatus struct {
+// SystemStatusWrapper represents the SystemStatus element
+type SystemStatusWrapper struct {
 	XMLName xml.Name `xml:"SystemStatus"`
 	Online  bool     `xml:"online"`
 	Version string   `xml:"version"`

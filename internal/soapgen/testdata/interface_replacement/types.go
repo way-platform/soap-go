@@ -7,8 +7,8 @@ import (
 // RawXML captures raw XML content for untyped elements.
 type RawXML []byte
 
-// MixedContent represents the MixedContent element
-type MixedContent struct {
+// MixedContentWrapper represents the MixedContent element
+type MixedContentWrapper struct {
 	XMLName         xml.Name `xml:"MixedContent"`
 	KnownField      string   `xml:"knownField"`
 	UnknownField    string   `xml:"unknownField"`
