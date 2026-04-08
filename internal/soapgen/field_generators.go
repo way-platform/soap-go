@@ -158,7 +158,7 @@ func generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistryIntern
 		goType = convertToQualifiedType(rawType, g)
 		// Handle complex type references - use the Go type name for complex types only
 		if complexType := ctx.resolveComplexType(element.Type); complexType != nil {
-			goType = toGoName(extractLocalName(element.Type))
+			goType = ctx.resolveNsScopedGoName(element.Type)
 		}
 	} else if element.SimpleType != nil {
 		// Check for inline enum type first
@@ -186,15 +186,22 @@ func generateStructFieldWithInlineTypesAndContextAndParentAndFieldRegistryIntern
 				// We need to find the actual generated type name in ctx.anonymousTypes
 				// Try the direct naming first
 				inlineTypeName := toGoName(parentElementName) + "_" + toGoName(element.Name)
+				// Apply namespace prefix if scoping is enabled
+				if prefix := ctx.currentNsPrefix(); prefix != "" {
+					inlineTypeName = prefix + "_" + inlineTypeName
+				}
 				if ctx.anonymousTypes[inlineTypeName] {
 					goType = inlineTypeName
 				} else {
 					// If not found, try with the parent name as-is (for nested types)
 					altInlineTypeName := parentElementName + "_" + toGoName(element.Name)
+					if prefix := ctx.currentNsPrefix(); prefix != "" {
+						altInlineTypeName = prefix + "_" + altInlineTypeName
+					}
 					if ctx.anonymousTypes[altInlineTypeName] {
 						goType = altInlineTypeName
 					} else {
-						// DEBUG: Print available types for debugging
+						// Fallback to RawXML for unresolvable inline types
 						goType = "RawXML"
 					}
 				}

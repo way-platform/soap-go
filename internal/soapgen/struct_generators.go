@@ -85,7 +85,7 @@ func generateInlineComplexTypeStruct(
 
 // generateStructFromElement generates a Go struct from an XSD element
 func generateStructFromElement(g *codegen.File, element *xsd.Element, ctx *SchemaContext, _ *TypeRegistry) {
-	structName := toGoName(element.Name)
+	structName := ctx.scopedGoTypeName(element.Name)
 	generateStandardStructWithName(g, element, ctx, structName)
 }
 
@@ -97,7 +97,7 @@ func generateStructFromElementWithWrapper(
 	_ *TypeRegistry,
 ) {
 	// Generate wrapper-style name
-	structName := toGoName(element.Name) + "Wrapper"
+	structName := ctx.scopedGoTypeName(element.Name) + "Wrapper"
 	generateStandardStructWithName(g, element, ctx, structName)
 }
 
@@ -255,7 +255,7 @@ func generateStandardStructWithName(g *codegen.File, element *xsd.Element, ctx *
 
 // generateStructFromComplexType generates a Go struct from a named complex type
 func generateStructFromComplexType(g *codegen.File, complexType *xsd.ComplexType, ctx *SchemaContext) {
-	structName := toGoName(complexType.Name)
+	structName := ctx.scopedGoTypeName(complexType.Name)
 
 	// Add comment
 	g.P("// ", structName, " represents the ", complexType.Name, " complex type")

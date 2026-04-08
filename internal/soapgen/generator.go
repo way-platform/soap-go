@@ -10,15 +10,17 @@ import (
 
 // Config holds configuration for code generation
 type Config struct {
-	PackageName    string
-	GenerateClient bool // Whether to generate SOAP client code
+	PackageName       string
+	GenerateClient    bool              // Whether to generate SOAP client code
+	NamespacePrefixes map[string]string  // Namespace URI → short prefix for type names
 }
 
 // Generator generates Go code from WSDL definitions
 type Generator struct {
-	definitions *wsdl.Definitions
-	config      Config
-	files       []*codegen.File
+	definitions   *wsdl.Definitions
+	config        Config
+	files         []*codegen.File
+	rawXMLEmitted bool // tracks whether RawXML type has been emitted
 }
 
 // NewGenerator creates a new Generator with the given WSDL definitions and config
@@ -28,6 +30,29 @@ func NewGenerator(definitions *wsdl.Definitions, config Config) *Generator {
 		config:      config,
 		files:       make([]*codegen.File, 0),
 	}
+}
+
+// namespaceScopingEnabled returns true if namespace-scoped type naming is active.
+func (g *Generator) namespaceScopingEnabled() bool {
+	return len(g.config.NamespacePrefixes) > 0
+}
+
+// nsPrefix returns the short prefix for a namespace URI, or "" if not configured.
+func (g *Generator) nsPrefix(namespaceURI string) string {
+	return g.config.NamespacePrefixes[namespaceURI]
+}
+
+// nsPrefixedName returns a namespace-scoped Go type name (e.g., "CBE_FlexAttr").
+// If namespace scoping is not enabled or the namespace has no prefix, returns the plain name.
+func (g *Generator) nsPrefixedName(namespaceURI, goName string) string {
+	if !g.namespaceScopingEnabled() {
+		return goName
+	}
+	prefix := g.nsPrefix(namespaceURI)
+	if prefix == "" {
+		return goName
+	}
+	return prefix + "_" + goName
 }
 
 // Generate generates Go code files from the WSDL definitions
@@ -88,11 +113,12 @@ func (g *Generator) generateTypesFile(schema *xsd.Schema, packageName, filename 
 	file.P("package ", packageName)
 	file.P()
 
-	// Generate RawXML type definition if needed
-	if needsRawXML(schema) {
+	// Generate RawXML type definition if needed (only once per package)
+	if needsRawXML(schema) && !g.rawXMLEmitted {
 		file.P("// RawXML captures raw XML content for untyped elements.")
 		file.P("type RawXML []byte")
 		file.P()
+		g.rawXMLEmitted = true
 	}
 
 	// Separate data types from message wrapper types

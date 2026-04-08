@@ -28,14 +28,14 @@ func generateSimpleTypeConstants(g *codegen.File, ctx *SchemaContext) {
 	for _, name := range names {
 		simpleType := ctx.simpleTypes[name]
 		if simpleType.Restriction != nil && len(simpleType.Restriction.Enumerations) > 0 {
-			generateEnumType(g, simpleType)
+			generateEnumType(g, simpleType, ctx)
 		}
 	}
 }
 
 // generateEnumType generates a Go enum type from an XSD simple type with enumerations
-func generateEnumType(g *codegen.File, simpleType *xsd.SimpleType) {
-	typeName := toGoName(simpleType.Name)
+func generateEnumType(g *codegen.File, simpleType *xsd.SimpleType, ctx *SchemaContext) {
+	typeName := ctx.scopedGoTypeName(simpleType.Name)
 
 	// Generate the enum type definition
 	g.P("// ", typeName, " represents an enumeration type")
