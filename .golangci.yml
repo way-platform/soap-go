@@ -14,6 +14,7 @@ formatters:
 linters:
   enable:
     - gomodguard
+    - gosec
     - paralleltest
   settings:
     gomodguard:
@@ -21,6 +22,28 @@ linters:
         modules:
           - github.com/stretchr/testify:
               reason: use the Go standard library and github.com/google/go-cmp
+    gosec:
+      excludes:
+        # Pre-existing proto/binary integer conversions; values are API-bounded.
+        - G115
     paralleltest:
       ignore-missing: false
       ignore-missing-subtests: true
+
+  exclusions:
+    rules:
+      # Test files: hardcoded test tokens/URLs and test file I/O are not vulnerabilities.
+      - path: "_test\\.go"
+        linters:
+          - gosec
+        text: "G101|G304|G306"
+      # ParseFromFile intentionally reads a user-supplied WSDL path.
+      - path: "wsdl/definitions\\.go"
+        linters:
+          - gosec
+        text: "G304"
+      # CLI tool: file I/O and directory creation with standard permissions are intentional.
+      - path: "cmd/soap/"
+        linters:
+          - gosec
+        text: "G301|G306|G703"
