@@ -1,0 +1,63 @@
+# soap-go mise configuration
+#
+# Usage examples:
+#   mise install                # Install all tools
+#   mise run build              # Full CI build
+#   mise run lint               # Run linter
+#   mise run test               # Run tests
+
+[tools]
+go = "1.26.1"
+golangci-lint = "2.11.3"
+
+[tasks.build]
+description = "run full CI build"
+run = "mise run download && mise run lint && mise run generate && mise run test && mise run tidy && mise run diff"
+
+[tasks.download]
+description = "download Go dependencies"
+run = """
+for dir in $(find . -name go.mod -not -path ./tools/go.mod -exec dirname {} \\;); do
+  echo "downloading $dir"
+  (cd "$dir" && go mod download)
+done
+"""
+
+[tasks.lint]
+description = "lint Go code"
+run = """
+while IFS= read -r dir; do
+  echo "linting $dir"
+  (cd "$dir" && GOWORK=off golangci-lint run --fix --path-prefix "$dir")
+done < <(find . -name go.mod -not -path ./tools/go.mod -exec dirname {} \\;)
+"""
+
+[tasks.generate]
+description = "run code generators"
+run = """
+for dir in $(find . -name go.mod -not -path ./tools/go.mod -exec dirname {} \\;); do
+  echo "generating $dir"
+  (cd "$dir" && go generate -v ./...)
+done
+"""
+
+[tasks.test]
+description = "run Go tests"
+run = "go test -cover -tags=synctest ./..."
+
+[tasks.tidy]
+description = "tidy Go mod files"
+run = """
+for dir in $(find . -name go.mod -not -path ./tools/go.mod -exec dirname {} \\;); do
+  echo "tidying $dir"
+  (cd "$dir" && go mod tidy -v)
+done
+"""
+
+[tasks.diff]
+description = "check for git diffs"
+run = """
+if git rev-parse --is-inside-work-tree &>/dev/null && ! jj root &>/dev/null; then
+  git diff --exit-code
+fi
+"""
