@@ -54,19 +54,32 @@ func mapXSDTypeToGoWithContext(xsdType string, ctx *SchemaContext) string {
 		if simpleType.Restriction != nil && simpleType.Restriction.Base != "" {
 			// If it has enumerations, keep it as a custom type (enum)
 			if len(simpleType.Restriction.Enumerations) > 0 {
-				return toGoName(extractLocalName(xsdType))
+				return ctx.resolveNsScopedGoName(xsdType)
 			}
 			// Otherwise, resolve to the base type (for simple restrictions)
 			return mapXSDTypeToGoWithContext(simpleType.Restriction.Base, ctx)
 		}
 		// If no restriction, treat as the simple type name
-		return toGoName(extractLocalName(xsdType))
+		return ctx.resolveNsScopedGoName(xsdType)
 	}
 
 	// Then try to resolve as a complex type in the schema
 	if complexType := ctx.resolveComplexType(xsdType); complexType != nil {
 		// For named complex types, generate a Go type name
-		return toGoName(extractLocalName(xsdType))
+		return ctx.resolveNsScopedGoName(xsdType)
+	}
+
+	// When namespace scoping is enabled, any prefixed type reference that wasn't
+	// found in the current schema is a cross-namespace reference.
+	// Skip XSD namespace prefixes (xs:string, xs:int, etc.)
+	if ctx.generator != nil && ctx.generator.namespaceScopingEnabled() {
+		if colonIdx := strings.LastIndex(xsdType, ":"); colonIdx != -1 {
+			prefix := xsdType[:colonIdx]
+			nsMap := ctx.schema.NamespacePrefixMap()
+			if nsURI := nsMap[prefix]; nsURI != "" && nsURI != "http://www.w3.org/2001/XMLSchema" {
+				return ctx.resolveNsScopedGoName(xsdType)
+			}
+		}
 	}
 
 	// Check if this is a custom type (contains namespace prefix or ends with "Type")

@@ -1,6 +1,7 @@
 package gen
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -23,12 +24,14 @@ func NewCommand() *cobra.Command {
 	_ = cmd.MarkFlagRequired("dir")
 	packageName := cmd.Flags().StringP("package", "p", "", "Go package name (required)")
 	generateClient := cmd.Flags().Bool("client", false, "generate SOAP client code")
+	nsPrefixesFile := cmd.Flags().String("namespace-prefixes", "", "JSON file mapping namespace URIs to short prefixes for type names")
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		return run(config{
 			inputFile:      *inputFile,
 			outputDir:      *outputDir,
 			packageName:    *packageName,
 			generateClient: *generateClient,
+			nsPrefixesFile: *nsPrefixesFile,
 		})
 	}
 	return cmd
@@ -39,12 +42,26 @@ type config struct {
 	outputDir      string
 	packageName    string
 	generateClient bool
+	nsPrefixesFile string
 }
 
 func run(cfg config) error {
 	if cfg.packageName == "" {
 		cfg.packageName = filepath.Base(cfg.outputDir)
 	}
+
+	// Load namespace prefixes if provided
+	var nsPrefixes map[string]string
+	if cfg.nsPrefixesFile != "" {
+		data, err := os.ReadFile(cfg.nsPrefixesFile)
+		if err != nil {
+			return fmt.Errorf("failed to read namespace prefixes file: %w", err)
+		}
+		if err := json.Unmarshal(data, &nsPrefixes); err != nil {
+			return fmt.Errorf("failed to parse namespace prefixes file: %w", err)
+		}
+	}
+
 	// Parse the WSDL file
 	defs, err := wsdl.ParseFromFile(cfg.inputFile)
 	if err != nil {
@@ -58,8 +75,9 @@ func run(cfg config) error {
 
 	// Create generator with configuration
 	generator := soapgen.NewGenerator(defs, soapgen.Config{
-		PackageName:    cfg.packageName,
-		GenerateClient: cfg.generateClient,
+		PackageName:       cfg.packageName,
+		GenerateClient:    cfg.generateClient,
+		NamespacePrefixes: nsPrefixes,
 	})
 
 	// Generate the code
