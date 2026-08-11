@@ -4,8 +4,8 @@ import (
 	"encoding/xml"
 )
 
-// Container represents the Container element
-type Container struct {
+// ContainerWrapper represents the Container element
+type ContainerWrapper struct {
 	XMLName  xml.Name `xml:"Container"`
 	Required string   `xml:"required"`
 	Optional *string  `xml:"optional,omitempty"`

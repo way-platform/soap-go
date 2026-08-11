@@ -202,6 +202,12 @@ func (ctx *SchemaContext) resolveElementRef(ref string) *xsd.Element {
 	return ctx.elementRefs[ref]
 }
 
+// resolveElementGoType returns the Go type name for an element.
+// All elements get a Wrapper suffix to avoid collisions with types.
+func (ctx *SchemaContext) resolveElementGoType(elementName string) string {
+	return toGoName(elementName) + "Wrapper"
+}
+
 func (ctx *SchemaContext) resolveSimpleType(typeName string) *xsd.SimpleType {
 	// Handle namespace prefixes (tp:sessionidType -> sessionidType)
 	if colonIdx := strings.LastIndex(typeName, ":"); colonIdx != -1 {

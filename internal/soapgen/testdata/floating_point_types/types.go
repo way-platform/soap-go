@@ -26,26 +26,26 @@ type FloatingPointContainer struct {
 	OptionalDecimalValue *string  `xml:"OptionalDecimalValue,omitempty"`
 }
 
-// FloatElement represents the FloatElement element
-type FloatElement struct {
+// FloatElementWrapper represents the FloatElement element
+type FloatElementWrapper struct {
 	XMLName xml.Name `xml:"FloatElement"`
 	Value   float64  `xml:",chardata"`
 }
 
-// DoubleElement represents the DoubleElement element
-type DoubleElement struct {
+// DoubleElementWrapper represents the DoubleElement element
+type DoubleElementWrapper struct {
 	XMLName xml.Name `xml:"DoubleElement"`
 	Value   float64  `xml:",chardata"`
 }
 
-// DecimalElement represents the DecimalElement element
-type DecimalElement struct {
+// DecimalElementWrapper represents the DecimalElement element
+type DecimalElementWrapper struct {
 	XMLName xml.Name `xml:"DecimalElement"`
 	Value   string   `xml:",chardata"`
 }
 
-// FloatingPointContainer represents the FloatingPointContainer element
-type FloatingPointContainer struct {
+// FloatingPointContainerWrapper represents the FloatingPointContainer element
+type FloatingPointContainerWrapper struct {
 	XMLName              xml.Name `xml:"FloatingPointContainer"`
 	FloatValue           float64  `xml:"FloatValue"`
 	DoubleValue          float64  `xml:"DoubleValue"`
@@ -55,8 +55,8 @@ type FloatingPointContainer struct {
 	OptionalDecimalValue *string  `xml:"OptionalDecimalValue,omitempty"`
 }
 
-// FloatingPointAttributes represents the FloatingPointAttributes element
-type FloatingPointAttributes struct {
+// FloatingPointAttributesWrapper represents the FloatingPointAttributes element
+type FloatingPointAttributesWrapper struct {
 	XMLName             xml.Name `xml:"FloatingPointAttributes"`
 	FloatAttr           *float64 `xml:"floatAttr,attr,omitempty"`
 	DoubleAttr          *float64 `xml:"doubleAttr,attr,omitempty"`

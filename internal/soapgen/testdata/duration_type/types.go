@@ -4,8 +4,8 @@ import (
 	"encoding/xml"
 )
 
-// WithDuration represents the WithDuration element
-type WithDuration struct {
+// WithDurationWrapper represents the WithDuration element
+type WithDurationWrapper struct {
 	XMLName  xml.Name `xml:"WithDuration"`
 	Required string   `xml:"required"`
 	Optional *string  `xml:"optional,omitempty"`

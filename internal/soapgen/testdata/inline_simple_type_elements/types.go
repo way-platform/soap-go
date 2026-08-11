@@ -34,35 +34,35 @@ func (e EnabledStatus_EnabledStatus) IsValid() bool {
 
 // ConfigurationType represents the ConfigurationType complex type
 type ConfigurationType struct {
-	Name          string        `xml:"name"`
-	EnabledStatus EnabledStatus `xml:"EnabledStatus"`
-	Priority      Priority      `xml:"Priority"`
-	ProductCode   *ProductCode  `xml:"ProductCode,omitempty"`
+	Name          string               `xml:"name"`
+	EnabledStatus EnabledStatusWrapper `xml:"EnabledStatus"`
+	Priority      PriorityWrapper      `xml:"Priority"`
+	ProductCode   *ProductCodeWrapper  `xml:"ProductCode,omitempty"`
 }
 
-// EnabledStatus represents the EnabledStatus element
-type EnabledStatus struct {
+// EnabledStatusWrapper represents the EnabledStatus element
+type EnabledStatusWrapper struct {
 	XMLName xml.Name                    `xml:"EnabledStatus"`
 	Value   EnabledStatus_EnabledStatus `xml:",chardata"`
 }
 
-// Priority represents the Priority element
-type Priority struct {
+// PriorityWrapper represents the Priority element
+type PriorityWrapper struct {
 	XMLName xml.Name `xml:"Priority"`
 	Value   int32    `xml:",chardata"`
 }
 
-// ProductCode represents the ProductCode element
-type ProductCode struct {
+// ProductCodeWrapper represents the ProductCode element
+type ProductCodeWrapper struct {
 	XMLName xml.Name `xml:"ProductCode"`
 	Value   string   `xml:",chardata"`
 }
 
-// Configuration represents the Configuration element
-type Configuration struct {
-	XMLName       xml.Name      `xml:"Configuration"`
-	Name          string        `xml:"name"`
-	EnabledStatus EnabledStatus `xml:"EnabledStatus"`
-	Priority      Priority      `xml:"Priority"`
-	ProductCode   *ProductCode  `xml:"ProductCode,omitempty"`
+// ConfigurationWrapper represents the Configuration element
+type ConfigurationWrapper struct {
+	XMLName       xml.Name             `xml:"Configuration"`
+	Name          string               `xml:"name"`
+	EnabledStatus EnabledStatusWrapper `xml:"EnabledStatus"`
+	Priority      PriorityWrapper      `xml:"Priority"`
+	ProductCode   *ProductCodeWrapper  `xml:"ProductCode,omitempty"`
 }

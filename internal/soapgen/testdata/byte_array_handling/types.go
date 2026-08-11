@@ -19,8 +19,8 @@ type DataContainer_MultipleInlineData struct {
 
 // Inline complex types
 
-// DataContainer represents the DataContainer element
-type DataContainer struct {
+// DataContainerWrapper represents the DataContainer element
+type DataContainerWrapper struct {
 	XMLName              xml.Name                           `xml:"DataContainer"`
 	SingleData           string                             `xml:"singleData"`
 	MultipleData         []string                           `xml:"multipleData"`

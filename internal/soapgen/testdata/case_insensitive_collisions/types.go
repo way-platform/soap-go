@@ -39,8 +39,8 @@ type GetFleetResponseWrapper struct {
 	Status       string   `xml:"status"`
 }
 
-// DataRecord represents the DataRecord element
-type DataRecord struct {
+// DataRecordWrapper represents the DataRecord element
+type DataRecordWrapper struct {
 	XMLName   xml.Name  `xml:"DataRecord"`
 	Id        string    `xml:"id"`
 	Timestamp time.Time `xml:"timestamp"`

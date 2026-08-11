@@ -24,8 +24,8 @@ type ResponseType struct {
 	Total *int32               `xml:"total,attr,omitempty"`
 }
 
-// Response represents the Response element
-type Response struct {
+// ResponseWrapper represents the Response element
+type ResponseWrapper struct {
 	XMLName xml.Name             `xml:"Response"`
 	Items   []ResponseType_Items `xml:"Items,omitempty"`
 	Total   *int32               `xml:"total,attr,omitempty"`
@@ -39,6 +39,6 @@ type GetItemsWrapper struct {
 
 // GetItemsResponseWrapper represents the getItemsResponse element
 type GetItemsResponseWrapper struct {
-	XMLName  xml.Name `xml:"http://example.com/test getItemsResponse"`
-	Response Response `xml:"Response"`
+	XMLName  xml.Name        `xml:"http://example.com/test getItemsResponse"`
+	Response ResponseWrapper `xml:"Response"`
 }

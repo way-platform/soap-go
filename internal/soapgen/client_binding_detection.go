@@ -88,20 +88,10 @@ func (g *Generator) isOperationMessageElement(xmlElementName string) bool {
 	return false
 }
 
-// shouldUseWrapperForElement determines if a specific element should use wrapper naming
-// based on binding style and whether it's used in SOAP operations
-func (g *Generator) shouldUseWrapperForElement(elementName string, bindingStyle BindingStyle) bool {
-	// Classification-based approach: Use wrapper naming for operation elements in appropriate binding styles
-	if bindingStyle.Style == "rpc" {
-		// RPC style: ALL operation elements use wrappers
-		return g.isOperationMessageElement(elementName)
-	}
-
-	if bindingStyle.Style == "document" && bindingStyle.Use == "literal" {
-		// Document/Literal: Use wrapper naming for ALL operation elements for consistency
-		return g.isOperationMessageElement(elementName)
-	}
-
-	// Other binding styles: no wrapper naming
-	return false
+// shouldUseWrapperForElement returns true for all elements.
+// In XSD, elements and types occupy separate symbol spaces. In Go, they don't.
+// To avoid any possibility of collision, all element-derived structs get a
+// Wrapper suffix, while type-derived structs keep their plain name.
+func (g *Generator) shouldUseWrapperForElement(_ string, _ BindingStyle) bool {
+	return true
 }
