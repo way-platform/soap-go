@@ -12,11 +12,11 @@ type RawXML []byte
 type ResponseType_Data struct {
 	Id       string                    `xml:"id"`
 	Value    string                    `xml:"value"`
-	Metadata ResponsetypeData_Metadata `xml:"metadata"`
+	Metadata ResponseTypeData_Metadata `xml:"metadata"`
 }
 
-// ResponsetypeData_Metadata represents an inline complex type
-type ResponsetypeData_Metadata struct {
+// ResponseTypeData_Metadata represents an inline complex type
+type ResponseTypeData_Metadata struct {
 	Timestamp time.Time `xml:"timestamp"`
 	Source    string    `xml:"source"`
 }
